@@ -16,11 +16,11 @@ return new class extends Migration
             //$table->foreignId('boss')->constrained('user');
             $table->string('first_name');
             $table->string('last_name');
-            $table->string('username')->unique();
+            $table->string('username')->unique()->nullable();
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->string('id_image');
+            $table->string('id_image')->nullable();
             $table->enum('role', ['super_admin', 'warehouse_admin', 'worker']);
             $table->rememberToken();
             $table->timestamps();

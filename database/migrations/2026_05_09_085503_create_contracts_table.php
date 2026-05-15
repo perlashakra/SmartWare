@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('contracts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
-            $table->foreignId('warehouse_id')->constrained('warehouse')->cascadeOnDelete();
+            $table->foreignId('warehouse_id')->constrained('warehouses')->cascadeOnDelete();
             $table->enum('type', ['rental', 'ownership', 'work']);
             $table->date('start_date');
             $table->date('expiration_date');
