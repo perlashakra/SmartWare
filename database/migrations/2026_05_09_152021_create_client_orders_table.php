@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('client_orders', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('client_id')->constrained('clients')->cascadeOnDelete();
+            $table->foreignId('client_id')->constrained('users')->cascadeOnDelete();
             //$table->date('date_of_order'); there is already the timestamps so do we need this?
             $table->float('expected_price');
             $table->float('completion'); //percentage: 10%, 50%.....
