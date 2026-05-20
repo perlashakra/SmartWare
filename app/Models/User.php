@@ -19,10 +19,19 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'first_name',
+        'last_name',
+        'username',
+        'birthday',
+        'manager_id',
+        'warehouse_id',
         'email',
         'password',
         'id_image',
+        'personal_image',
+        'role',
+        'status',
+        'language_preference',
     ];
 
     /**
@@ -51,5 +60,26 @@ class User extends Authenticatable
     public function contract()
     {
         return $this->hasOne(Contract::class);
+    }
+    //Employee relationships:
+    public function manager()
+    {
+        return $this->belongsTo(User::class, 'manager_id');
+    }
+
+    public function warehouse()
+    {
+        return $this->belongsTo(Warehouse::class);
+    }
+
+    //Manager relationships:
+    public function workers()
+    {
+        return $this->hasMany(User::class, 'manager_id');
+    }
+
+    public function managedWarehouses()
+    {
+        return $this->hasMany(Warehouse::class, 'admin_id');
     }
 }

@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class Contract extends Model
 {
     protected $fillable = [
+        'user_id',
+        'warehouse_id',
         'type',
         'start_date',
         'expiration_date',
@@ -16,7 +18,7 @@ class Contract extends Model
     {
         return $this->belongsTo(User::class);
     }
-    public function warehouses()
+    public function warehouse()
     {
         return $this->belongsTo(Warehouse::class);
     }

@@ -13,15 +13,20 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            //$table->foreignId('boss')->constrained('user');
+            $table->foreignId('manager_id')->nullable()->constrained('users')->nullOnDelete();
+            //$table->foreignId('warehouse_id')->nullable()->constrained('warehouses')->nullOnDelete();
             $table->string('first_name');
             $table->string('last_name');
+            $table->date('birthday');
             $table->string('username')->unique()->nullable();
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('id_image')->nullable();
-            $table->enum('role', ['super_admin', 'warehouse_admin', 'worker']);
+            $table->string('personal_image')->nullable();
+            $table->enum('role', ['super_admin', 'warehouse_admin', 'worker', 'client']);
+            $table->enum('status', ['pending', 'approved', 'deleted'])->default('pending');
+            $table->string('language_preference')->default('en');
             $table->rememberToken();
             $table->timestamps();
         });
