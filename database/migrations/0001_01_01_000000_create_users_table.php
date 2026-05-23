@@ -14,18 +14,20 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->foreignId('manager_id')->nullable()->constrained('users')->nullOnDelete();
-            //$table->foreignId('warehouse_id')->nullable()->constrained('warehouses')->nullOnDelete();
             $table->string('first_name');
             $table->string('last_name');
             $table->date('birthday');
-            $table->string('username')->unique()->nullable();
             $table->string('email')->unique();
+            $table->string('phone_number')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('id_image')->nullable();
             $table->string('personal_image')->nullable();
             $table->enum('role', ['super_admin', 'warehouse_admin', 'worker', 'client']);
-            $table->enum('status', ['pending', 'approved', 'deleted'])->default('pending');
+            $table->enum('account_status', ['pending', 'approved', 'deleted'])->default('pending');
+            $table->enum('identity_status', ['pending', 'submitted', 'approved', 'rejected'])->default('pending');
+            $table->enum('facility_status', ['pending', 'submitted', 'approved', 'rejected'])->default('pending');
+            $table->boolean('completed')->default(false);
             $table->string('language_preference')->default('en');
             $table->rememberToken();
             $table->timestamps();
