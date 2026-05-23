@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->foreignId('warehouse_id')->nullable()->constrained('warehouses')->nullOnDelete();
-            $table->timestamps();
         });
     }
 
@@ -22,6 +21,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('relatinships');
+        Schema::dropIfExists('relationships');
     }
 };
