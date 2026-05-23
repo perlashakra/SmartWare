@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
@@ -21,7 +21,6 @@ class User extends Authenticatable
     protected $fillable = [
         'first_name',
         'last_name',
-        'username',
         'birthday',
         'manager_id',
         'warehouse_id',
@@ -73,6 +72,12 @@ class User extends Authenticatable
     }
 
     //Manager relationships:
+
+    public function announcedEmployees()
+    {
+        return $this->hasMany(EmployeeAnnouncement::class);
+    }
+
     public function workers()
     {
         return $this->hasMany(User::class, 'manager_id');
@@ -81,5 +86,11 @@ class User extends Authenticatable
     public function managedWarehouses()
     {
         return $this->hasMany(Warehouse::class, 'admin_id');
+    }
+
+    //Profile 1 to 1 relationship
+    public function profile()
+    {
+        return $this->hasOne(Profile::class);
     }
 }

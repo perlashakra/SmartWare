@@ -21,6 +21,11 @@ class Warehouse extends Model
         return $this->belongsTo(User::class, 'admin_id');
     }
 
+    public function employeeAnnouncements()
+    {
+        return $this->hasMany(EmployeeAnnouncement::class);
+    }
+
     public function workers()
     {
         return $this->hasMany(User::class);
