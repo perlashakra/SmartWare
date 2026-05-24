@@ -26,6 +26,7 @@ return new class extends Migration
             $table->enum('role', ['super_admin', 'warehouse_admin', 'worker', 'client']);
             $table->enum('account_status', ['pending', 'approved', 'deleted'])->default('pending');
             $table->enum('identity_status', ['pending', 'submitted', 'approved', 'rejected'])->default('pending');
+            $table->boolean('preferences_submitted')->default(false);
             $table->enum('facility_status', ['pending', 'submitted', 'approved', 'rejected'])->default('pending');
             $table->boolean('completed')->default(false);
             $table->string('language_preference')->default('en');

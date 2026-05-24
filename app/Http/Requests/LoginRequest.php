@@ -24,13 +24,17 @@ class LoginRequest extends FormRequest
     {
         return [
             'email' => 'required|email',
-            'password' => 'required|string|min:8'
+            'password' => 'required|string'
         ];
     }
     public function messages(): array
     {
         return [
+            'email.required' => __('validation.email_required'),
+            'email.email' => __('validation.email_email'),
 
+            'password.required' => __('validation.password_required'),
+            'password.string' => __('validation.password_string'),
         ];
     }
 }
