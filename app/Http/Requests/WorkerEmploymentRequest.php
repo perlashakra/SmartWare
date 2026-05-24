@@ -12,7 +12,7 @@ class WorkerEmploymentRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -23,7 +23,15 @@ class WorkerEmploymentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'warehouse_id' => 'required|exists:warehouses,id',
+
+            'contract_scan' => 'required|file|mimes:pdf,jpeg,jpg,png|max:4096',
+        ];
+    }
+    public function messages(): array
+    {
+        return [
+
         ];
     }
 }

@@ -11,6 +11,7 @@ class EmployeeAnnouncement extends Model
         'manager_id',
         'first_name',
         'last_name',
+        'national_id',
     ];
     public function warehouse()
     {

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->ForeignId('manager_id')->constrained('users')->cascadeOnDelete();
             $table->string('first_name');
             $table->string('last_name');
+            $table->string('national_id')->unique();
             $table->boolean('claimed')->default(false);
             $table->timestamps();
         });
