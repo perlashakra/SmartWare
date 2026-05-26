@@ -9,6 +9,7 @@ use App\Models\EmployeeAnnouncement;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
@@ -18,13 +19,14 @@ class AuthController extends Controller
     {
         $validatedData = $request->validated();
         $preferredLanguage =
-            $validatedData['language_preference']
-            ?? $request->getPreferredLanguage(['en', 'ar'])
+            $request->getPreferredLanguage(['en', 'ar'])
             ?? 'en';
         $validatedData['language_preference'] = $preferredLanguage;
         $validatedData['password'] = Hash::make($validatedData['password']);
 
         $user = User::create($validatedData);
+
+        $user->sendEmailVerificationNotification();
 
         event(new Registered($user));
 
@@ -37,13 +39,6 @@ class AuthController extends Controller
     public function registerWorker(RegisterWorkerRequest $request)
     {
         $validatedData = $request->validated();
-
-        $preferredLanguage =
-            $validatedData['language_preference']
-            ?? $request->getPreferredLanguage(['en', 'ar'])
-            ?? 'en';
-
-        $validatedData['language_preference'] = $preferredLanguage;
 
         $announcement = EmployeeAnnouncement::where(
             'national_id',
@@ -93,24 +88,35 @@ class AuthController extends Controller
     }
     public function login(LoginRequest $request)
     {
-        $user = User::where(
-            'email',
-            $request->email
-        )->first();
+        $user = User::where('email', $request->login)
+            ->orWhere('phone_number', $request->login)
+            ->first();
 
-        if (!$user) {
+        if (!$user)
+        {
             return response()->json([
-                'message' =>
-                    __('auth.user_not_found')
+                'message' => __('auth.user_not_found')
             ], 404);
         }
 
-        if (!Auth::attempt(
-            $request->only(
-                'email',
-                'password'
-            )
-        )) {
+        $language = $user->language_preference;
+        App::setLocale($language);
+
+        $credentials = filter_var(
+            $request->login,
+            FILTER_VALIDATE_EMAIL
+        )
+            ? [
+                'email' => $request->login,
+                'password' => $request->password
+            ]
+            : [
+                'phone_number' => $request->login,
+                'password' => $request->password
+            ];
+
+        if (!Auth::attempt($credentials))
+        {
             return response()->json([
                 'message' =>
                     __('auth.username_password_mismatch')
@@ -119,14 +125,18 @@ class AuthController extends Controller
 
         $user = Auth::user();
 
-        // Only rejected users are blocked
-        if (
-            $user->identity_status === 'rejected'
-            ||
-            $user->facility_status === 'rejected'
-            ||
-            $user->account_status === 'deleted'
-        ) {
+        //Email not verified
+        if (!$user->hasVerifiedEmail()) {
+            Auth::logout();
+
+            return response()->json([
+                'message' => __('auth.email_not_verified')
+            ], 403);
+        }
+
+        // User has been rejected
+        if ($user->account_status === 'deleted')
+        {
             Auth::logout();
 
             return response()->json([
@@ -147,6 +157,8 @@ class AuthController extends Controller
                 __('auth.login_success'),
 
             'user' => $user,
+
+            'role' => $user->role,
 
             'token' => $token,
         ], 200);
