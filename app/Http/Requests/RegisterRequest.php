@@ -23,16 +23,13 @@ class RegisterRequest extends FormRequest
      */
     public function rules(): array
     {
-        $acceptableDate = Carbon::today()->subYears(18)->format('Y-m-d');
         $rules = [
             'first_name' => 'required|string|max:25',
             'last_name' => 'required|string|max:25',
-            'birthday' => 'required|date|before_or_equal:' . $acceptableDate,
             'email' => 'required|string|email|max:255|unique:users,email',
             'phone_number' => 'required|digits:10|unique:users,phone_number',
             'password' => 'required|string|min:10',
             'role' => 'required|string|in:warehouse_admin,worker,client',
-            'language_preference' => 'nullable|string|in:en,ar',
         ];
         return $rules;
     }
@@ -46,9 +43,6 @@ class RegisterRequest extends FormRequest
             'last_name.required' => __('validation.last_name_required'),
             'last_name.string' => __('validation.last_name_string'),
             'last_name.max' => __('validation.last_name_max'),
-            'birthday.required' => __('validation.birthday_required'),
-            'birthday.date' => __('validation.birthday_date'),
-            'birthday.before_or_equal' => __('validation.birthday_before'),
             'email.required' => __('validation.email_required'),
             'email.string' => __('validation.email_string'),
             'email.email' => __('validation.email_email'),

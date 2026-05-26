@@ -28,7 +28,10 @@ return [
 
     //Email verification messages:
     'email_verified' => 'Email verified successfully.',
+    'email_not_verified' => 'Email not verified.',
     'verification_sent' => 'Verification email sent.',
+    'invalid_verification_link' => 'Invalid verification link.',
+    'expired_verification_link' => 'Verification link expired.',
 
     //User login messages:
     'user_not_found' => 'User not found.',

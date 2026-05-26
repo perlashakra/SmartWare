@@ -16,8 +16,8 @@ class SetLocale
         $locale = $request->query('lang');
 
         // 2. Request preference (register)
-        if (!$locale && $request->filled('lang_preference')) {
-            $locale = $request->lang_preference;
+        if (!$locale && $request->filled('language_preference')) {
+            $locale = $request->language_preference;
         }
 
         // 3. Accept-Language fallback
@@ -32,8 +32,8 @@ class SetLocale
 
         // 4. Authenticated user
         $user = Auth::user();
-        if (!$locale && $user && !empty($user->lang_preference)) {
-            $locale = $user->lang_preference;
+        if (!$locale && $user && !empty($user->language_preference)) {
+            $locale = $user->language_preference;
         }
 
         // 5. Default

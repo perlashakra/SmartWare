@@ -10,7 +10,10 @@ return [
 
     //Email verification messages:
     'email_verified' => 'تم التحقق من البريد الإلكتروني بنجاح.',
+    'email_not_verified' => 'لم يتم التحقق من البريد الإلكتروني.',
     'verification_sent' => 'تم إرسال رسالة التحقق.',
+    'invalid_verification_link' => 'رابط التحقق غير صالح.',
+    'expired_verification_link' => 'انتهت صلاحية رابط التحقق.',
 
     //User login messages:
     'user_not_found' => 'لم يتم العثور على المستخدم.',

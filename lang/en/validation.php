@@ -211,10 +211,6 @@ return [
     'national_string' => 'National ID must be a string.',
     'national_id_not_found' => 'National ID not found in our records.',
 
-    'birthday_required' => 'Birthday is required.',
-    'birthday_date' => 'Birthday must be a date.',
-    'birthday_before' => 'You must be 18 or older.',
-
     'email_required' => 'Email is required.',
     'email_string' => 'Email must be a string.',
     'email_email' => 'Email must be a valid address.',
@@ -234,5 +230,7 @@ return [
     'role_in' => 'Role must be either client or warehouse manager.',
     'role_in_worker' => 'Role must be warehouse worker.',
 
-    'language_preference_in' => 'Language preference must be a either English or Arabic.',
+    //Login validation messages:
+    'login_required' => 'You must provide an email or a phone number.',
+    'login_string' => 'Log-in must be a string.',
 ];
