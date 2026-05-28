@@ -11,7 +11,9 @@ return [
     //Email verification messages:
     'email_verified' => 'تم التحقق من البريد الإلكتروني بنجاح.',
     'email_not_verified' => 'لم يتم التحقق من البريد الإلكتروني.',
+    'email_already_verified' => 'تم التحقق من البريد الإلكتروني مسبقا.',
     'verification_sent' => 'تم إرسال رسالة التحقق.',
+    'verification_sent_again' => 'تم إرسال رسالة التحقق مجددا.',
     'invalid_verification_link' => 'رابط التحقق غير صالح.',
     'expired_verification_link' => 'انتهت صلاحية رابط التحقق.',
 
