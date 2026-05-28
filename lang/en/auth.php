@@ -29,7 +29,9 @@ return [
     //Email verification messages:
     'email_verified' => 'Email verified successfully.',
     'email_not_verified' => 'Email not verified.',
+    'email_already_verified' => 'Email is already verified.',
     'verification_sent' => 'Verification email sent.',
+    'verification_sent_again' => 'Verification email sent again.',
     'invalid_verification_link' => 'Invalid verification link.',
     'expired_verification_link' => 'Verification link expired.',
 
