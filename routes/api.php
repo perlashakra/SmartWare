@@ -92,7 +92,7 @@ Route::post('/email/verification-notification',
         ]);
     })->middleware(['auth:sanctum', 'locale']);
 
-Route::post('/register', [AuthController::class, 'register'])->middleware('locale');
+ Route::post('/register', [AuthController::class, 'register'])->middleware('locale');
 Route::post('/registerWorker', [AuthController::class, 'registerWorker'])->middleware('locale');
 
 Route::post('/login', [AuthController::class, 'login'])->middleware('locale');
