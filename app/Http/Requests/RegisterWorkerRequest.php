@@ -24,18 +24,13 @@ class RegisterWorkerRequest extends FormRequest
      */
     public function rules(): array
     {
-        $acceptableDate = Carbon::today()->subYears(18)->format('Y-m-d');
-
         return [
             'first_name' => 'required|string|max:25',
             'last_name' => 'required|string|max:25',
-            'national_id' => 'required|string|exists:employee_announcements,national_id',
-            'birthday' => 'required|date|before_or_equal:' . $acceptableDate,
+            'national_id' => 'required|digits:11|exists:employee_announcements,national_id',
             'email' => 'required|string|email|max:255|unique:users,email',
             'phone_number' => 'required|digits:10|unique:users,phone_number',
-            'password' => 'required|string|min:10|confirmed',
-            'role' => 'required|in:worker',
-            'language_preference' => 'nullable|string|in:en,ar',
+            'password' => 'required|string|min:10',
         ];
     }
 
