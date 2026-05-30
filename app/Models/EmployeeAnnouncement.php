@@ -12,6 +12,7 @@ class EmployeeAnnouncement extends Model
         'first_name',
         'last_name',
         'national_id',
+        'claimed',
     ];
     public function warehouse()
     {

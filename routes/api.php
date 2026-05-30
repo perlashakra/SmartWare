@@ -85,7 +85,7 @@ Route::post('/email/verification-notification',
     })->middleware(['auth:sanctum', 'locale']);
 
 Route::post('/register', [AuthController::class, 'register'])->middleware('locale');
-Route::post('/registerWorker', [AuthController::class, 'registerWorker'])->middleware('locale');
+Route::post('/register-worker', [AuthController::class, 'registerWorker'])->middleware('locale');
 
 //Email verification page routes
 Route::post('/email/change/{id}', [AuthController::class, 'changeEmail'])->middleware('locale');

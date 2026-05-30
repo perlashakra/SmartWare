@@ -74,6 +74,8 @@ class AuthController extends Controller
 
         $validatedData['warehouse_id'] = $announcement->warehouse_id;
 
+        $validatedData['role'] = 'worker';
+
         $user = User::create($validatedData);
 
         event(new Registered($user));
@@ -81,6 +83,8 @@ class AuthController extends Controller
         $announcement->update([
             'claimed' => true
         ]);
+
+        $announcement->save();
 
         return response()->json([
             'message' => __('auth.register_success'),
