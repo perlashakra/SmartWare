@@ -38,9 +38,7 @@ Route::get('/email/verify/{id}/{hash}', function (
         $user->markEmailAsVerified();
     }
 
-    return response()->json([
-        'message' => __('auth.email_verified')
-    ]);
+    return view('auth.verified-success');
 })->middleware(['signed'])->name('verification.verify');
 
 Route::post('/email/resend', function (Request $request)
