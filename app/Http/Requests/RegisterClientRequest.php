@@ -2,12 +2,10 @@
 
 namespace App\Http\Requests;
 
-use App\Models\EmployeeAnnouncement;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Carbon;
 
-class RegisterWorkerRequest extends FormRequest
+class RegisterClientRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,10 +25,11 @@ class RegisterWorkerRequest extends FormRequest
         return [
             'first_name' => 'required|string|max:25',
             'last_name' => 'required|string|max:25',
-            'national_id' => 'required|digits:11|exists:employee_announcements,national_id',
             'email' => 'required|string|email|max:255',
             'phone_number' => 'required|digits:10',
             'password' => 'required|string|min:10',
+            'role' => 'required|string|in:client',
+            'business_name' => 'required|string|max:25',
         ];
     }
 
@@ -59,8 +58,11 @@ class RegisterWorkerRequest extends FormRequest
             'password.min' => __('validation.password_min'),
             'password.confirmed' => __('validation.password_confirmed'),
             'role.required' => __('validation.role_required'),
-            'role.in' => __('validation.role_in_worker'),
+            'role.in' => __('validation.role_in_client'),
             'language_preference.in' => __('validation.language_preference_in'),
+            'business_name.required' => __('validation.business_name_required'),
+            'business_name.string' => __('validation.business_name_string'),
+            'business_name.max' => __('validation.business_name_max'),
         ];
     }
 }

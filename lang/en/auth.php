@@ -20,6 +20,9 @@ return [
 
     //User registration messages:
     'register_success' => 'You have successfully registered. You may proceed to insert additional information.',
+    'email_or_phone_already_registered' => 'The email or phone number you have provided have already been registered.',
+    'phone_number_already_registered' => 'Phone number already exists in our records.',
+    'verification_email_resent' => 'The email verification link has been resent to your email address.',
 
     //Worker registration messages:
     'employee_not_announced' => 'Your employer has not registered you as a worker yet.',

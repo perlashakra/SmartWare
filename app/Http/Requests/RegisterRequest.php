@@ -23,15 +23,14 @@ class RegisterRequest extends FormRequest
      */
     public function rules(): array
     {
-        $rules = [
+        return [
             'first_name' => 'required|string|max:25',
             'last_name' => 'required|string|max:25',
-            'email' => 'required|string|email|max:255|unique:users,email',
-            'phone_number' => 'required|digits:10|unique:users,phone_number',
+            'email' => 'required|string|email|max:255',
+            'phone_number' => 'required|digits:10',
             'password' => 'required|string|min:10',
-            'role' => 'required|string|in:warehouse_admin,worker,client',
+            'role' => 'required|string|in:warehouse_admin',
         ];
-        return $rules;
     }
 
     public function messages(): array
@@ -47,13 +46,10 @@ class RegisterRequest extends FormRequest
             'email.string' => __('validation.email_string'),
             'email.email' => __('validation.email_email'),
             'email.max' => __('validation.email_max'),
-            'email.unique' => __('validation.email_already_exists'),
             'phone_number.required' => __('validation.phone_number_required'),
             'phone_number.digits' => __('validation.phone_number_digits'),
-            'phone_number.unique' => __('validation.phone_number_already_exists'),
             'password.required' => __('validation.password_required'),
             'password.min' => __('validation.password_min'),
-            'password.confirmed' => __('validation.password_confirmed'),
             'role.required' => __('validation.role_required'),
             'role.string' => __('validation.role_string'),
             'role.in' => __('validation.role_in'),

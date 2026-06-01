@@ -2,6 +2,9 @@
 return [
     //User registration messages:
     'register_success' => 'لقد تم تسجيلك بنجاح. يمكنك الآن إضافة معلومات إضافية.',
+    'email_or_phone_already_registered' => 'تم تسجيل البريد الإلكتروني أو رقم الهاتف الذي قدمته مسبقاً.',
+    'phone_number_already_registered' => 'رقم الهاتف موجود في سجلاتنا مسبقا.',
+    'verification_email_resent' => 'تمت إعادة إرسال رابط التحقق عبر البريد الإلكتروني إلى عنوان بريدك الإلكتروني.',
 
     //Worker registration messages:
     'employee_not_announced' => 'لم يقم صاحب العمل بتسجيلك كعامل حتى الآن.',
