@@ -89,6 +89,12 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Warehouse::class, 'admin_id');
     }
 
+    //Client relationship with store
+    public function store()
+    {
+        return $this->hasOne(Store::class);
+    }
+
     //Profile 1 to 1 relationship
     public function profile()
     {
