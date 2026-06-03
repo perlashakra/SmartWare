@@ -45,19 +45,13 @@ Route::get('/email/verify/{id}/{hash}', function (
 
 Route::post('/email/resend', function (Request $request)
 {
-    $request->validate([
-        'email' => 'required|email'
-    ]);
+    $request->validate(['email' => 'required|email']);
 
-    $user = User::where(
-        'email',
-        $request->email
-    )->first();
+    $user = User::where('email', $request->email)->first();
 
     if (!$user) {
         return response()->json([
-            'message' =>
-                __('auth.user_not_found')
+            'message' => __('auth.user_not_found')
         ], 404);
     }
 
@@ -66,9 +60,7 @@ Route::post('/email/resend', function (Request $request)
     );
 
     if ($user->hasVerifiedEmail()) {
-        return response()->json([
-            'message' =>
-                __('auth.email_already_verified')
+        return response()->json(['message' => __('auth.email_already_verified')
         ], 400);
     }
 
@@ -76,9 +68,9 @@ Route::post('/email/resend', function (Request $request)
 
     return response()->json([
         'message' =>
-            __('auth.verification_sent')
+            __('auth.verification_sent_again')
     ]);
-})->middleware('locale');
+})->middleware(['throttle:2,1', 'locale']);;
 
 Route::post('/email/verification-notification',
     function (Request $request) {
@@ -94,6 +86,10 @@ Route::post('/email/verification-notification',
 
  Route::post('/register', [AuthController::class, 'register'])->middleware('locale');
 Route::post('/registerWorker', [AuthController::class, 'registerWorker'])->middleware('locale');
+
+//Email verification page routes
+Route::post('/email/change/{id}', [AuthController::class, 'changeEmail'])->middleware('locale');
+Route::post('/email/verified-login', [AuthController::class, 'verifiedLogin'])->middleware('locale');
 
 Route::post('/login', [AuthController::class, 'login'])->middleware('locale');
 

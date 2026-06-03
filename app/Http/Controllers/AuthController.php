@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ChangeEmailRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\RegisterWorkerRequest;
@@ -12,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class AuthController extends Controller
 {
@@ -26,12 +28,11 @@ class AuthController extends Controller
 
         $user = User::create($validatedData);
 
-        $user->sendEmailVerificationNotification();
-
         event(new Registered($user));
 
         return response()->json([
-            'Message' => __('auth.register_success'),
+            'message' => __('auth.register_success'),
+            'user' => $user,
             'verification_required' => true,
         ], 201);
     }
@@ -83,24 +84,93 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => __('auth.register_success'),
+            'user' => $user,
             'verification_required' => true,
         ], 201);
     }
-    public function login(LoginRequest $request)
-    {
-        $user = User::where('email', $request->login)
-            ->orWhere('phone_number', $request->login)
-            ->first();
 
-        if (!$user)
+    public function changeEmail(ChangeEmailRequest $request, $id)
+    {
+        $user = User::findOrFail($id);
+
+        if(!$user)
         {
-            return response()->json([
-                'message' => __('auth.user_not_found')
-            ], 404);
+            return response()->json(['Message' => __('auth.user_not_found')],404);
         }
 
-        $language = $user->language_preference;
-        App::setLocale($language);
+        $user->email = $request->email;
+
+        // reset verification state
+        $user->email_verified_at = null;
+
+        $user->save();
+
+        // Send new verification email
+        event(new Registered($user));
+
+        return response()->json([
+            'message' => __('auth.verification_sent'),
+            'email' => $user->email
+        ], 200);
+    }
+
+    public function verifiedLogin(LoginRequest $request)
+    {
+        try {
+            $user = User::where('email', $request->login)->first();
+            if($user)
+            {
+                app()->setLocale($user->lang_preference);
+                session(['locale' => $user->lang_preference]);
+            }
+            else
+                throw new NotFoundHttpException(__('auth.user_not_found'));
+        }catch (\Exception $exception){
+                return response()->json(['Message' => __('auth.user_not_found')], 404);
+        }
+
+        if (!$user->hasVerifiedEmail()) {
+            return response()->json([
+                'message' => __('auth.email_not_verified')
+            ], 403);
+        }
+
+        if (!Auth::attempt([
+            'email' => $request->login,
+            'password' => $request->password
+        ])) {
+            return response()->json([
+                'message' => __('auth.username_password_mismatch')
+            ], 401);
+        }
+
+        $user->tokens()->delete();
+
+        $token = $user->createToken('MyApp')->plainTextToken;
+
+        return response()->json([
+            'message' => __('auth.login_success'),
+            'token' => $token,
+            'user' => $user,
+            'role' => $user->role,
+        ]);
+    }
+    public function login(LoginRequest $request)
+    {
+        try {
+            $user = User::where('email', $request->login)
+            ->orWhere('phone_number', $request->login)
+            ->first();
+            if($user)
+            {
+                app()->setLocale($user->lang_preference);
+                session(['locale' => $user->lang_preference]);
+            }
+            else
+                throw new NotFoundHttpException(__('auth.user_not_found'));
+        }catch (\Exception $exception){
+                return response()->json(['Message' => __('auth.user_not_found')], 404);
+        }
 
         $credentials = filter_var(
             $request->login,
@@ -153,14 +223,11 @@ class AuthController extends Controller
             ->plainTextToken;
 
         return response()->json([
-            'message' =>
-                __('auth.login_success'),
-
+            'message' => __('auth.login_success'),
+            'token' => $token,
             'user' => $user,
-
             'role' => $user->role,
 
-            'token' => $token,
         ], 200);
     }
     public function logout(Request $request)
