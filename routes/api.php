@@ -38,9 +38,7 @@ Route::get('/email/verify/{id}/{hash}', function (
         $user->markEmailAsVerified();
     }
 
-    return response()->json([
-        'message' => __('auth.email_verified')
-    ]);
+    return view('auth.verified-success');
 })->middleware(['signed'])->name('verification.verify');
 
 Route::post('/email/resend', function (Request $request)
@@ -84,14 +82,16 @@ Route::post('/email/verification-notification',
         ]);
     })->middleware(['auth:sanctum', 'locale']);
 
- Route::post('/register', [AuthController::class, 'register'])->middleware('locale');
-Route::post('/registerWorker', [AuthController::class, 'registerWorker'])->middleware('locale');
+
+Route::post('/register-manager', [AuthController::class, 'registerManager']);
+Route::post('/register-client', [AuthController::class, 'registerClient']);
+Route::post('/register-worker', [AuthController::class, 'registerWorker']);
 
 //Email verification page routes
 Route::post('/email/change/{id}', [AuthController::class, 'changeEmail'])->middleware('locale');
-Route::post('/email/verified-login', [AuthController::class, 'verifiedLogin'])->middleware('locale');
+Route::post('/email/verified-login', [AuthController::class, 'verifiedLogin']);
 
-Route::post('/login', [AuthController::class, 'login'])->middleware('locale');
+Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware(['auth:sanctum', 'locale', 'verified'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);

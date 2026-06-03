@@ -215,11 +215,9 @@ return [
     'email_string' => 'Email must be a string.',
     'email_email' => 'Email must be a valid address.',
     'email_max' => 'Email must be less than :255 characters.',
-    'email_already_exists' => 'Email already exists in our records.',
 
     'phone_number_required' => 'Phone number is required.',
     'phone_number_digits' => 'Phone number must be 10 digits.',
-    'phone_number_already_exists' => 'Phone number already exists in our records.',
 
     'password_required' => 'Password is required.',
     'password_min' => 'Password must be at least 10 characters.',
@@ -227,8 +225,14 @@ return [
 
     'role_required' => 'Role is required.',
     'role_string' => 'Role must be a string.',
-    'role_in' => 'Role must be either client or warehouse manager.',
+    'role_in_manager' => 'Role must be warehouse manager.',
+    'role_in_client' => 'Role must be client.',
     'role_in_worker' => 'Role must be warehouse worker.',
+
+    //Client registration unique validation messages(about businesses):
+    'business_name_required' => 'Business name is required.',
+    'business_name_string' => 'Business name must be a string.',
+    'business_name_max' => 'Business name must be less than :25 characters.',
 
     //Login validation messages:
     'login_required' => 'You must provide an email or a phone number.',
