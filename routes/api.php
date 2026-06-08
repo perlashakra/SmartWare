@@ -27,10 +27,18 @@ Route::post('/email/verification-notification',[EmailVerificationController::cla
 Route::post('/email/change/{id}', [AuthController::class, 'changeEmail'])->middleware('locale');
 Route::post('/email/verified-login', [AuthController::class, 'verifiedLogin']);
 
+//Password reset routes:
+// 1. Send the reset link email
+Route::post('/password/forgot', [AuthController::class, 'sendResetLinkEmail'])->middleware('locale');
+
+// 2. Process the actual password reset from the link
+Route::post('/password/reset', [AuthController::class, 'resetPassword']);
+
 //Login route:
 Route::post('/login', [AuthController::class, 'login']);
 
-Route::middleware(['auth:sanctum', 'locale', 'verified'])->group(function () {
+Route::middleware(['auth:sanctum', 'locale'])->group(function () {
+    Route::post('/password/change', [AuthController::class, 'changePassword']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::delete('/delete', [AuthController::class, 'delete']);
 });

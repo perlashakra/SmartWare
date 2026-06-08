@@ -29,6 +29,12 @@ return [
     'invalid_verification_link' => 'رابط التحقق غير صالح.',
     'expired_verification_link' => 'انتهت صلاحية رابط التحقق.',
 
+    //Password reset email:
+    'reset_password_body' => 'لقد تلقيت هذه الرسالة الإلكترونية لأننا تلقينا طلبًا لإعادة تعيين كلمة المرور لحسابك.',
+    'reset_password_button' => 'إعادة تعيين كلمة المرور',
+    'reset_password_expire_notice' => 'سينتهي صلاحية رابط إعادة تعيين كلمة المرور هذا خلال 60 دقيقة.',
+    'reset_password_ignore' => 'إذا لم تطلب إعادة تعيين كلمة المرور، فلا يلزم اتخاذ أي إجراء آخر.',
+
     //User login messages:
     'user_not_found' => 'لم يتم العثور على المستخدم.',
     'username_password_mismatch' => 'اسم المستخدم أو كلمة المرور التي أدخلتها غير صحيحة.',
