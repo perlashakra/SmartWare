@@ -8,7 +8,7 @@ class Store extends Model
 {
     protected $fillable = [
         'name',
-        'manager_id',
+        'client_id',
         'address_id',
     ];
     public function client()

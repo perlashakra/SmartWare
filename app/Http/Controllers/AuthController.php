@@ -7,11 +7,13 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterClientRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\RegisterWorkerRequest;
+use App\Models\Address;
 use App\Models\EmployeeAnnouncement;
 use App\Models\Store;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -19,68 +21,47 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class AuthController extends Controller
 {
-    public function registerManager(RegisterRequest $request)
+    /**
+     * Core Registration Engine handling Cases 1, 2, and 3 consistently.
+     */
+    private function processRegistration(array $data, string $preferredLanguage, ?callable $afterSaveCallback = null): JsonResponse
     {
-        $validatedData = $request->validated();
+        $email = $data['email'];
+        $phone = $data['phone_number'];
 
-        $preferredLanguage =
-            $request->getPreferredLanguage(['en', 'ar'])
-            ?? 'en';
-
-        $validatedData['language_preference'] = $preferredLanguage;
-
-        /*
-        |--------------------------------------------------------------------------
-        | Case 3:
-        | A verified user already owns this email or phone number.
-        |--------------------------------------------------------------------------
-        */
-        $verifiedUser = User::where(function ($query) use ($validatedData) {
-            $query->where('email', $validatedData['email'])
-                ->orWhere('phone_number', $validatedData['phone_number']);
+        // --- CASE 3: Pre-emptively block if ANY verified user owns this email or phone ---
+        $verifiedUser = User::where(function ($query) use ($email, $phone) {
+            $query->where('email', $email)->orWhere('phone_number', $phone);
         })
             ->whereNotNull('email_verified_at')
             ->first();
 
         if ($verifiedUser) {
-            return response()->json([
-                'message' => __('auth.email_or_phone_already_registered'),
-            ], 422);
+            return response()->json(['message' => __('auth.email_or_phone_already_registered')], 422);
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Case 2:
-        | User exists but has not verified their email yet.
-        |--------------------------------------------------------------------------
-        */
+        // Fetch unverified accounts matching email or phone
+        $unverifiedEmailUser = User::where('email', $email)->whereNull('email_verified_at')->first();
+        $unverifiedPhoneUser = User::where('phone_number', $phone)->whereNull('email_verified_at')->first();
 
-        $unverifiedUser = User::where('email', $validatedData['email'])
-            ->whereNull('email_verified_at')
-            ->first();
+        // Enforce language preference and hash password
+        $data['language_preference'] = $preferredLanguage;
+        $data['password'] = Hash::make($data['password']);
 
-        if ($unverifiedUser) {
-
-            $phoneOwner = User::where('phone_number', $validatedData['phone_number'])
-                ->where('id', '!=', $unverifiedUser->id)
-                ->first();
-
-            if ($phoneOwner) {
-                return response()->json([
-                    'message' => __('auth.phone_number_already_registered'),
-                ], 422);
+        // --- CASE 2: Email account exists but is unverified ---
+        if ($unverifiedEmailUser) {
+            // Scrub out competing unverified phone holder records if they belong to someone else
+            if ($unverifiedPhoneUser && $unverifiedPhoneUser->id !== $unverifiedEmailUser->id) {
+                $unverifiedPhoneUser->delete();
             }
 
-            $unverifiedUser->update([
-                'first_name' => $validatedData['first_name'],
-                'last_name' => $validatedData['last_name'],
-                'phone_number' => $validatedData['phone_number'],
-                'password' => Hash::make($validatedData['password']),
-                'role' => $validatedData['role'],
-                'language_preference' => $preferredLanguage,
-            ]);
+            $unverifiedEmailUser->update($data);
 
-            $unverifiedUser->sendEmailVerificationNotification();
+            if ($afterSaveCallback) {
+                $afterSaveCallback($unverifiedEmailUser);
+            }
+
+            $unverifiedEmailUser->sendEmailVerificationNotification();
 
             return response()->json([
                 'message' => __('auth.verification_email_resent'),
@@ -88,27 +69,19 @@ class AuthController extends Controller
             ], 200);
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Case 1:
-        | Brand new registration.
-        |--------------------------------------------------------------------------
-        */
-
-        $phoneOwner = User::where('phone_number', $validatedData['phone_number'])
-            ->first();
-
-        if ($phoneOwner) {
-            return response()->json([
-                'message' => __('auth.phone_number_already_registered'),
-            ], 422);
+        // If email is brand new but phone belongs to a stale unverified record, delete that stale record
+        if ($unverifiedPhoneUser) {
+            $unverifiedPhoneUser->delete();
         }
 
-        $validatedData['password'] = Hash::make($validatedData['password']);
+        // --- CASE 1: Brand New Registration ---
+        $user = User::create($data);
 
-        $user = User::create($validatedData);
+        if ($afterSaveCallback) {
+            $afterSaveCallback($user);
+        }
 
-        event(new Registered($user));
+        $user->sendEmailVerificationNotification();
 
         return response()->json([
             'message' => __('auth.register_success'),
@@ -117,250 +90,65 @@ class AuthController extends Controller
         ], 201);
     }
 
-    public function registerClient(RegisterClientRequest $request)
+    // --- CLEANED UP ENDPOINTS ---
+
+    public function registerManager(RegisterRequest $request): JsonResponse
     {
-        $validatedData = $request->validated();
+        $validated = $request->validated();
+        $lang = $request->getPreferredLanguage(['en', 'ar']) ?? 'en';
 
-        $preferredLanguage =
-            $request->getPreferredLanguage(['en', 'ar'])
-            ?? 'en';
-
-        $validatedData['language_preference'] = $preferredLanguage;
-
-        /*
-        |--------------------------------------------------------------------------
-        | Case 3:
-        | A verified user already owns this email or phone number.
-        |--------------------------------------------------------------------------
-        */
-        $verifiedUser = User::where(function ($query) use ($validatedData) {
-            $query->where('email', $validatedData['email'])
-                ->orWhere('phone_number', $validatedData['phone_number']);
-        })
-            ->whereNotNull('email_verified_at')
-            ->first();
-
-        if ($verifiedUser) {
-            return response()->json([
-                'message' => __('auth.email_or_phone_already_registered'),
-            ], 422);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Case 2:
-        | User exists but has not verified their email yet.
-        |--------------------------------------------------------------------------
-        */
-
-        $unverifiedUser = User::where('email', $validatedData['email'])
-            ->whereNull('email_verified_at')
-            ->first();
-
-        if ($unverifiedUser) {
-
-            $phoneOwner = User::where('phone_number', $validatedData['phone_number'])
-                ->where('id', '!=', $unverifiedUser->id)
-                ->first();
-
-            if ($phoneOwner) {
-                return response()->json([
-                    'message' => __('auth.phone_number_already_registered'),
-                ], 422);
-            }
-
-            $unverifiedUser->update([
-                'first_name' => $validatedData['first_name'],
-                'last_name' => $validatedData['last_name'],
-                'phone_number' => $validatedData['phone_number'],
-                'password' => Hash::make($validatedData['password']),
-                'role' => $validatedData['role'],
-                'language_preference' => $preferredLanguage,
-            ]);
-
-            $unverifiedUser->sendEmailVerificationNotification();
-
-            return response()->json([
-                'message' => __('auth.verification_email_resent'),
-                'verification_required' => true,
-            ], 200);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Case 1:
-        | Brand new registration.
-        |--------------------------------------------------------------------------
-        */
-
-        $phoneOwner = User::where('phone_number', $validatedData['phone_number'])
-            ->first();
-
-        if ($phoneOwner) {
-            return response()->json([
-                'message' => __('auth.phone_number_already_registered'),
-            ], 422);
-        }
-
-        $validatedData['password'] = Hash::make($validatedData['password']);
-
-        $user = User::create([
-            'first_name' => $validatedData['first_name'],
-            'last_name' => $validatedData['last_name'],
-            'email' => $validatedData['email'],
-            'phone_number' => $validatedData['phone_number'],
-            'password' => $validatedData['password'],
-            'role' => $validatedData['role'],
-        ]);
-
-        Store::create([
-            'name' => $validatedData['name'],
-            'client_id' => $user->id,
-        ]);
-
-        event(new Registered($user));
-
-        return response()->json([
-            'message' => __('auth.register_success'),
-            'user' => $user,
-            'verification_required' => true,
-        ], 201);
+        return $this->processRegistration($validated, $lang);
     }
 
-
-    public function registerWorker(RegisterWorkerRequest $request)
+    public function registerClient(RegisterClientRequest $request): JsonResponse
     {
-        $validatedData = $request->validated();
-        $preferredLanguage =
-            $request->getPreferredLanguage(['en', 'ar'])
-            ?? 'en';
-        $validatedData['language_preference'] = $preferredLanguage;
+        $validated = $request->validated();
+        $lang = $request->getPreferredLanguage(['en', 'ar']) ?? 'en';
 
-        $announcement = EmployeeAnnouncement::where(
-            'national_id',
-            $validatedData['national_id']
-        )->first();
+        // 1. Extract the store name completely from the data array
+        $storeName = $validated['business_name'];
+
+        // 2. Remove it so it doesn't get passed to User::create() or update()
+        unset($validated['business_name']);
+
+        // 3. Pass the clean user-only data to the engine
+        return $this->processRegistration($validated, $lang, function ($user) use ($storeName) {
+            // Run Client specific actions safely using the extracted store name
+            Store::create([
+                'name' => $storeName,
+                'client_id' => $user->id,
+                'address_id' => 1,
+            ]);
+        });
+    }
+
+    public function registerWorker(RegisterWorkerRequest $request): JsonResponse
+    {
+        $validated = $request->validated();
+        $lang = $request->getPreferredLanguage(['en', 'ar']) ?? 'en';
+
+        // Pre-registration worker validation checks
+        $announcement = EmployeeAnnouncement::where('national_id', $validated['national_id'])->first();
 
         if (!$announcement) {
-            return response()->json([
-                'message' => __('auth.employee_not_announced')
-            ], 404);
+            return response()->json(['message' => __('auth.employee_not_announced')], 404);
         }
-
         if ($announcement->claimed) {
-            return response()->json([
-                'message' => __('auth.employee_already_registered')
-            ], 409);
+            return response()->json(['message' => __('auth.employee_already_registered')], 409);
+        }
+        if (strtolower(trim($announcement->first_name)) !== strtolower(trim($validated['first_name'])) ||
+            strtolower(trim($announcement->last_name)) !== strtolower(trim($validated['last_name']))) {
+            return response()->json(['message' => __('auth.employee_identity_mismatch')], 422);
         }
 
-        if (
-            strtolower(trim($announcement->first_name))
-            !== strtolower(trim($validatedData['first_name']))
-            ||
-            strtolower(trim($announcement->last_name))
-            !== strtolower(trim($validatedData['last_name']))
-        ) {
-            return response()->json([
-                'message' => __('auth.employee_identity_mismatch')
-            ], 422);
-        }
+        // Set explicit worker attributes
+        $validated['warehouse_id'] = $announcement->warehouse_id;
+        $validated['role'] = 'worker';
 
-        /*
-        |--------------------------------------------------------------------------
-        | Case 3:
-        | A verified user already owns this email or phone number.
-        |--------------------------------------------------------------------------
-        */
-        $verifiedUser = User::where(function ($query) use ($validatedData) {
-            $query->where('email', $validatedData['email'])
-                ->orWhere('phone_number', $validatedData['phone_number']);
-        })
-            ->whereNotNull('email_verified_at')
-            ->first();
-
-        if ($verifiedUser) {
-            return response()->json([
-                'message' => __('auth.email_or_phone_already_registered'),
-            ], 422);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Case 2:
-        | User exists but has not verified their email yet.
-        |--------------------------------------------------------------------------
-        */
-
-        $unverifiedUser = User::where('email', $validatedData['email'])
-            ->whereNull('email_verified_at')
-            ->first();
-
-        if ($unverifiedUser) {
-
-            $phoneOwner = User::where('phone_number', $validatedData['phone_number'])
-                ->where('id', '!=', $unverifiedUser->id)
-                ->first();
-
-            if ($phoneOwner) {
-                return response()->json([
-                    'message' => __('auth.phone_number_already_registered'),
-                ], 422);
-            }
-
-            $unverifiedUser->update([
-                'first_name' => $validatedData['first_name'],
-                'last_name' => $validatedData['last_name'],
-                'phone_number' => $validatedData['phone_number'],
-                'password' => Hash::make($validatedData['password']),
-                'role' => $validatedData['role'],
-                'language_preference' => $preferredLanguage,
-            ]);
-
-            $unverifiedUser->sendEmailVerificationNotification();
-
-            return response()->json([
-                'message' => __('auth.verification_email_resent'),
-                'verification_required' => true,
-            ], 200);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Case 1:
-        | Brand new registration.
-        |--------------------------------------------------------------------------
-        */
-
-        $phoneOwner = User::where('phone_number', $validatedData['phone_number'])
-            ->first();
-
-        if ($phoneOwner) {
-            return response()->json([
-                'message' => __('auth.phone_number_already_registered'),
-            ], 422);
-        }
-
-        $validatedData['password'] = Hash::make($validatedData['password']);
-
-        $validatedData['warehouse_id'] = $announcement->warehouse_id;
-
-        $validatedData['role'] = 'worker';
-
-        $user = User::create($validatedData);
-
-        event(new Registered($user));
-
-        $announcement->update([
-            'claimed' => true
-        ]);
-
-        $announcement->save();
-
-        return response()->json([
-            'message' => __('auth.register_success'),
-            'user' => $user,
-            'verification_required' => true,
-        ], 201);
+        return $this->processRegistration($validated, $lang, function () use ($announcement) {
+            // Run Worker specific actions
+            $announcement->update(['claimed' => true]);
+        });
     }
 
     public function changeEmail(ChangeEmailRequest $request, $id)

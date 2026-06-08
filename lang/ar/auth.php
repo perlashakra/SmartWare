@@ -11,6 +11,15 @@ return [
     'employee_already_registered' => 'لقد سبق لأحد العمال أن شغل هذه الوظيفة.',
     'employee_identity_mismatch' => 'الاسم الأول أو الأخير لا يتطابق مع سجلاتنا.',
 
+    //Email verification email:
+    'verify_email_subject' => 'تحقق من عنوان بريدك الإلكتروني',
+    'hello' => 'مرحبًا',
+    'verify_email_body' => 'يرجى النقر على الزر أدناه للتحقق من عنوان بريدك الإلكتروني.',
+    'verify_email_button' => 'التحقق من عنوان البريد الإلكتروني',
+    'no_further_action' => 'إذا لم تقم بإنشاء حساب، فلا يلزم اتخاذ أي إجراء آخر.',
+    'regards' => 'أطيب التحيات',
+    'trouble_clicking' => 'إذا كنت تواجه مشكلة في النقر على زر "التحقق من عنوان البريد الإلكتروني"، فانسخ والصق عنوان URL أدناه في متصفح الويب الخاص بك:',
+
     //Email verification messages:
     'email_verified' => 'تم التحقق من البريد الإلكتروني بنجاح.',
     'email_not_verified' => 'لم يتم التحقق من البريد الإلكتروني.',
