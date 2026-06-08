@@ -29,6 +29,15 @@ return [
     'employee_already_registered' => 'A worker has already claimed this job.',
     'employee_identity_mismatch' => 'The first or last name does not match our records.',
 
+    //Email verification email:
+    'verify_email_subject' => 'Verify your email address',
+    'hello' => 'Hello',
+    'verify_email_body' => 'Please click the button below to verify your email address.',
+    'verify_email_button' => 'Verify Email Address',
+    'no_further_action' => 'If you did not create an account, no further action is required.',
+    'regards' => 'Regards',
+    'trouble_clicking' => 'If you\'re having trouble clicking the "Verify Email Address" button, copy and paste the URL below into your web browser:',
+
     //Email verification messages:
     'email_verified' => 'Email verified successfully.',
     'email_not_verified' => 'Email not verified.',
