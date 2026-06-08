@@ -47,6 +47,12 @@ return [
     'invalid_verification_link' => 'Invalid verification link.',
     'expired_verification_link' => 'Verification link expired.',
 
+    //Password reset email:
+    'reset_password_body' => 'You are receiving this email because we received a password reset request for your account.',
+    'reset_password_button' => 'Reset Password',
+    'reset_password_expire_notice' => 'This password reset link will expire in 60 minutes.',
+    'reset_password_ignore' => 'If you did not request a password reset, no further action is required.',
+
     //User login messages:
     'user_not_found' => 'User not found.',
     'username_password_mismatch' => 'The username or password you entered is incorrect.',

@@ -10,6 +10,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Auth\MustVerifyEmail as MustVerifyEmailTrait;
 use App\Notifications\QueuedVerifyEmail;
+use App\Notifications\QueuedResetPassword;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -107,5 +108,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function sendEmailVerificationNotification()
     {
         $this->notify(new QueuedVerifyEmail);
+    }
+
+    //Password Resetting:
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new QueuedResetPassword($token));
     }
 }
