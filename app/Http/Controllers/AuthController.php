@@ -64,7 +64,8 @@ class AuthController extends Controller
             $unverifiedEmailUser->sendEmailVerificationNotification();
 
             return response()->json([
-                'message' => __('auth.verification_email_resent'),
+                'message' => __('auth.register_success'),
+                'user' => $unverifiedEmailUser,
                 'verification_required' => true,
             ], 200);
         }
