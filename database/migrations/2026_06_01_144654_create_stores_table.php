@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->foreignId('client_id')->constrained('users')->cascadeOnDelete();
-            $table->foreignId('address_id')->constrained('addresses')->nullable()->cascadeOnDelete();
+            $table->foreignId('address_id')->constrained('addresses')->cascadeOnDelete();
             $table->timestamps();
         });
     }

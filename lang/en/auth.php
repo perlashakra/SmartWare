@@ -29,6 +29,15 @@ return [
     'employee_already_registered' => 'A worker has already claimed this job.',
     'employee_identity_mismatch' => 'The first or last name does not match our records.',
 
+    //Email verification email:
+    'verify_email_subject' => 'Verify your email address',
+    'hello' => 'Hello',
+    'verify_email_body' => 'Please click the button below to verify your email address.',
+    'verify_email_button' => 'Verify Email Address',
+    'no_further_action' => 'If you did not create an account, no further action is required.',
+    'regards' => 'Regards',
+    'trouble_clicking' => 'If you\'re having trouble clicking the "Verify Email Address" button, copy and paste the URL below into your web browser:',
+
     //Email verification messages:
     'email_verified' => 'Email verified successfully.',
     'email_not_verified' => 'Email not verified.',
@@ -37,6 +46,12 @@ return [
     'verification_sent_again' => 'Verification email sent again.',
     'invalid_verification_link' => 'Invalid verification link.',
     'expired_verification_link' => 'Verification link expired.',
+
+    //Password reset email:
+    'reset_password_body' => 'You are receiving this email because we received a password reset request for your account.',
+    'reset_password_button' => 'Reset Password',
+    'reset_password_expire_notice' => 'This password reset link will expire in 60 minutes.',
+    'reset_password_ignore' => 'If you did not request a password reset, no further action is required.',
 
     //User login messages:
     'user_not_found' => 'User not found.',
