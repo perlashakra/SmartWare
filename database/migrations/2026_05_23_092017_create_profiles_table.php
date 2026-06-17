@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('profiles', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users');
-            //$table->enum('product_types', ['medicine, clothing, food']);
             $table->timestamps();
         });
     }
