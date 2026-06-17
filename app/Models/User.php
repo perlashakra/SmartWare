@@ -115,4 +115,19 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $this->notify(new QueuedResetPassword($token));
     }
+
+    //Preferences Relationships:
+    // Inside app/Models/User.php
+
+    public function preference()
+    {
+        // A user has one global onboarding profile (role, business type)
+        return $this->hasOne(UserPreference::class);
+    }
+
+    public function productTypes()
+    {
+        // A user can have many saved product type preferences
+        return $this->hasMany(UserProductType::class);
+    }
 }
