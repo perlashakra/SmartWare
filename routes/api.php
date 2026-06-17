@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EmailVerificationController;
+use App\Http\Controllers\OnboardingController;
 use App\Models\User;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
@@ -38,7 +39,11 @@ Route::post('/password/reset', [AuthController::class, 'resetPassword']);
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware(['auth:sanctum', 'locale'])->group(function () {
+    //Basic authentication and registration functions
     Route::post('/password/change', [AuthController::class, 'changePassword']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::delete('/delete', [AuthController::class, 'delete']);
+    //Onboarding functions:
+    Route::get('/onboarding/getOnboardingOptions', [OnboardingController::class, 'getOnboardingOptions']);
+    Route::post('/onboarding/savePreferences', [OnboardingController::class, 'savePreferences']);
 });

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\GetOnboardingOptionsRequest;
+use App\Http\Requests\SavePreferencesRequest;
 use Illuminate\Http\Request;
 use App\Enums\BusinessType;
 use App\Enums\ProductType;
@@ -10,10 +12,24 @@ use App\Models\UserProductType;
 
 class OnboardingController extends Controller
 {
-    public function getOnboardingOptions(Request $request)
+    private function getAllowedProductsByBusiness(string $businessType): array
     {
-        $role = $request->query('role'); // 'client' or 'warehouse_manager'
-        $businessType = $request->query('business_type');
+        return match($businessType) {
+            BusinessType::PHARMACY->value => [ProductType::MEDICINE, ProductType::MEDICAL_SUPPLIES, ProductType::COSMETICS],
+            BusinessType::RESTAURANT->value => [ProductType::CANNED_FOODS, ProductType::REFRIGERATED_FOODS, ProductType::FRESH_FOODS, ProductType::BEVERAGES],
+            BusinessType::SUPERMARKET->value => [ProductType::CANNED_FOODS, ProductType::REFRIGERATED_FOODS, ProductType::FRESH_FOODS, ProductType::BEVERAGES, ProductType::COSMETICS],
+            BusinessType::CLOTHING_STORE->value => [ProductType::CLOTHING],
+            BusinessType::ELECTRONICS_STORE->value => [ProductType::ELECTRONICS],
+            BusinessType::MAKEUP_STORE->value => [ProductType::COSMETICS],
+            BusinessType::FURNITURE_STORE->value => [ProductType::FURNITURE],
+            default => []
+        };
+    }
+
+    public function getOnboardingOptions(GetOnboardingOptionsRequest $request)
+    {
+        $role = $request->validated('role');
+        $businessType = $request->validated('business_type');
 
         // Route 1: Warehouse Managers immediately get all product types
         if ($role === 'warehouse_manager') {
@@ -33,16 +49,7 @@ class OnboardingController extends Controller
 
         // Route 3: Clients who have picked a business type get filtered products
         if ($role === 'client' && $businessType) {
-            $allowedProducts = match($businessType) {
-                BusinessType::PHARMACY->value => [ProductType::MEDICINE, ProductType::MEDICAL_SUPPLIES, ProductType::COSMETICS],
-                BusinessType::RESTAURANT->value => [ProductType::CANNED_FOODS, ProductType::REFRIGERATED_FOODS, ProductType::FRESH_FOODS, ProductType::BEVERAGES],
-                BusinessType::SUPERMARKET->value => [ProductType::CANNED_FOODS, ProductType::REFRIGERATED_FOODS, ProductType::FRESH_FOODS, ProductType::BEVERAGES, ProductType::COSMETICS],
-                BusinessType::CLOTHING_STORE->value => [ProductType::CLOTHING],
-                BusinessType::ELECTRONICS_STORE->value => [ProductType::ELECTRONICS],
-                BusinessType::MAKEUP_STORE->value => [ProductType::COSMETICS],
-                BusinessType::FURNITURE_STORE->value => [ProductType::FURNITURE],
-                default => []
-            };
+            $allowedProducts = $this->getAllowedProductsByBusiness($businessType);
 
             return response()->json([
                 'step' => 'choose_product_types',
@@ -54,11 +61,11 @@ class OnboardingController extends Controller
         return response()->json(['error' => 'Invalid or missing role parameter.'], 400);
     }
 
-    public function savePreferences(Request $request)
+    public function savePreferences(SavePreferencesRequest $request)
     {
         $user = $request->user();
-        $role = $request->input('role');
-        $productTypes = $request->input('product_types', []);
+        $role = $request->validated('role');
+        $productTypes = $request->validated('product_types', []);
 
         // --- CRITICAL LEGAL VALIDATION FOR WAREHOUSE MANAGERS ---
         if ($role === 'warehouse_manager') {
@@ -74,23 +81,30 @@ class OnboardingController extends Controller
             }
         }
 
-        // --- CLIENT VALIDATION ---
+        // --- DEFENSIVE VALIDATION FOR CLIENTS (BYPASS PREVENTION) ---
         if ($role === 'client') {
-            $businessType = $request->input('business_type');
+            $businessType = $request->validated('business_type');
 
-            if ($businessType === BusinessType::PHARMACY->value) {
-                foreach ($productTypes as $type) {
-                    if (!in_array($type, [ProductType::MEDICINE->value, ProductType::MEDICAL_SUPPLIES->value, ProductType::COSMETICS->value])) {
-                        return response()->json(['error' => 'Pharmacies can only select medical or cosmetic product lines.'], 422);
-                    }
-                }
+            // 1. Fetch the master-list of what this business type is actually allowed to have
+            $allowedEnums = $this->getAllowedProductsByBusiness($businessType);
+
+            // Convert the array of Enum objects into raw string values for comparison
+            $allowedStringValues = array_map(fn($enum) => $enum->value, $allowedEnums);
+
+            // 2. Look for any product type the user sent that does NOT live in the allowed array
+            $illegalChoices = array_diff($productTypes, $allowedStringValues);
+
+            if (count($illegalChoices) > 0) {
+                return response()->json([
+                    'error' => 'Security Error: One or more selected product types are invalid for your chosen business category.'
+                ], 422);
             }
         }
 
         // --- SAVE TO DATABASE ---
         UserPreference::updateOrCreate(
             ['user_id' => $user->id],
-            ['role' => $role, 'business_type' => $request->input('business_type')]
+            ['role' => $role, 'business_type' => $request->validated('business_type')]
         );
 
         UserProductType::where('user_id', $user->id)->delete();
