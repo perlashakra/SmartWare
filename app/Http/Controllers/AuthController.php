@@ -118,7 +118,7 @@ class AuthController extends Controller
             Store::create([
                 'name' => $storeName,
                 'client_id' => $user->id,
-                'address_id' => 1,
+                'address_id' => 1,//TEMPORARYYYYYYYY
             ]);
         });
     }

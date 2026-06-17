@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\GetOnboardingOptionsRequest;
 use App\Http\Requests\SavePreferencesRequest;
+use App\Models\Profile;
 use Illuminate\Http\Request;
 use App\Enums\BusinessType;
 use App\Enums\ProductType;
@@ -28,8 +29,12 @@ class OnboardingController extends Controller
 
     public function getOnboardingOptions(GetOnboardingOptionsRequest $request)
     {
+        $user = $request->user();
         $role = $request->validated('role');
         $businessType = $request->validated('business_type');
+        Profile::create([
+            'user_id' => $user->id,
+        ]);
 
         // Route 1: Warehouse Managers immediately get all product types
         if ($role === 'warehouse_manager') {
@@ -63,7 +68,7 @@ class OnboardingController extends Controller
 
     public function savePreferences(SavePreferencesRequest $request)
     {
-        $user = $request->user();
+        $profile = $request->user()->profile();
         $role = $request->validated('role');
         $productTypes = $request->validated('product_types', []);
 
@@ -103,14 +108,14 @@ class OnboardingController extends Controller
 
         // --- SAVE TO DATABASE ---
         UserPreference::updateOrCreate(
-            ['user_id' => $user->id],
+            ['profile_id' => $profile->id],
             ['role' => $role, 'business_type' => $request->validated('business_type')]
         );
 
-        UserProductType::where('user_id', $user->id)->delete();
+        UserProductType::where('profile_id', $profile->id)->delete();
         foreach ($productTypes as $type) {
             UserProductType::create([
-                'user_id' => $user->id,
+                'profile_id' => $profile->id,
                 'product_type' => $type
             ]);
         }
