@@ -13,11 +13,13 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('category_id')->constrained('categories')->cascadeOnDelete();
-            $table->foreignId('company_id')->constrained('companies')->cascadeOnDelete();
-            $table->string('serial_number')->unique();
+            $table->foreignId('category_id')->constrained('categories')->restrictOnDelete();
+            $table->foreignId('company_id')->constrained('companies')->restrictOnDelete();
+            $table->string('sku')->unique();
             $table->string('name');
-            $table->enum('container_type', ['box', 'barrel']); //we should add other types of containers
+            $table->decimal('price', 10, 2);
+            $table->enum('container_type', ['box', 'barrel', 'pallet', 'carton', 'bag', 'bottle', 'crate']);
+            //barcode, description, weight
             $table->timestamps();
         });
     }

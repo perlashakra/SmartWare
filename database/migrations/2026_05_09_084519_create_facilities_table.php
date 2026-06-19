@@ -11,11 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('inbooks', function (Blueprint $table) {
+        Schema::create('facilities', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('section_id')->constrained('sections')->restrictOnDelete();
+            $table->foreignId('address_id')->constrained('addresses')->restrictOnDelete();
             $table->foreignId('user_id')->constrained('users')->restrictOnDelete();
-            $table->date('storage_date');
+            $table->string('facility_name');
+            $table->enum('facility_type', ['warehouse', 'business']);
+            $table->enum('facility_status', ['pending', 'submitted', 'approved', 'rejected'])->default('pending');
+            //description
             $table->timestamps();
         });
     }
@@ -25,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('inbooks');
+        Schema::dropIfExists('warehouses');
     }
 };

@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('warehouse_orders', function (Blueprint $table) {
+        Schema::create('receipts', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('company_id')->constrained('companies')->cascadeOnDelete();
-            //$table->date('date_of_order'); there is already the timestamps so do we need this?
-            $table->float('expected_price');
-            $table->float('completion'); //percentage: 10%, 50%.....
+            $table->foreignId('order_id')->constrained('orders')->restrictOnDelete();
+            $table->foreignId('company_id')->constrained('companies')->restrictOnDelete();
+            $table->decimal('total_price', 10, 2);
+            $table->date('receipt_date');
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('warehouse_orders');
+        Schema::dropIfExists('warehouse_order_reciepts');
     }
 };

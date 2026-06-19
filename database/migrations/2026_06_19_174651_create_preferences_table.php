@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('client_order_reciept_products', function (Blueprint $table) {
+        Schema::create('preferences', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('client_order_reciept_id')->constrained('client_order_reciepts')->cascadeOnDelete();
-            $table->foreignId('inbook_product_id')->constrained('inbook_products')->cascadeOnDelete();
-            $table->integer('quantity');
+            $table->foreignId('business_type_id')->constrained('business_types')->cascadeOnDelete();
+            $table->string('name');
             $table->timestamps();
         });
     }
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('client_order_reciept_products');
+        Schema::dropIfExists('preferences');
     }
 };

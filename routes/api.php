@@ -23,7 +23,6 @@ Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 've
 Route::post('/email/resend', [EmailVerificationController::class, 'resend'])->middleware(['throttle:2,1', 'locale']);;
 Route::post('/email/verification-notification',[EmailVerificationController::class, 'sendNotification'])->middleware(['auth:sanctum', 'locale']);
 
-
 //Email verification page routes:
 Route::post('/email/change/{id}', [AuthController::class, 'changeEmail'])->middleware('locale');
 Route::post('/email/verified-login', [AuthController::class, 'verifiedLogin']);
@@ -47,3 +46,5 @@ Route::middleware(['auth:sanctum', 'locale'])->group(function () {
     Route::get('/onboarding/getOnboardingOptions', [OnboardingController::class, 'getOnboardingOptions']);
     Route::post('/onboarding/savePreferences', [OnboardingController::class, 'savePreferences']);
 });
+
+//

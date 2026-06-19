@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('transaction_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('transaction_id')->constrained('transactions')->cascadeOnDelete();
-            $table->foreignId('inbook_product_id')->constrained('inbook_products')->cascadeOnDelete();
-            $table->integer('quantity');
+            $table->foreignId('inbook_product_id')->constrained('inbook_products')->restrictOnDelete();
+            $table->unsignedInteger('quantity');
             $table->timestamps();
         });
     }
