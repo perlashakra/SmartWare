@@ -8,10 +8,16 @@ class Address extends Model
 {
     protected $fillable = [
         'name',
-        'parent_id',
+        'country',
+        'city',
+        'street',
+        'postal_code',
+        'latitude',
+        'longitude', 
+        //'parent_id',
     ];
-    public function warehouse()
+    public function facility()
     {
-        return $this->hasOne(Warehouse::class);
+        return $this->hasOne(Facility::class);
     }
 }

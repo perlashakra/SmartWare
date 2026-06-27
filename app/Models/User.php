@@ -23,17 +23,15 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var list<string>
      */
     protected $fillable = [
+        'manager_id',
         'first_name',
         'last_name',
-        'birthday',
-        'manager_id',
-        'warehouse_id',
         'email',
         'phone_number',
         'password',
-        'id_image',
-        'personal_image',
         'role',
+        'account_status',
+        'identity_staus',
         'language_preference',
     ];
 
@@ -60,9 +58,9 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
-    public function contract()
+    public function document()
     {
-        return $this->hasOne(Contract::class);
+        return $this->hasOne(Document::class);
     }
     //Employee relationships:
     public function manager()
@@ -72,7 +70,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function warehouse()
     {
-        return $this->belongsTo(Warehouse::class);
+        return $this->belongsTo(Facility::class);
     }
 
     //Manager relationships:
@@ -89,13 +87,13 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function managedWarehouses()
     {
-        return $this->hasMany(Warehouse::class, 'admin_id');
+        return $this->hasMany(Facility::class, 'admin_id');
     }
 
     //Client relationship with store
     public function store()
     {
-        return $this->hasOne(Store::class);
+        return $this->hasOne(Facility::class);
     }
 
     //Profile 1 to 1 relationship

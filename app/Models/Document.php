@@ -4,22 +4,23 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Contract extends Model
+class Document extends Model
 {
     protected $fillable = [
         'user_id',
-        'warehouse_id',
-        'type',
+        'facility_id',
+        'document_file',
+        'document_type',
         'start_date',
         'expiration_date',
-        'contract_image',
+        'status',
     ];
     public function user()
     {
         return $this->belongsTo(User::class);
     }
-    public function warehouse()
+    public function facility()
     {
-        return $this->belongsTo(Warehouse::class);
+        return $this->belongsTo(Facility::class);
     }
 }

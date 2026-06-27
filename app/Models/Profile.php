@@ -2,30 +2,37 @@
 
 namespace App\Models;
 
+use App\Enums\BusinessType;
 use Illuminate\Database\Eloquent\Model;
 
 class Profile extends Model
 {
     protected $fillable = [
         'user_id',
-        //'product_tyoes',
+        'personal_image',
+        'preferences_submitted',
+        'completed',
+        //'product_types',
     ];
     public function User()
     {
         return $this->belongsTo(User::class);
     }
 
-    //Preferences Relationships:
-
-    public function preference()
-    {
-        // A user has one global onboarding profile (role, business type)
-        return $this->hasOne(UserPreference::class);
+    public function type(){
+        return $this->hasOne(BusinessType::class);
     }
 
-    public function productTypes()
-    {
-        // A user can have many saved product type preferences
-        return $this->hasMany(UserProductType::class);
-    }
+    //Preferences Relationships:   THESE SHOULD BE DELETED 
+    // public function preference()
+    // {
+    //     // A user has one global onboarding profile (role, business type)
+    //     return $this->hasOne(Preference::class);
+    // }
+
+    // public function productTypes()
+    // {
+    //     // A user can have many saved product type preferences
+    //     return $this->hasMany(UserProductType::class);
+    // }
 }

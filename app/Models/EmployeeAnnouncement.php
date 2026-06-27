@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class EmployeeAnnouncement extends Model
 {
     protected $fillable = [
-        'warehouse_id',
+        'facility_id',
         'manager_id',
         'first_name',
         'last_name',
@@ -16,7 +16,7 @@ class EmployeeAnnouncement extends Model
     ];
     public function warehouse()
     {
-        return $this->belongsTo(Warehouse::class);
+        return $this->belongsTo(Facility::class);
     }
 
     public function manager()
