@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Warehouse;
+use App\Models\Facility;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -13,10 +13,12 @@ class WarehouseSeeder extends Seeder
      */
     public function run(): void
     {
-        Warehouse::create([
-            'manager_id' => 1,
+        Facility::create([
             'address_id' => 1,
-            'name' => 'Abu Al Noor',
+            'user_id' => 1,
+            'facility_name' => 'Abu Al Noor',
+            'facility_type' => 'warehouse',
+            'facility_status' => 'approved',
         ]);
     }
 }

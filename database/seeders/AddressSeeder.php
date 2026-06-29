@@ -15,6 +15,12 @@ class AddressSeeder extends Seeder
     {
         Address::create([
             'name' => 'Mezzeh',
+            'country' => 'Syria',
+            'city' => 'Damascus',
+            'street' => 'Fayez Mansour',
+            'postal_code' => '70001',
+            'latitude' => '36.267696',
+            'longitude' => '33.508627',
         ]);
     }
 }

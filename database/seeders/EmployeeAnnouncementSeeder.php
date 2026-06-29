@@ -14,7 +14,7 @@ class EmployeeAnnouncementSeeder extends Seeder
     public function run(): void
     {
         EmployeeAnnouncement::create([
-            'warehouse_id' => 1,
+            'employmentWarehouse_id' => 1,
             'manager_id' => 1,
             'first_name' => 'Anthony',
             'last_name' => 'Torbey',
