@@ -9,7 +9,6 @@ use App\Http\Requests\RegisterManagerRequest;
 use App\Http\Requests\RegisterWorkerRequest;
 use App\Models\EmployeeAnnouncement;
 use App\Models\Facility;
-use App\Models\Store;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
@@ -137,6 +136,13 @@ class AuthController extends Controller
             return response()->json(['message' => __('auth.employee_not_announced')], 404);
         }
         if ($announcement->claimed) {
+            $user = User::where([
+                'first_name' => $validated['first_name'],
+                'last_name' => $validated['last_name'],
+                'manager_id' => $announcement['manager_id'],
+                'employmentWarehouse_id' => $announcement['employment_warehouse_id'],
+            ])->first();
+            $user->sendEmailVerificationNotification();
             return response()->json(['message' => __('auth.employee_already_registered')], 409);
         }
         if (strtolower(trim($announcement->first_name)) !== strtolower(trim($validated['first_name'])) ||
@@ -145,8 +151,9 @@ class AuthController extends Controller
         }
 
         // Set explicit worker attributes
-        $validated['warehouse_id'] = $announcement->warehouse_id;
+        $validated['employmentWarehouse_id'] = $announcement->employmentWarehouse_id;
         $validated['role'] = 'worker';
+        $validated['manager_id'] = $announcement->manager_id;
 
         return $this->processRegistration($validated, $lang, function () use ($announcement) {
             // Run Worker specific actions

@@ -8,7 +8,7 @@ return [
 
     //Worker registration messages:
     'employee_not_announced' => 'لم يقم صاحب العمل بتسجيلك كعامل حتى الآن.',
-    'employee_already_registered' => 'لقد سبق لأحد العمال أن شغل هذه الوظيفة.',
+    'employee_already_registered' => 'لقد تم حجز هذا العمل من قبل، تمت إعادة إرسال رسالة التحقق إلى بريده الإلكتروني.',
     'employee_identity_mismatch' => 'الاسم الأول أو الأخير لا يتطابق مع سجلاتنا.',
 
     //Email verification email:

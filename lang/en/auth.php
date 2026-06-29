@@ -26,7 +26,7 @@ return [
 
     //Worker registration messages:
     'employee_not_announced' => 'Your employer has not registered you as a worker yet.',
-    'employee_already_registered' => 'A worker has already claimed this job.',
+    'employee_already_registered' => 'A worker has already claimed this job. An email verification has been resent to their email.',
     'employee_identity_mismatch' => 'The first or last name does not match our records.',
 
     //Email verification email:
