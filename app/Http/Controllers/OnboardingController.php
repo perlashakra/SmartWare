@@ -5,24 +5,23 @@ namespace App\Http\Controllers;
 use App\Http\Requests\GetOnboardingOptionsRequest;
 use App\Http\Requests\SavePreferencesRequest;
 use App\Models\Profile;
-use Illuminate\Http\Request;
-use App\Enums\BusinessType;
+use App\Enums\BusinessTypeEnum;
 use App\Enums\ProductType;
-use App\Models\UserPreference;
-use App\Models\UserProductType;
+use App\Models\BusinessType;
+use App\Models\Preference;
 
 class OnboardingController extends Controller
 {
     private function getAllowedProductsByBusiness(string $businessType): array
     {
         return match($businessType) {
-            BusinessType::PHARMACY->value => [ProductType::MEDICINE, ProductType::MEDICAL_SUPPLIES, ProductType::COSMETICS],
-            BusinessType::RESTAURANT->value => [ProductType::CANNED_FOODS, ProductType::REFRIGERATED_FOODS, ProductType::FRESH_FOODS, ProductType::BEVERAGES],
-            BusinessType::SUPERMARKET->value => [ProductType::CANNED_FOODS, ProductType::REFRIGERATED_FOODS, ProductType::FRESH_FOODS, ProductType::BEVERAGES, ProductType::COSMETICS],
-            BusinessType::CLOTHING_STORE->value => [ProductType::CLOTHING],
-            BusinessType::ELECTRONICS_STORE->value => [ProductType::ELECTRONICS],
-            BusinessType::MAKEUP_STORE->value => [ProductType::COSMETICS],
-            BusinessType::FURNITURE_STORE->value => [ProductType::FURNITURE],
+            BusinessTypeEnum::PHARMACY->value => [ProductType::MEDICINE, ProductType::MEDICAL_SUPPLIES, ProductType::COSMETICS],
+            BusinessTypeEnum::RESTAURANT->value => [ProductType::CANNED_FOODS, ProductType::REFRIGERATED_FOODS, ProductType::FRESH_FOODS, ProductType::BEVERAGES],
+            BusinessTypeEnum::SUPERMARKET->value => [ProductType::CANNED_FOODS, ProductType::REFRIGERATED_FOODS, ProductType::FRESH_FOODS, ProductType::BEVERAGES, ProductType::COSMETICS],
+            BusinessTypeEnum::CLOTHING_STORE->value => [ProductType::CLOTHING],
+            BusinessTypeEnum::ELECTRONICS_STORE->value => [ProductType::ELECTRONICS],
+            BusinessTypeEnum::MAKEUP_STORE->value => [ProductType::COSMETICS],
+            BusinessTypeEnum::FURNITURE_STORE->value => [ProductType::FURNITURE],
             default => []
         };
     }
@@ -48,7 +47,7 @@ class OnboardingController extends Controller
         if ($role === 'client' && !$businessType) {
             return response()->json([
                 'step' => 'choose_business_type',
-                'options' => BusinessType::cases()
+                'options' => BusinessTypeEnum::cases()
             ]);
         }
 
@@ -107,16 +106,16 @@ class OnboardingController extends Controller
         }
 
         // --- SAVE TO DATABASE ---
-        UserPreference::updateOrCreate(
+        BusinessType::updateOrCreate(
             ['profile_id' => $profile->id],
-            ['role' => $role, 'business_type' => $request->validated('business_type')]
+            ['business_type' => $request->validated('business_type')]
         );
 
-        UserProductType::where('profile_id', $profile->id)->delete();
+        Preference::where('profile_id', $profile->id)->delete();
         foreach ($productTypes as $type) {
-            UserProductType::create([
-                'profile_id' => $profile->id,
-                'product_type' => $type
+            Preference::create([
+                'business_type_id' => $profile->id,
+                'name' => $type
             ]);
         }
 

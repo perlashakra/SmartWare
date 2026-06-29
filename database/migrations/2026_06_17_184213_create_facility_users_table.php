@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('worker_id')->constrained('users')->restrictOnDelete();
             $table->enum('role', ['super_admin', 'warehouse_admin', 'worker', 'business_owner']);
             $table->date('joined_at');
-            //when a user is not working in a facility anymore we do is_active = false, so that we don't we delete history.
+            //when a user is not working in a facility anymore we do is_active = false, so that we don't delete history.
             //we only delete the relationship with the facility
             $table->boolean('is_active')->default(false);
             $table->timestamps();

@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Enums\BusinessType;
+use App\Enums\BusinessTypeEnum;
 use App\Enums\ProductType;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -27,7 +27,7 @@ class SavePreferencesRequest extends FormRequest
     {
         return [
             'role' => ['required', 'string', Rule::in(['client', 'warehouse_manager'])],
-            'business_type' => ['required_if:role,client', 'nullable', Rule::enum(BusinessType::class)],
+            'business_type' => ['required_if:role,client', 'nullable', Rule::enum(BusinessTypeEnum::class)],
             'product_types' => ['required', 'array', 'min:1'],
             'product_types.*' => [Rule::enum(ProductType::class)],
         ];

@@ -6,7 +6,7 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Carbon;
 
-class RegisterRequest extends FormRequest
+class RegisterManagerRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.

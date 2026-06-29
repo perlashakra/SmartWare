@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Enums\BusinessType;
+use App\Enums\BusinessTypeEnum;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -26,7 +26,7 @@ class GetOnboardingOptionsRequest extends FormRequest
     {
         return [
             'role' => ['required', 'string', Rule::in(['client', 'warehouse_manager'])],
-            'business_type' => ['nullable', 'string', Rule::enum(BusinessType::class)],
+            'business_type' => ['nullable', 'string', Rule::enum(BusinessTypeEnum::class)],
         ];
     }
 }
