@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-enum BusinessType: string {
+enum BusinessTypeEnum: string {
     case RESTAURANT = 'restaurant';
     case PHARMACY = 'pharmacy';
     case CLOTHING_STORE = 'clothing_store';

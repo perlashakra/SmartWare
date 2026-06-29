@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('address_id')->constrained('addresses')->restrictOnDelete();
             $table->foreignId('user_id')->constrained('users')->restrictOnDelete();
-            $table->string('facility_name');
+            $table->string('facility_name')->nullable();
             $table->enum('facility_type', ['warehouse', 'business']);
             $table->enum('facility_status', ['pending', 'submitted', 'approved', 'rejected'])->default('pending');
             //description

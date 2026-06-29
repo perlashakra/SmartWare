@@ -5,9 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ChangeEmailRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterClientRequest;
-use App\Http\Requests\RegisterRequest;
+use App\Http\Requests\RegisterManagerRequest;
 use App\Http\Requests\RegisterWorkerRequest;
 use App\Models\EmployeeAnnouncement;
+use App\Models\Facility;
 use App\Models\Store;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
@@ -93,7 +94,7 @@ class AuthController extends Controller
 
     // --- CLEANED UP ENDPOINTS ---
 
-    public function registerManager(RegisterRequest $request): JsonResponse
+    public function registerManager(RegisterManagerRequest $request): JsonResponse
     {
         $validated = $request->validated();
         $lang = $request->getPreferredLanguage(['en', 'ar']) ?? 'en';
@@ -115,9 +116,10 @@ class AuthController extends Controller
         // 3. Pass the clean user-only data to the engine
         return $this->processRegistration($validated, $lang, function ($user) use ($storeName) {
             // Run Client specific actions safely using the extracted store name
-            Store::create([
-                'name' => $storeName,
-                'client_id' => $user->id,
+            Facility::create([
+                'facility_name' => $storeName,
+                'user_id' => $user->id,
+                'facility_type' => 'business',
                 'address_id' => 1,//TEMPORARYYYYYYYY
             ]);
         });
