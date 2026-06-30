@@ -7,7 +7,7 @@ return [
     'verification_email_resent' => 'تمت إعادة إرسال رابط التحقق عبر البريد الإلكتروني إلى عنوان بريدك الإلكتروني.',
 
     //Worker registration messages:
-    'employee_not_announced' => 'لم يقم صاحب العمل بتسجيلك كعامل حتى الآن.',
+    'employee_not_announced' => 'لا يوجد إعلان وظيفة متاح لمن لديهم معلوماتك.',
     'employee_already_registered' => 'لقد تم حجز هذا العمل من قبل، تمت إعادة إرسال رسالة التحقق إلى بريده الإلكتروني.',
     'employee_identity_mismatch' => 'الاسم الأول أو الأخير لا يتطابق مع سجلاتنا.',
 
@@ -28,6 +28,13 @@ return [
     'verification_sent_again' => 'تم إرسال رسالة التحقق مجددا.',
     'invalid_verification_link' => 'رابط التحقق غير صالح.',
     'expired_verification_link' => 'انتهت صلاحية رابط التحقق.',
+
+    //Password changing messages:
+    'password_changed_success' => 'تم تغيير كلمة السر بنجاح.',
+    'current_password_required' => 'كلمة السر الحالية مطلوبة.',
+    'current_password_incorrect' => 'كلمة السر الحالية غير صحيحة.',
+    'new_password_required' => 'كلمة السر الجديدة الخاصة بك مطلوبة.',
+    'new_password_min' => 'يجب أن تتكون كلمة السر الجديدة من 10 أحرف على الأقل.',
 
     //Password reset email:
     'reset_password_body' => 'لقد تلقيت هذه الرسالة الإلكترونية لأننا تلقينا طلبًا لإعادة تعيين كلمة المرور لحسابك.',

@@ -2,10 +2,8 @@
 
 namespace App\Http\Requests;
 
-use App\Models\EmployeeAnnouncement;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Carbon;
 
 class RegisterWorkerRequest extends FormRequest
 {

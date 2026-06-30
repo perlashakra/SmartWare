@@ -25,7 +25,7 @@ return [
     'verification_email_resent' => 'The email verification link has been resent to your email address.',
 
     //Worker registration messages:
-    'employee_not_announced' => 'Your employer has not registered you as a worker yet.',
+    'employee_not_announced' => 'There is no job announcement for someone with your information.',
     'employee_already_registered' => 'A worker has already claimed this job. An email verification has been resent to their email.',
     'employee_identity_mismatch' => 'The first or last name does not match our records.',
 
@@ -46,6 +46,13 @@ return [
     'verification_sent_again' => 'Verification email sent again.',
     'invalid_verification_link' => 'Invalid verification link.',
     'expired_verification_link' => 'Verification link expired.',
+
+    //Password changing messages:
+    'password_changed_success' => 'Your password has been changed successfully.',
+    'current_password_required' => 'Your current password is required.',
+    'current_password_incorrect' => 'Your current password is incorrect.',
+    'new_password_required' => 'Your new password is required.',
+    'new_password_min' => 'Your new password must be at least 10 characters.',
 
     //Password reset email:
     'reset_password_body' => 'You are receiving this email because we received a password reset request for your account.',
