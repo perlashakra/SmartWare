@@ -139,8 +139,8 @@ class AuthController extends Controller
             $user = User::where([
                 'first_name' => $validated['first_name'],
                 'last_name' => $validated['last_name'],
-                'manager_id' => $announcement['manager_id'],
-                'employmentWarehouse_id' => $announcement['employment_warehouse_id'],
+                'manager_id' => $announcement->manager_id,
+                'employmentWarehouse_id' => $announcement->employmentWarehouse_id,
             ])->first();
             $user->sendEmailVerificationNotification();
             return response()->json(['message' => __('auth.employee_already_registered')], 409);
