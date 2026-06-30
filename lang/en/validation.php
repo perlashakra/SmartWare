@@ -237,4 +237,8 @@ return [
     //Login validation messages:
     'login_required' => 'You must provide an email or a phone number.',
     'login_string' => 'Log-in must be a string.',
+
+    //Password reset validation messages:
+    'otp_required' => 'Please enter the verification code.',
+    'otp_digits' => 'The verification code must be exactly 6 digits.'
 ];

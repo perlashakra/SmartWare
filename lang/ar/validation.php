@@ -31,4 +31,8 @@ return [
     'role_in_manager' => 'يجب أن يكون المنصب مدير مستودع.',
     'role_in_client' => 'يجب أن يكون الدور هو العميل.',
     'role_in_worker' => 'يجب أن يكون الدور عامل مستودع.',
+
+    //Password reset validation messages:
+    'otp_required' => 'يرجى إدخال رمز التحقق.',
+    'otp_digits' => 'يجب أن يتكون رمز التحقق من 6 أرقام بالضبط.'
 ];
