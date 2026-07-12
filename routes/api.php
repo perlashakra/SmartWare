@@ -7,8 +7,10 @@ use App\Http\Controllers\EmailVerificationController;
 use App\Http\Controllers\FacilityController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ResetPasswordController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -28,12 +30,13 @@ Route::post('/email/verification-notification',[EmailVerificationController::cla
 Route::post('/email/change/{id}', [AuthController::class, 'changeEmail'])->middleware('locale');
 Route::post('/email/verified-login', [AuthController::class, 'verifiedLogin']);
 
-//Password reset routes:
-// 1. Send the reset link email
-Route::post('/password/forgot', [AuthController::class, 'sendResetLinkEmail'])->middleware('locale');
-
-// 2. Process the actual password reset from the link
-Route::post('/password/reset', [AuthController::class, 'resetPassword']);
+//Password Reset endpoints:
+// Step 1: Request the 6-digit code
+Route::post('/password/forgot', [ResetPasswordController::class, 'sendResetOtp']);
+// Step 2: Dedicated validation endpoint for the intermediate screen
+Route::post('/password/verify-otp', [ResetPasswordController::class, 'verifyOtp']);
+// Step 3: Final password updating layout
+Route::post('/password/reset', [ResetPasswordController::class, 'resetPasswordWithOtp']);
 
 //Login route:
 Route::post('/login', [AuthController::class, 'login']);
@@ -89,3 +92,4 @@ Route::controller(FacilityController::class)->prefix('/facilities')->middleware(
     Route::put('/{facility}', 'update')->middleware(['role:client,warehouse_admin']);
     Route::delete('/{facility}', 'destroy')->middleware(['role:client,warehouse_admin']);
 });
+

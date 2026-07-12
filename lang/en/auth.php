@@ -25,7 +25,7 @@ return [
     'verification_email_resent' => 'The email verification link has been resent to your email address.',
 
     //Worker registration messages:
-    'employee_not_announced' => 'Your employer has not registered you as a worker yet.',
+    'employee_not_announced' => 'There is no job announcement for someone with your information.',
     'employee_already_registered' => 'A worker has already claimed this job. An email verification has been resent to their email.',
     'employee_identity_mismatch' => 'The first or last name does not match our records.',
 
@@ -47,11 +47,24 @@ return [
     'invalid_verification_link' => 'Invalid verification link.',
     'expired_verification_link' => 'Verification link expired.',
 
+    //Password changing messages:
+    'password_changed_success' => 'Your password has been changed successfully.',
+    'current_password_required' => 'Your current password is required.',
+    'current_password_incorrect' => 'Your current password is incorrect.',
+    'new_password_required' => 'Your new password is required.',
+    'new_password_min' => 'Your new password must be at least 10 characters.',
+
     //Password reset email:
-    'reset_password_body' => 'You are receiving this email because we received a password reset request for your account.',
-    'reset_password_button' => 'Reset Password',
-    'reset_password_expire_notice' => 'This password reset link will expire in 60 minutes.',
+    'reset_password_subject' => 'Your Password Reset Code',
+    'reset_password_heading' => 'Reset Your Password',
+    'reset_password_body' => 'You requested a password reset. Use the secure 6-digit verification code below to complete the process. This code will expire in 15 minutes.',
     'reset_password_ignore' => 'If you did not request a password reset, no further action is required.',
+
+    //Password reset messages:
+    'passwords_sent' => 'A password reset email was sent to this address.',
+    'passwords_token_invalid' => 'The verification code is invalid or has expired.',
+    'otp_verified' => 'OTP verified successfully. Proceed to password reset.',
+    'password_reset_successfully' => 'Password reset successfully.',
 
     //User login messages:
     'user_not_found' => 'User not found.',

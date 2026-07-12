@@ -139,9 +139,13 @@ class AuthController extends Controller
             $user = User::where([
                 'first_name' => $validated['first_name'],
                 'last_name' => $validated['last_name'],
-                'manager_id' => $announcement['manager_id'],
-                'employmentWarehouse_id' => $announcement['employment_warehouse_id'],
+                'manager_id' => $announcement->manager_id,
+                'employmentWarehouse_id' => $announcement->employmentWarehouse_id,
             ])->first();
+            if(!$user)
+            {
+                return response()->json(['message' => __('auth.employee_not_announced')], 403);
+            }
             $user->sendEmailVerificationNotification();
             return response()->json(['message' => __('auth.employee_already_registered')], 409);
         }
@@ -184,64 +188,6 @@ class AuthController extends Controller
             'message' => __('auth.verification_sent'),
             'email' => $user->email
         ], 200);
-    }
-
-/**
- * Step 1: Send a reset token to the user's email.
- */
-    public function sendResetLinkEmail(Request $request)
-    {
-        $request->validate(['email' => 'required|email']);
-
-        $preferredLanguage =
-            $request->getPreferredLanguage(['en', 'ar'])
-            ?? 'en';
-
-        app()->setLocale($preferredLanguage);
-
-        // The broker checks if the user exists, generates a token, and sends the notification
-        $status = PasswordBroker::broker()->sendResetLink(
-            $request->only('email')
-        );
-
-        // If successful, Laravel returns a core string constant
-        if ($status === PasswordBroker::RESET_LINK_SENT) {
-            return response()->json(['message' => __($status)], 200);
-        }
-
-        // If it failed (e.g., user doesn't exist), return a 422
-        return response()->json(['message' => __($status)], 422);
-    }
-
-    /**
-     * Step 2: Receive the token and input the new password.
-     */
-    public function resetPassword(Request $request)
-    {
-        $request->validate([
-            'token' => 'required',
-            'email' => 'required|email',
-            'password' => ['required', 'confirmed', Password::min(10)],
-        ]);
-
-        // Reset the password via the broker
-        $status = PasswordBroker::broker()->reset(
-            $request->only('email', 'password', 'password_confirmation', 'token'),
-            function ($user, $password) {
-                $user->forceFill([
-                    'password' => Hash::make($password)
-                ])->save();
-
-                // Clean up old tokens so they have to log back in fresh on Flutter
-                $user->tokens()->delete();
-            }
-        );
-
-        if ($status === PasswordBroker::PASSWORD_RESET) {
-            return response()->json(['message' => __($status)], 200);
-        }
-
-        return response()->json(['message' => __($status)], 422);
     }
 
     public function verifiedLogin(LoginRequest $request)
@@ -319,6 +265,8 @@ class AuthController extends Controller
         if (!$user->hasVerifiedEmail()) {
             Auth::logout();
 
+            $user->sendEmailVerificationNotification();
+
             return response()->json([
                 'message' => __('auth.email_not_verified')
             ], 403);
@@ -353,9 +301,15 @@ class AuthController extends Controller
     public function changePassword(Request $request)
     {
         $request->validate([
-            'current_password' => ['required', 'current_password'], // 'current_password' is a built-in Laravel validation rule!
-            'new_password' => ['required', 'confirmed', Password::min(10)],
+            'current_password' => ['required', 'current_password'],
+            'new_password' => ['required', Password::min(10)],
+        ], [
+            'current_password.required' => __('auth.current_password_required'),
+            'current_password.current_password' => __('auth.current_password_incorrect'),
+            'new_password.required' => __('auth.new_password_required'),
+            'new_password.min' => __('auth.new_password_min'),
         ]);
+
 
         $user = $request->user();
 
