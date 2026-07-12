@@ -11,11 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
+        //incoming stock
+        //inbooks -- inbook_items -- inventory -- section -- warehouse
         Schema::create('inbooks', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('section_id')->constrained('sections')->restrictOnDelete();
+            //remove: $table->foreignId('section_id')->constrained('sections')->restrictOnDelete();
+            //supplier_id
             $table->foreignId('user_id')->constrained('users')->restrictOnDelete();
             $table->date('storage_date');
+            //warehouse_id
+            //supplier_id
+            //uploaded_by
+            //date
+            //status
             $table->timestamps();
         });
     }

@@ -15,6 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('address_id')->constrained('addresses')->restrictOnDelete();
             $table->string('name');
+            $table->string('phone')->unique();
+            $table->string('email')->unique();
+            $table->string('website');
             $table->timestamps();
         });
     }

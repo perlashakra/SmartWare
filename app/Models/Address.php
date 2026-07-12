@@ -20,4 +20,8 @@ class Address extends Model
     {
         return $this->hasOne(Facility::class);
     }
+
+    public function company(){
+        return $this->hasOne(Company::class);
+    }
 }

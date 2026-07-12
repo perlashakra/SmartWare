@@ -1,12 +1,13 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\EmailVerificationController;
+use App\Http\Controllers\FacilityController;
 use App\Http\Controllers\OnboardingController;
-use App\Models\User;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use App\Http\Controllers\ProductController;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
@@ -47,4 +48,44 @@ Route::middleware(['auth:sanctum', 'locale'])->group(function () {
     Route::post('/onboarding/savePreferences', [OnboardingController::class, 'savePreferences']);
 });
 
-//
+//Company CRUD Routes
+Route::middleware(['auth:sanctum'])->controller(CompanyController::class)->prefix('/companies')->group(function (){
+    Route::get('', 'index');
+    Route::get('/{company}', 'show');
+    Route::post('', 'store')->middleware(['role:super_admin']);
+    Route::put('/{company}', 'update')->middleware(['role:super_admin']);
+    Route::delete('/{company}', 'destroy')->middleware(['role:super_admin']);
+});
+
+//Category CRUD Routes
+Route::middleware(['auth:sanctum'])->prefix('/categories')->group(function(){
+    Route::get('', [CategoryController::class, 'index']);
+    Route::post('', [CategoryController::class, 'store'])->middleware(['role:super_admin,warehouse_admin']);
+    Route::put('/{category}', [CategoryController::class, 'update'])->middleware(['role:super_admin,warehouse_admin']);
+    Route::delete('/{category}', [CategoryController::class, 'destroy'])->middleware(['role:super_admin']);
+});
+
+//Product CRUD Routes
+Route::controller(ProductController::class)->prefix('/products')->middleware(['auth:sanctum'])->group(function(){
+    Route::get('', 'index');
+    Route::get('/{product}', 'show');
+    Route::post('', 'store')->middleware(['role:super_admin,warehouse_admin']);
+    Route::put('/{product}', 'update')->middleware(['role:super_admin,warehouse_admin']);
+    Route::delete('/{product}', 'destroy')->middleware(['role:super_admin']);
+});
+
+//Product-Category Relation Routes
+Route::controller(ProductController::class)->prefix('/products')->middleware(['auth:sanctum'])->group(function(){
+    Route::post('/{id}/categories')->middleware(['role:super_admin,warehouse_admin']);
+    Route::put('/{id}/categories')->middleware(['role:super_admin,warehouse_admin']);
+    Route::delete('/{id}/categories')->middleware(['role:super_admin,warehouse_admin']);
+});
+
+//Facility CRUD Routes
+Route::controller(FacilityController::class)->prefix('/facilities')->middleware(['auth:sanctum'])->group(function(){
+    Route::get('', 'index');
+    Route::get('/{facility}', 'show');
+    Route::post('', 'store')->middleware(['role:client,warehouse_admin']);
+    Route::put('/{facility}', 'update')->middleware(['role:client,warehouse_admin']);
+    Route::delete('/{facility}', 'destroy')->middleware(['role:client,warehouse_admin']);
+});

@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
+        //inbook_Items => update inventory
         Schema::create('inbook_products', function (Blueprint $table) {
             $table->id();
             $table->foreignId('inbook_id')->constrained('inbooks')->cascadeOnDelete();
             $table->foreignId('product_id')->constrained('products')->restrictOnDelete();
             $table->unsignedInteger('quantity');
+            //sectio_id
             $table->timestamps();
         });
     }

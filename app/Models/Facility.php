@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\FacilityType;
 use Illuminate\Database\Eloquent\Model;
 
 class Facility extends Model
@@ -14,10 +15,14 @@ class Facility extends Model
         'address_id',
     ];
 
-    //there is also a relation with the FacilityUsers
-
+    protected function casts() : array{
+        return [
+            'facility_type' => FacilityType::class,
+        ];
+    }
+    
     //this relation could be either for a business owner or a warehouse manager
-    public function user()
+    public function owner()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
@@ -26,4 +31,44 @@ class Facility extends Model
     {
         return $this->belongsTo(Address::class);
     }
+
+    public function sections(){
+        return $this->hasMany(Section::class);
+    }
+    
+    public function facilityUsers(){
+        return $this->hasMany(FacilityUser::class);
+    }
+
+    public function employeeAnnouncements(){
+        return $this->hasMany(EmployeeAnnouncement::class);
+    }
+
+    public function importFiles(){
+        return $this->hasMany(ImportFile::class);
+    }
+
+    public function transactions(){
+        return $this->hasMany(Transaction::class);
+    }
+
+    public function isWarehouse(){
+        return $this->facility_type === FacilityType::Warehouse;
+    }
+
+    public function isBusiness(){
+        return $this->facility_type === FacilityType::Business;
+    }
+
+    public function scopeWarehouses($query)
+    {
+        return $query->where('facility_type', FacilityType::Warehouse);
+    }
+
+    //Facility::warehouses()->get(); in controller
+    public function scopeBusinesses($query)
+    {
+        return $query->where('facility_type', FacilityType::Business);
+    }
+
 }
