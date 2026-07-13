@@ -79,7 +79,6 @@ class ProductController extends Controller
             $productValidated['sku'] = strtoupper($productValidated['sku']);
         }
         $product->update($productValidated);
-        
         return response()->json(['message' => 'Product Updated Successfully!', 'data' => new ProductResource($product->load(['categories', 'company']))], 200);
     }
 

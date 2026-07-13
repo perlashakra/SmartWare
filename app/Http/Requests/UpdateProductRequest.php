@@ -26,11 +26,11 @@ class UpdateProductRequest extends FormRequest
     {
         return [
             'company_id' => ['sometimes', 'exists:companies,id'],
-            'sku' => ['sometimes', 'string', Rule::unique('products', 'sku'), 'max:100', 'regex:/^[A-Za-z0-9_-]+$/'],
+            'sku' => ['sometimes', 'string', Rule::unique('products', 'sku')->ignore($this->product), 'max:100', 'regex:/^[A-Za-z0-9_-]+$/'],
             'name' => 'sometimes|string|max:255',
-            'price' => 'sometimes|decimal|min:0',
+            'price' => 'sometimes|numeric|min:0',
             'container_type' => ['sometimes', 'string', Rule::enum(ContainerType::class)],
-            'categories' => 'required|array',
+            'categories' => 'sometimes|array',
             'categories.*' => 'exists:categories,id',
         ];
     }

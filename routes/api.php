@@ -79,9 +79,9 @@ Route::controller(ProductController::class)->prefix('/products')->middleware(['a
 
 //Product-Category Relation Routes
 Route::controller(ProductController::class)->prefix('/products')->middleware(['auth:sanctum'])->group(function(){
-    Route::post('/{id}/categories')->middleware(['role:super_admin,warehouse_admin']);
-    Route::put('/{id}/categories')->middleware(['role:super_admin,warehouse_admin']);
-    Route::delete('/{id}/categories')->middleware(['role:super_admin,warehouse_admin']);
+    Route::post('/{product}/categories', 'addCategories')->middleware(['role:super_admin,warehouse_admin']);
+    Route::put('/{product}/categories', 'syncCategories')->middleware(['role:super_admin,warehouse_admin']);
+    Route::delete('/{product}/categories', 'removeCategories')->middleware(['role:super_admin,warehouse_admin']);
 });
 
 //Facility CRUD Routes
