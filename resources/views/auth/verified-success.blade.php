@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ __('StoreX - Email Verified') }}</title>
+    <title>{{ __('SmartWare - Email Verified') }}</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 <body class="bg-slate-50 flex items-center justify-center min-h-screen">
@@ -16,11 +16,11 @@
     </div>
 
     <div class="mb-6 flex justify-center">
-        <img src="{{ asset('images/storexLogo.png') }}" alt="Welcome to StoreX" class="h-32 w-auto object-contain rounded-lg">
+        <img src="{{ asset('images/storexLogo.png') }}" alt="Welcome to SmartWare" class="h-32 w-auto object-contain rounded-lg">
     </div>
 
     <h1 class="text-2xl font-bold text-slate-800 mb-3">
-        {{ __('StoreX') }}
+        {{ __('SmartWare') }}
     </h1>
 
     <p class="text-slate-600 mb-6">

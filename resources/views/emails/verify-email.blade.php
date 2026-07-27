@@ -83,9 +83,9 @@
     <div class="content">
         <div class="header">
             @if(file_exists(public_path('images/storexLogo.png')))
-                <img src="{{ $message->embed(public_path('images/storexLogo.png')) }}" alt="StoreX Logo" class="logo">
+                <img src="{{ $message->embed(public_path('images/storexLogo.png')) }}" alt="SmartWare Logo" class="logo">
             @else
-                <h2>StoreX</h2>
+                <h2>SmartWare</h2>
             @endif
         </div>
 
@@ -102,7 +102,7 @@
 
         <p>
             {{ __('auth.regards') ?? 'Regards' }},<br>
-            <strong>StoreX</strong>
+            <strong>SmartWare</strong>
         </p>
 
         <div class="sub">
@@ -116,7 +116,7 @@
     </div>
 
     <div class="footer">
-        <p>&copy; {{ date('Y') }} StoreX. All rights reserved.</p>
+        <p>&copy; {{ date('Y') }} SmartWare. All rights reserved.</p>
     </div>
 </div>
 </body>
