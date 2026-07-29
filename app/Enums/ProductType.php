@@ -207,3 +207,15 @@ enum ProductType: string {
         };
     }
 }
+/*
+  'frozen_foods',
+  'beverages',
+  'coffee_tea',
+  'bakery_products',
+  'spices_seasonings',
+  'meat_poultry',
+  'seafood',
+  'dairy_products',
+  'packaging_supplies',
+  'cleaning_supplies',
+ * */
