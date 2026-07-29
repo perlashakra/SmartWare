@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Order;
 use Illuminate\Database\Eloquent\Model;
 
 class Company extends Model
@@ -20,5 +21,9 @@ class Company extends Model
 
     public function address(){
         return $this->belongsTo(Address::class);
+    }
+
+    public function orders(){
+        return $this->hasMany(Order::class);
     }
 }

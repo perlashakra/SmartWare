@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Order;
+use App\Models\OrderItem;
 use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
@@ -24,5 +26,9 @@ class Product extends Model
 
     public function inventories(){
         return $this->hasMany(Inventory::class);
+    }
+
+    public function orderItems(){
+        return $this -> has(OrderItem::class);
     }
 }

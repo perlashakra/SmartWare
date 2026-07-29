@@ -15,10 +15,11 @@ return new class extends Migration
             $table->id();
             //either company or user only one could be null
             //client, warehouse
+            //this One
             $table->foreignId('company_id')->nullable()->constrained('companies')->nullOnDelete();
             $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->enum('order_type',['warehouse_restock', 'business_purchase']);
-            $table->float('expected_price');
+            $table->float('expected_price');//this is a derived attri
             $table->enum('status', ['pending', 'approved', 'cancelled', 'preparing', 'shipping', 'delivered'])->nullable();
             $table->date('order_date');
             $table->string('notes');

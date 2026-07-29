@@ -2,15 +2,17 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Laravel\Sanctum\HasApiTokens;
+use App\Models\Inbook;
+use App\Models\Order;
+use App\Notifications\QueuedResetPassword;
+use App\Notifications\QueuedVerifyEmail;
 use Database\Factories\UserFactory;
+use Illuminate\Auth\MustVerifyEmail as MustVerifyEmailTrait;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Auth\MustVerifyEmail as MustVerifyEmailTrait;
-use App\Notifications\QueuedVerifyEmail;
-use App\Notifications\QueuedResetPassword;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -71,7 +73,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function warehouse()
     {
-        return $this->belongsTo(Facility::class);
+        return $this->belongsTo(Facility::class);//this has no end in the facility
     }
 
     //Manager relationships:
@@ -113,5 +115,15 @@ class User extends Authenticatable implements MustVerifyEmail
     public function sendPasswordResetNotification($token)
     {
         $this->notify(new QueuedResetPassword($token));
+    }
+
+    //order_relations
+    public function ordersMade(){
+        return $this->hasMany(Order::class);
+    }
+
+    //in book handle
+    public function inbooksHandled(){
+        return $this->hasMany(Inbook::class);
     }
 }

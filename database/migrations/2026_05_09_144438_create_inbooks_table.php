@@ -11,6 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
+        //this one
         //incoming stock
         //inbooks -- inbook_items -- inventory -- section -- warehouse
         Schema::create('inbooks', function (Blueprint $table) {
