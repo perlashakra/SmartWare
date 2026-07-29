@@ -2,12 +2,9 @@
 
 namespace App\Models;
 
-<<<<<<< HEAD
 use App\Models\Order;
 use App\Models\OrderItem;
-=======
 use App\Enums\ProductType;
->>>>>>> 98cf0ab66069abaa95650b91068c6d7a59eabbcb
 use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
