@@ -13,8 +13,10 @@ return new class extends Migration
     {
         Schema::create('preferences', function (Blueprint $table) {
             $table->id();
+            //if business_type is deleted add this instead 
+            //$table->foreignId('profile_id')->constrained('profiles')->cascadeOnDelete();
             $table->foreignId('business_type_id')->constrained('business_types')->cascadeOnDelete();
-            $table->string('name');
+            $table->string('product_type');
             $table->timestamps();
         });
     }

@@ -2,10 +2,8 @@
 
 namespace App\Http\Requests;
 
-use App\Enums\ContainerType;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class ProductFilterRequest extends FormRequest
 {
@@ -30,7 +28,7 @@ class ProductFilterRequest extends FormRequest
             'max_price' => 'sometimes|numeric|min:0',
             'categories' => 'sometimes|array',
             'categories.*' => 'exists:categories,id',
-            'container_type' => ['sometimes', Rule::enum(ContainerType::class)],
+            'container_type' => 'sometimes|string',
         ];
     }
 }

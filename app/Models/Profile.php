@@ -13,7 +13,13 @@ class Profile extends Model
         'preferences_submitted',
         'completed',
     ];
-    public function User()
+
+    //if business_types migrations is deleted add this
+    // protected $casts = [
+    //     'business_type' => BusinessType::class,
+    // ];
+
+    public function user()
     {
         return $this->belongsTo(User::class);
     }
@@ -21,4 +27,12 @@ class Profile extends Model
     public function type(){
         return $this->hasOne(BusinessTypeEnum::class);
     }
+
+    //this should also be deleted
+    public function business_type(){
+        return $this->hasOne(BusinessType::class);
+    }
+
+    //add this relation instead
+    //hasMany(Preferences::class)
 }

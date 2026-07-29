@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\ProductType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -17,7 +18,9 @@ return new class extends Migration
             $table->string('sku')->unique();
             $table->string('name');
             $table->decimal('price', 10, 2);
-            $table->enum('container_type', ['box', 'barrel', 'pallet', 'carton', 'bag', 'bottle', 'crate']);
+            $table->string('container_type');
+            $table->string('product_type');
+            $table->string('product_image')->nullable();
             //barcode, description, weight
             $table->timestamps();
         });

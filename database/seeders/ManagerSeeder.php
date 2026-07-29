@@ -15,12 +15,14 @@ class ManagerSeeder extends Seeder
     public function run(): void
     {
         User::create([
-            'first_name' => 'Joelle',
-            'last_name' => 'Benyamin',
-            'email' => 'benyaminjoelle6@gmail.com',
-            'phone_number' => '0968691004',
+            'first_name' => 'Nicole',
+            'last_name' => 'Ekkeh',
+            'email' => 'nicole.ekkeh@gmail.com',
+            'phone_number' => '0936684934',
             'password' => Hash::make('0123456789'),
             'role' => 'warehouse_admin',
         ]);
+
+        User::factory()->warehouse_admin()->count(10)->create();
     }
 }

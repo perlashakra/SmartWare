@@ -5,6 +5,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\EmailVerificationController;
 use App\Http\Controllers\FacilityController;
+use App\Http\Controllers\ImportController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ResetPasswordController;
@@ -90,6 +91,8 @@ Route::controller(FacilityController::class)->prefix('/facilities')->middleware(
     Route::get('/{facility}', 'show');
     Route::post('', 'store')->middleware(['role:client,warehouse_admin']);
     Route::put('/{facility}', 'update')->middleware(['role:client,warehouse_admin']);
-    Route::delete('/{facility}', 'destroy')->middleware(['role:client,warehouse_admin']);
+    Route::delete('/{facility}', 'destroy')->middleware(['role:client,warehouse_admin,super_admin']);
 });
 
+//Importing excel files 
+Route::post('/imports', [ImportController::class, 'import'])->middleware(['auth:sanctum']);

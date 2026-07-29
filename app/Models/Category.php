@@ -13,4 +13,9 @@ class Category extends Model
     public function products(){
         return $this->belongsToMany(Product::class);
     }
+
+    //delete
+    // public function business_type(){
+    //     return $this->belongsTo(BusinessType::class);
+    // }
 }

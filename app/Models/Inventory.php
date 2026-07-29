@@ -8,4 +8,12 @@ class Inventory extends Model
 {
     //products -> company
     //section -> warehouse
+
+    /**
+     * InventoryService
+     * calculateAvailableStock()
+     * reserveInventory()
+     * releaseInventory()
+     */
+    //those are reusable business logic
 }

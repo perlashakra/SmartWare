@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('business_types', function (Blueprint $table) {
             $table->id();
+            //delete because we only store buisness name which is stored in enum 
             $table->foreignId('profile_id')->constrained('profiles')->cascadeOnDelete();
-            $table->string('name');
+            $table->string('business_type');
             $table->timestamps();
         });
     }

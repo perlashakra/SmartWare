@@ -63,6 +63,11 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasOne(Document::class);
     }
+
+    public function importFiles(){
+        return $this->hasMany(ImportFile::class);
+    }
+
     //Employee relationships:
     public function manager()
     {

@@ -9,6 +9,7 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
+    //categories table is used for product classification and filtering, not for defining the business rules
     public function up(): void
     {
         Schema::create('categories', function (Blueprint $table) {

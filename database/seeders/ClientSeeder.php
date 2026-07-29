@@ -7,7 +7,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
-class SuperAdminSeeder extends Seeder
+class ClientSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -15,14 +15,14 @@ class SuperAdminSeeder extends Seeder
     public function run(): void
     {
         User::create([
-            'first_name' => 'Joelle',
-            'last_name' => 'Benyamin',
-            'email' => 'benyaminjoelle6@gmail.com',
-            'phone_number' => '0968691004',
+            'first_name' => 'Perla',
+            'last_name' => 'Shakra',
+            'email' => 'perla.shakra@gmail.com',
+            'phone_number' => '0993579666',
             'password' => Hash::make('0123456789'),
-            'role' => 'super_admin',
+            'role' => 'client',
         ]);
 
-        User::factory()->super_admin()->count(5)->create();
+        User::factory()->client()->count(10)->create();
     }
 }

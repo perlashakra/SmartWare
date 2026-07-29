@@ -12,20 +12,29 @@ use App\Models\Preference;
 
 class OnboardingController extends Controller
 {
-    private function getAllowedProductsByBusiness(string $businessType): array
+    private function getAllowedProductsByBusiness(BusinessTypeEnum $businessType): array
     {
-        return match($businessType) {
-            BusinessTypeEnum::PHARMACY->value => [ProductType::MEDICINE, ProductType::MEDICAL_SUPPLIES, ProductType::COSMETICS],
-            BusinessTypeEnum::RESTAURANT->value => [ProductType::CANNED_FOODS, ProductType::REFRIGERATED_FOODS, ProductType::FRESH_FOODS, ProductType::BEVERAGES],
-            BusinessTypeEnum::SUPERMARKET->value => [ProductType::CANNED_FOODS, ProductType::REFRIGERATED_FOODS, ProductType::FRESH_FOODS, ProductType::BEVERAGES, ProductType::COSMETICS],
-            BusinessTypeEnum::CLOTHING_STORE->value => [ProductType::CLOTHING],
-            BusinessTypeEnum::ELECTRONICS_STORE->value => [ProductType::ELECTRONICS],
-            BusinessTypeEnum::MAKEUP_STORE->value => [ProductType::COSMETICS],
-            BusinessTypeEnum::FURNITURE_STORE->value => [ProductType::FURNITURE],
-            default => []
-        };
+        $products = [];
+        foreach($businessType->categories() as $category){
+            $products = array_merge(
+                $products,
+                $category->productTypes()
+            );
+        }
+        return $products;
+        // return match($businessType) {
+        //     BusinessTypeEnum::PHARMACY->value => [ProductType::MEDICINE, ProductType::MEDICAL_SUPPLIES, ProductType::COSMETICS],
+        //     BusinessTypeEnum::RESTAURANT->value => [ProductType::CANNED_FOODS, ProductType::REFRIGERATED_FOODS, ProductType::FRESH_FOODS, ProductType::BEVERAGES],
+        //     BusinessTypeEnum::SUPERMARKET->value => [ProductType::CANNED_FOODS, ProductType::REFRIGERATED_FOODS, ProductType::FRESH_FOODS, ProductType::BEVERAGES, ProductType::COSMETICS],
+        //     BusinessTypeEnum::CLOTHING_STORE->value => [ProductType::CLOTHING],
+        //     BusinessTypeEnum::ELECTRONICS_STORE->value => [ProductType::ELECTRONICS],
+        //     BusinessTypeEnum::MAKEUP_STORE->value => [ProductType::COSMETICS],
+        //     BusinessTypeEnum::FURNITURE_STORE->value => [ProductType::FURNITURE],
+        //     default => []
+        // };
     }
 
+    //should also be modified if business type migration is deleted which i think it should. it serves no purpose
     public function getOnboardingOptions(GetOnboardingOptionsRequest $request)
     {
         $user = $request->user();
@@ -53,7 +62,7 @@ class OnboardingController extends Controller
 
         // Route 3: Clients who have picked a business type get filtered products
         if ($role === 'client' && $businessType) {
-            $allowedProducts = $this->getAllowedProductsByBusiness($businessType);
+            $allowedProducts = $this->getAllowedProductsByBusiness(BusinessTypeEnum::from($businessType));
 
             return response()->json([
                 'step' => 'choose_product_types',
@@ -74,9 +83,9 @@ class OnboardingController extends Controller
         // --- CRITICAL LEGAL VALIDATION FOR WAREHOUSE MANAGERS ---
         if ($role === 'warehouse_manager') {
             $hasMedical = in_array(ProductType::MEDICINE->value, $productTypes) ||
-                in_array(ProductType::MEDICAL_SUPPLIES->value, $productTypes);
+                in_array(ProductType::MEDICAL_EQUIPMENT->value, $productTypes);
 
-            $hasNonMedical = count(array_diff($productTypes, [ProductType::MEDICINE->value, ProductType::MEDICAL_SUPPLIES->value])) > 0;
+            $hasNonMedical = count(array_diff($productTypes, [ProductType::MEDICINE->value, ProductType::MEDICAL_EQUIPMENT->value])) > 0;
 
             if ($hasMedical && $hasNonMedical) {
                 return response()->json([
@@ -90,7 +99,7 @@ class OnboardingController extends Controller
             $businessType = $request->validated('business_type');
 
             // 1. Fetch the master-list of what this business type is actually allowed to have
-            $allowedEnums = $this->getAllowedProductsByBusiness($businessType);
+            $allowedEnums = $this->getAllowedProductsByBusiness(BusinessTypeEnum::from($businessType));
 
             // Convert the array of Enum objects into raw string values for comparison
             $allowedStringValues = array_map(fn($enum) => $enum->value, $allowedEnums);
@@ -111,11 +120,13 @@ class OnboardingController extends Controller
             ['business_type' => $request->validated('business_type')]
         );
 
+        //needs correction because prefernce does not have a profile id
         Preference::where('profile_id', $profile->id)->delete();
         foreach ($productTypes as $type) {
             Preference::create([
+                //this needs to be corrected
                 'business_type_id' => $profile->id,
-                'name' => $type
+                'product_type' => $type
             ]);
         }
 

@@ -8,7 +8,7 @@ class Preference extends Model
 {
     protected $fillable = [
         'business_type_id',
-        'name',
+        'product_type',
     ];
 
     public function business_type(){
