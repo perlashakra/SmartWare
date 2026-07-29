@@ -2,8 +2,12 @@
 
 namespace App\Models;
 
+<<<<<<< HEAD
 use App\Models\Order;
 use App\Models\OrderItem;
+=======
+use App\Enums\ProductType;
+>>>>>>> 98cf0ab66069abaa95650b91068c6d7a59eabbcb
 use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
@@ -14,6 +18,12 @@ class Product extends Model
         'name',
         'price',
         'container_type',
+        'product_type',
+        'product_image',
+    ];
+
+    protected $casts = [
+        'product_type' => ProductType::class,
     ];
 
     public function categories(){

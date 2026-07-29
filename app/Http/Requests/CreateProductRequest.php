@@ -2,26 +2,19 @@
 
 namespace App\Http\Requests;
 
-use App\Enums\ContainerType;
+use App\Enums\CategoryEnum;
+use App\Enums\ProductType;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class CreateProductRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
@@ -29,9 +22,11 @@ class CreateProductRequest extends FormRequest
             'sku' => ['required', 'string', Rule::unique('products', 'sku'), 'max:100', 'regex:/^[A-Za-z0-9_-]+$/'],
             'name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
-            'container_type' => ['required', 'string', Rule::enum(ContainerType::class)],
+            'container_type' => 'required|string',
             'categories' => 'required|array',
-            'categories.*' => 'exists:categories,id',
+            'categories.*' => ['required', 'string', Rule::enum(CategoryEnum::class)],
+            'product_type' => ['required', 'string', Rule::enum(ProductType::class)],
+            'product_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:4096',
         ];
     }
 

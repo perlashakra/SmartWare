@@ -5,14 +5,14 @@ namespace App\Http\Requests;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class PreferencesRequest extends FormRequest
+class ValidateFileRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -23,7 +23,8 @@ class PreferencesRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'facility_id' => 'required|exists:facilities,id',
+            'file' => 'required|file|mimes:xlsx,xls,csv',
         ];
     }
 }

@@ -6,11 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class BusinessType extends Model
 {
-    protected $fillable = ['profile_id', 'name'];
-
-    protected $casts = [
-        'product_type' => \App\Enums\ProductType::class,
-    ];
+    protected $fillable = ['profile_id', 'business_type'];
 
     public function profile(){
         return $this->belongsTo(Profile::class);
@@ -19,4 +15,8 @@ class BusinessType extends Model
     public function preferences(){
         return $this->hasMany(Preference::class);
     }
+
+    // public function categories(){
+    //     return $this->hasMany(Category::class);
+    // }
 }

@@ -7,15 +7,27 @@ use App\Http\Requests\ProductFilterRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Http\Requests\VerifyCategoryRequest;
 use App\Http\Resources\ProductResource;
+use App\Models\Preference;
 use App\Models\Product;
-
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 class ProductController extends Controller
 {
+    private function uploadProductImage(UploadedFile $image){
+        return $image->store('products', 'public');
+    }
+
     //everyone can view products but according to their preferences
     public function index(ProductFilterRequest $request){
-        $filter = $request->validated();
-
         $query = Product::query()->with(['company', 'categories']);
+
+        $user = auth()->user();
+        if($user->role === 'client'){
+            $preferences = Preference::where('business_type_id', $user->profile->business_type->id)->pluck('product_type');
+            $query->whereIn('product_type', $preferences);
+        }
+
+        $filter = $request->validated();
 
         $query->when(!empty($filter['search']), function($query) use ($filter){
             $query->where(function($q) use ($filter){
@@ -43,16 +55,6 @@ class ProductController extends Controller
         });
 
         return ProductResource::collection($query->paginate(12));
-        // $products = Product::whereHas('company.business_type', function ($query){
-        //                 $query->where('id', $user->profile->business_type);
-        //             })->get();
-
-        // $query->whereHas('company', function($q) use ($user){
-        //     $q->whereIn('business_type_id', $userPreferenceIds);
-        // });
-        // $query->whereHas('company.businessTypes', function ($q) use ($userPreferenceIds) {
-        //     $q->whereIn('business_types.id', $userPreferenceIds);
-        // });
     }
         
     public function show(Product $product){
@@ -60,14 +62,20 @@ class ProductController extends Controller
     }
 
     //warehouse_admin, super_admin only
+    //review creation of a product when a manager does it 
     public function store(CreateProductRequest $request){
         $this->authorize('create', Product::class);
-
+        
         $productValidated = $request->validated();
         $productValidated['sku'] = strtoupper($productValidated['sku']);
+        
+        if($request->hasFile('product_image')){
+            $productValidated['product_image'] = $this->uploadProductImage($request->file('product_image'));
+        }
+        
         $product = Product::create($productValidated);
-        $product->categories()->sync($request->categories);
-        return response()->json(['message' => 'Product Created Successfully!/n', 'data' => new ProductResource($product->load(['categories', 'company']))], 201);
+        $product->categories()->sync($productValidated['categories']);
+        return response()->json(['message' => 'Product Created Successfully!', 'data' => new ProductResource($product->load(['categories', 'company']))], 201);
     }
         
     //warehouse_admin, super_admin only
@@ -78,12 +86,24 @@ class ProductController extends Controller
         if (isset($productValidated['sku'])) {
             $productValidated['sku'] = strtoupper($productValidated['sku']);
         }
+
+        if($request->hasFile('product_image')){
+            if($product->product_image){
+                Storage::disk('public')->delete($product->product_image);
+            }
+            $productValidated['product_image'] = $this->uploadProductImage($request->file('product_image'));
+        }
+
         $product->update($productValidated);
         return response()->json(['message' => 'Product Updated Successfully!', 'data' => new ProductResource($product->load(['categories', 'company']))], 200);
     }
 
     public function destroy(Product $product){
         $this->authorize('delete', $product);
+
+        if($product->product_image){
+            Storage::disk('public')->delete($product->product_image);
+        }
 
         $product->delete();
         return response()->json(['message' => 'Product Deleted Successfully!'], 200);
@@ -111,4 +131,9 @@ class ProductController extends Controller
         $product->categories()->detach($request->validated()['categories']);
         return new ProductResource($product->load('categories'));
     }
+
+    // public function importProducts(Request $request, $file){
+    //     $request->file($file)->store();
+    //     Excel::import(new ProductsImport(), $file);
+    // }
 }

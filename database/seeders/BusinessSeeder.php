@@ -5,10 +5,10 @@ namespace Database\Seeders;
 use App\Models\Facility;
 use Illuminate\Database\Seeder;
 
-class WarehouseSeeder extends Seeder
+class BusinessSeeder extends Seeder
 {
     public function run(): void
     {
-        Facility::factory()->warehouse()->count(10)->create();
+        Facility::factory()->business()->count(10)->create();
     }
 }
