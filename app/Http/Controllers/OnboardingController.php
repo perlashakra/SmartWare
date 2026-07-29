@@ -22,57 +22,10 @@ class OnboardingController extends Controller
             );
         }
         return $products;
-        // return match($businessType) {
-        //     BusinessTypeEnum::PHARMACY->value => [ProductType::MEDICINE, ProductType::MEDICAL_SUPPLIES, ProductType::COSMETICS],
-        //     BusinessTypeEnum::RESTAURANT->value => [ProductType::CANNED_FOODS, ProductType::REFRIGERATED_FOODS, ProductType::FRESH_FOODS, ProductType::BEVERAGES],
-        //     BusinessTypeEnum::SUPERMARKET->value => [ProductType::CANNED_FOODS, ProductType::REFRIGERATED_FOODS, ProductType::FRESH_FOODS, ProductType::BEVERAGES, ProductType::COSMETICS],
-        //     BusinessTypeEnum::CLOTHING_STORE->value => [ProductType::CLOTHING],
-        //     BusinessTypeEnum::ELECTRONICS_STORE->value => [ProductType::ELECTRONICS],
-        //     BusinessTypeEnum::MAKEUP_STORE->value => [ProductType::COSMETICS],
-        //     BusinessTypeEnum::FURNITURE_STORE->value => [ProductType::FURNITURE],
-        //     default => []
-        // };
     }
 
     //should also be modified if business type migration is deleted which i think it should. it serves no purpose
-    public function getOnboardingOptions(GetOnboardingOptionsRequest $request)
-    {
-        $user = $request->user();
-        $role = $request->validated('role');
-        $businessType = $request->validated('business_type');
-        Profile::create([
-            'user_id' => $user->id,
-        ]);
 
-        // Route 1: Warehouse Managers immediately get all product types
-        if ($role === 'warehouse_manager') {
-            return response()->json([
-                'step' => 'choose_product_types',
-                'options' => ProductType::cases()
-            ]);
-        }
-
-        // Route 2: Clients who haven't picked a business type yet
-        if ($role === 'client' && !$businessType) {
-            return response()->json([
-                'step' => 'choose_business_type',
-                'options' => BusinessTypeEnum::cases()
-            ]);
-        }
-
-        // Route 3: Clients who have picked a business type get filtered products
-        if ($role === 'client' && $businessType) {
-            $allowedProducts = $this->getAllowedProductsByBusiness(BusinessTypeEnum::from($businessType));
-
-            return response()->json([
-                'step' => 'choose_product_types',
-                'options' => $allowedProducts
-            ]);
-        }
-
-        // Fallback error if role is missing or invalid
-        return response()->json(['error' => 'Invalid or missing role parameter.'], 400);
-    }
 
     public function savePreferences(SavePreferencesRequest $request)
     {
