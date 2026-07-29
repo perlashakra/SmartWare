@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Enums\ProductType;
