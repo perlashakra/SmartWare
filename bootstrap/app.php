@@ -18,8 +18,15 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->alias(['locale' => SetLocale::class]);
-        $middleware->alias(['role' => RoleMiddleware::class]);
+        // ✅ CORRECT: Pass all aliases in a single array
+        $middleware->alias([
+            'locale'          => SetLocale::class,
+            'role'            => RoleMiddleware::class,
+            'super_admin'     => SuperAdminMiddleware::class,
+            'warehouse_admin' => WarehouseAdminMiddleware::class,
+            'worker'          => WorkerMiddleware::class,
+            'client'          => ClientMiddleware::class,
+        ]);
 
         $middleware->web(append: [
             SetLocale::class,
@@ -28,8 +35,6 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->api(append: [
             SetLocale::class,
         ]);
-
-        
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
