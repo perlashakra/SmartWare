@@ -73,7 +73,7 @@ class OnboardingController extends Controller
             ['business_type' => $request->validated('business_type')]
         );
 
-        //needs correction because prefernce does not have a profile id
+        //needs correction because preference does not have a profile id
         Preference::where('profile_id', $profile->id)->delete();
         foreach ($productTypes as $type) {
             Preference::create([
