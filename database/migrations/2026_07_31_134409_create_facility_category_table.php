@@ -11,13 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('preferences', function (Blueprint $table) {
+        Schema::create('facility_category', function (Blueprint $table) {
             $table->id();
-            //if business_type is deleted add this instead 
-            //$table->foreignId('profile_id')->constrained('profiles')->cascadeOnDelete();
-            $table->foreignId('business_type_id')->constrained('business_types')->cascadeOnDelete();
-            $table->string('product_type');
+            $table->foreignId('facility_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('category_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
+
+            // Prevent duplicate entries for the same facility/category
+            $table->unique(['facility_id', 'category_id']);
         });
     }
 
@@ -26,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('preferences');
+        Schema::dropIfExists('facility_category');
     }
 };

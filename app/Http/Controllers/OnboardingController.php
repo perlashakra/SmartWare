@@ -2,43 +2,39 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\GetOnboardingOptionsRequest;
+use App\Enums\CategoryEnum;
 use App\Http\Requests\SavePreferencesRequest;
-use App\Models\Profile;
+use App\Models\Category;
+use App\Models\Facility;
 use App\Enums\BusinessTypeEnum;
-use App\Enums\ProductType;
-use App\Models\BusinessType;
-use App\Models\Preference;
+use Illuminate\Http\JsonResponse;
 
 class OnboardingController extends Controller
 {
-    private function getAllowedProductsByBusiness(BusinessTypeEnum $businessType): array
+    private function getAllowedCategoriesByBusiness(BusinessTypeEnum $businessType): array
     {
-        $products = [];
-        foreach($businessType->categories() as $category){
-            $products = array_merge(
-                $products,
-                $category->productTypes()
-            );
-        }
-        return $products;
+        return array_map(fn($enum) => $enum->value, $businessType->categories());
     }
 
-    //should also be modified if business type migration is deleted which i think it should. it serves no purpose
-
-
-    public function savePreferences(SavePreferencesRequest $request)
+    public function savePreferences(SavePreferencesRequest $request, Facility $facility): JsonResponse
     {
-        $profile = $request->user()->profile();
         $role = $request->validated('role');
-        $productTypes = $request->validated('product_types', []);
+        $selectedCategories = $request->validated('categories', []); // array of string values
 
-        // --- CRITICAL LEGAL VALIDATION FOR WAREHOUSE MANAGERS ---
+        // --- 1. CRITICAL LEGAL VALIDATION FOR WAREHOUSE MANAGERS ---
         if ($role === 'warehouse_manager') {
-            $hasMedical = in_array(ProductType::MEDICINE->value, $productTypes) ||
-                in_array(ProductType::MEDICAL_EQUIPMENT->value, $productTypes);
+            $medicalValues = [
+                CategoryEnum::MEDICINE->value,
+                CategoryEnum::PRESCRIPTION_MEDICINE->value,
+                CategoryEnum::OVER_THE_COUNTER_MEDICINE->value,
+                CategoryEnum::VITAMINS_SUPPLEMENTS->value,
+                CategoryEnum::MEDICAL_EQUIPMENT->value,
+                CategoryEnum::FIRST_AID_SUPPLIES->value,
+                CategoryEnum::SURGICAL_SUPPLIES->value,
+            ];
 
-            $hasNonMedical = count(array_diff($productTypes, [ProductType::MEDICINE->value, ProductType::MEDICAL_EQUIPMENT->value])) > 0;
+            $hasMedical = count(array_intersect($selectedCategories, $medicalValues)) > 0;
+            $hasNonMedical = count(array_diff($selectedCategories, $medicalValues)) > 0;
 
             if ($hasMedical && $hasNonMedical) {
                 return response()->json([
@@ -47,41 +43,26 @@ class OnboardingController extends Controller
             }
         }
 
-        // --- DEFENSIVE VALIDATION FOR CLIENTS (BYPASS PREVENTION) ---
+        // --- 2. DEFENSIVE VALIDATION FOR CLIENTS ---
         if ($role === 'client') {
-            $businessType = $request->validated('business_type');
+            $businessTypeEnum = BusinessTypeEnum::from($facility->business_type);
+            $allowedCategories = $this->getAllowedCategoriesByBusiness($businessTypeEnum);
 
-            // 1. Fetch the master-list of what this business type is actually allowed to have
-            $allowedEnums = $this->getAllowedProductsByBusiness(BusinessTypeEnum::from($businessType));
-
-            // Convert the array of Enum objects into raw string values for comparison
-            $allowedStringValues = array_map(fn($enum) => $enum->value, $allowedEnums);
-
-            // 2. Look for any product type the user sent that does NOT live in the allowed array
-            $illegalChoices = array_diff($productTypes, $allowedStringValues);
+            $illegalChoices = array_diff($selectedCategories, $allowedCategories);
 
             if (count($illegalChoices) > 0) {
                 return response()->json([
-                    'error' => 'Security Error: One or more selected product types are invalid for your chosen business category.'
+                    'error' => 'Security Error: One or more selected categories are invalid for your chosen business category.'
                 ], 422);
             }
         }
 
-        // --- SAVE TO DATABASE ---
-        BusinessType::updateOrCreate(
-            ['profile_id' => $profile->id],
-            ['business_type' => $request->validated('business_type')]
-        );
+        // --- 3. ATTACH CATEGORIES TO FACILITY ---
+        // Fetch matching database IDs for the passed enum strings
+        $categoryIds = Category::whereIn('name', $selectedCategories)->pluck('id');
 
-        //needs correction because preference does not have a profile id
-        Preference::where('profile_id', $profile->id)->delete();
-        foreach ($productTypes as $type) {
-            Preference::create([
-                //this needs to be corrected
-                'business_type_id' => $profile->id,
-                'product_type' => $type
-            ]);
-        }
+        // Sync to pivot table
+        $facility->categories()->sync($categoryIds);
 
         return response()->json(['status' => 'Preferences successfully saved!']);
     }

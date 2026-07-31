@@ -15,44 +15,122 @@ enum BusinessTypeEnum: string {
 
         return match($this){
             self::RESTAURANT => [
-                CategoryEnum::FOOD,
+                //FOOD
+                CategoryEnum::CANNED_FOODS,
+                CategoryEnum::FRESH_FOODS,
+                CategoryEnum::REFRIGERATED_FOODS,
+                CategoryEnum::FROZEN_FOODS,
+                CategoryEnum::FRUITS_VEGETABLES,
+                CategoryEnum::MEAT_POULTRY,
+                CategoryEnum::SEAFOOD,
+                CategoryEnum::DAIRY_PRODUCTS,
+                CategoryEnum::BAKERY_PRODUCTS,
+                CategoryEnum::SNACKS,
+                CategoryEnum::SPICES_SEASONINGS,
+                //BEVERAGES
                 CategoryEnum::BEVERAGES,
-                CategoryEnum::CLEANING,
+                CategoryEnum::COFFEE_TEA,
+                //CLEANING
+                CategoryEnum::CLEANING_SUPPLIES,
             ],
 
             self::SUPERMARKET => [
-                CategoryEnum::FOOD,
+                //FOOD
+                CategoryEnum::CANNED_FOODS,
+                CategoryEnum::FRESH_FOODS,
+                CategoryEnum::REFRIGERATED_FOODS,
+                CategoryEnum::FROZEN_FOODS,
+                CategoryEnum::FRUITS_VEGETABLES,
+                CategoryEnum::MEAT_POULTRY,
+                CategoryEnum::SEAFOOD,
+                CategoryEnum::DAIRY_PRODUCTS,
+                CategoryEnum::BAKERY_PRODUCTS,
+                CategoryEnum::SNACKS,
+                CategoryEnum::SPICES_SEASONINGS,
+                //BEVERAGES
                 CategoryEnum::BEVERAGES,
-                CategoryEnum::CLEANING,
+                CategoryEnum::COFFEE_TEA,
+                //CLEANING
+                CategoryEnum::CLEANING_SUPPLIES,
+                //PERSONAL CARE
                 CategoryEnum::PERSONAL_CARE,
+                CategoryEnum::PERSONAL_HYGIENE,
+                CategoryEnum::BODY_CARE,
+                //PET SUPPLIES
                 CategoryEnum::PET_SUPPLIES,
             ],
 
             self::PHARMACY => [
+                //MEDICINE
                 CategoryEnum::MEDICINE,
+                CategoryEnum::VITAMINS_SUPPLEMENTS,
+                CategoryEnum::PRESCRIPTION_MEDICINE,
+                CategoryEnum::OVER_THE_COUNTER_MEDICINE,
+                //PERSONAL CARE
                 CategoryEnum::PERSONAL_CARE,
-                CategoryEnum::MEDICAL_SUPPLIES,
+                CategoryEnum::PERSONAL_HYGIENE,
+                CategoryEnum::BODY_CARE,
+                //MEDICAL SUPPLIES
+                CategoryEnum::MEDICAL_EQUIPMENT,
+                CategoryEnum::FIRST_AID_SUPPLIES,
+                CategoryEnum::SURGICAL_SUPPLIES,
+                //BABY CARE
                 CategoryEnum::BABY_CARE,
+                CategoryEnum::BABY_PRODUCTS,
+                //COSMETICS
                 CategoryEnum::COSMETICS,
             ],
 
             self::ELECTRONICS_STORE => [
-                CategoryEnum::COMPUTERS,
-                CategoryEnum::PHONES,
-                CategoryEnum::AUDIO,
-                CategoryEnum::SMART_HOME,
-                CategoryEnum::NETWORKING,
+                //COMPUTERS
+                CategoryEnum::LAPTOPS,
+                CategoryEnum::DESKTOP_COMPUTERS,
+                CategoryEnum::TABLETS,
+                CategoryEnum::COMPUTER_ACCESSORIES,
+                //PHONES
+                CategoryEnum::SMARTPHONES,
+                CategoryEnum::PHONE_ACCESSORIES,
+                //AUDIO
+                CategoryEnum::AUDIO_DEVICES,
+                //SMART HOME
+                CategoryEnum::SMART_HOME_DEVICES,
+                //NETWORKING
+                CategoryEnum::NETWORK_EQUIPMENT,
+                //ELECTRONIC PARTS
                 CategoryEnum::ELECTRONIC_PARTS,
+                CategoryEnum::BATTERIES,
             ],
 
             self::MAKEUP_STORE => [
-                CategoryEnum::BEAUTY,
+                //BEAUTY
+                CategoryEnum::COSMETICS,
+                CategoryEnum::MAKEUP,
+                CategoryEnum::SKINCARE,
+                CategoryEnum::HAIR_CARE,
+                CategoryEnum::PERFUMES,
+                CategoryEnum::NAIL_PRODUCTS,
+                CategoryEnum::BEAUTY_TOOLS,
+                CategoryEnum::PROFESSIONAL_BEAUTY_PRODUCTS,
+                //PERSONAL CARE
                 CategoryEnum::PERSONAL_CARE,
+                CategoryEnum::PERSONAL_HYGIENE,
+                CategoryEnum::BODY_CARE,
             ],
 
             self::FURNITURE_STORE => [
-                CategoryEnum::FURNITURE,
+                //FURNITURE
+                CategoryEnum::HOME_FURNITURE,
+                CategoryEnum::OFFICE_FURNITURE,
+                CategoryEnum::BEDROOM_FURNITURE,
+                CategoryEnum::LIVING_ROOM_FURNITURE,
+                CategoryEnum::KITCHEN_FURNITURE,
+                CategoryEnum::OUTDOOR_FURNITURE,
+                CategoryEnum::MATTRESSES,
+                CategoryEnum::WOOD_MATERIALS,
+                CategoryEnum::FURNITURE_ACCESSORIES,
+                //HOME DECOR
                 CategoryEnum::HOME_DECOR,
+                //LIGHTING
                 CategoryEnum::LIGHTING,
             ],
         };

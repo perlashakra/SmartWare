@@ -14,8 +14,7 @@ class Category extends Model
         return $this->belongsToMany(Product::class);
     }
 
-    //delete
-    // public function business_type(){
-    //     return $this->belongsTo(BusinessType::class);
-    // }
+    public function facilities(){
+        return $this->belongsToMany(Facility::class);
+    }
 }

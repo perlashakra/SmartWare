@@ -22,7 +22,7 @@ class Facility extends Model
             'facility_type' => FacilityType::class,
         ];
     }
-    
+
     //this relation could be either for a business owner or a warehouse manager
     public function owner()
     {
@@ -37,13 +37,18 @@ class Facility extends Model
     public function sections(){
         return $this->hasMany(Section::class);
     }
-    
+
     public function facilityUsers(){
         return $this->hasMany(FacilityUser::class);
     }
 
     public function employeeAnnouncements(){
         return $this->hasMany(EmployeeAnnouncement::class);
+    }
+
+    public function categories()
+    {
+        return $this->belongToMany(Category::class);
     }
 
     public function importFiles(){
