@@ -4,164 +4,120 @@ namespace App\Enums;
 
 enum CategoryEnum : string
 {
-    case FOOD = 'food';
+    //FOOD
+    case CANNED_FOODS = 'canned_foods';
+    case FRESH_FOODS = 'fresh_foods';
+    case REFRIGERATED_FOODS = 'refrigerated_foods';
+    case FROZEN_FOODS = 'frozen_foods';
+    case FRUITS_VEGETABLES = 'fruits_vegetables';
+    case MEAT_POULTRY = 'meat_poultry';
+    case SEAFOOD = 'seafood';
+    case DAIRY_PRODUCTS = 'dairy_products';
+    case BAKERY_PRODUCTS = 'bakery_products';
+    case SNACKS = 'snacks';
+    case SPICES_SEASONINGS = 'spices_seasonings';
+
+    //DRINKS
     case BEVERAGES = 'beverages';
-    case CLEANING = 'cleaning'; 
-    case PET_SUPPLIES = 'pet_supplies'; 
+    case COFFEE_TEA = 'coffee_tea';
+
+    //CLEANING SUPPLIES
+    case CLEANING_SUPPLIES = 'cleaning_supplies';
+
+    //PACKAGING SUPPLIES
+    case PACKAGING_SUPPLIES = 'packaging_supplies';
+
+    //PET SUPPLIES
+    case PET_SUPPLIES = 'pet_supplies';
+
+    //MEDICINE
     case MEDICINE = 'medicine';
-    case MEDICAL_SUPPLIES = 'medical_supplies';
+    case PRESCRIPTION_MEDICINE = 'prescription_medicine';
+    case OVER_THE_COUNTER_MEDICINE = 'over_the_counter_medicine';
+    case VITAMINS_SUPPLEMENTS = 'vitamins_supplements';
+
+    //MEDICAL SUPPLIES
+    case MEDICAL_EQUIPMENT = 'medical_equipment';
+    case FIRST_AID_SUPPLIES = 'first_aid_supplies';
+    case SURGICAL_SUPPLIES = 'surgical_supplies';
+
+    //PERSONAL CARE
     case PERSONAL_CARE = 'personal_care';
+    case PERSONAL_HYGIENE = 'personal_hygiene';
+    case BODY_CARE = 'body_care';
+
+    //BABY CARE
     case BABY_CARE = 'baby_care';
+    case BABY_PRODUCTS = 'baby_products';
+
+    //COSMETICS
     case COSMETICS = 'cosmetics';
-    case BEAUTY = 'beauty';
-    case CLOTHING = 'clothing';
+
+    //BEAUTY
+    case MAKEUP = 'makeup';
+    case SKINCARE = 'skincare';
+    case HAIR_CARE = 'hair_care';
+    case PERFUMES = 'perfumes';
+    case NAIL_PRODUCTS = 'nail_products';
+    case BEAUTY_TOOLS = 'beauty_tools';
+    case PROFESSIONAL_BEAUTY_PRODUCTS = 'professional_beauty_products';
+
+    //CLOTHING
+    case MENS_CLOTHING = 'mens_clothing';
+    case WOMENS_CLOTHING = 'womens_clothing';
+    case KIDS_CLOTHING = 'kids_clothing';
+    case SPORTSWEAR = 'sportswear';
+    case UNDERWEAR = 'underwear';
+    case SEASONAL_FASHION = 'seasonal_fashion';
+    case FABRIC_MATERIALS = 'fabric_materials';
+
+    //SHOES
     case SHOES = 'shoes';
+
+    //ACCESSORIES
+    case BAGS = 'bags';
     case ACCESSORIES = 'accessories';
-    case COMPUTERS = 'computers';
-    case PHONES = 'phones';
-    case AUDIO = 'audio';
-    case SMART_HOME = 'smart_home';
-    case NETWORKING = 'networking';
+    case JEWELRY = 'jewelry';
+
+    //COMPUTERS
+    case LAPTOPS = 'laptops';
+    case TABLETS = 'tablets';
+    case DESKTOP_COMPUTERS = 'desktop_computers';
+    case COMPUTER_ACCESSORIES = 'computer_accessories';
+
+    //PHONES
+    case SMARTPHONES = 'smartphones';
+    case PHONE_ACCESSORIES = 'phone_accessories';
+
+    //AUDIO
+    case AUDIO_DEVICES = 'audio_devices';
+
+    //SMART HOME
+    case SMART_HOME_DEVICES = 'smart_home_devices';
+
+    //NETWORKING
+    case NETWORK_EQUIPMENT = 'network_equipment';
+
+    //ELECTRONIC PARTS
     case ELECTRONIC_PARTS = 'electronic_parts';
-    case FURNITURE = 'furniture';
+    case BATTERIES = 'batteries';
+
+    //FURNITURE
+    case HOME_FURNITURE = 'home_furniture';
+    case OFFICE_FURNITURE = 'office_furniture';
+    case BEDROOM_FURNITURE = 'bedroom_furniture';
+    case LIVING_ROOM_FURNITURE = 'living_room_furniture';
+    case KITCHEN_FURNITURE = 'kitchen_furniture';
+    case OUTDOOR_FURNITURE = 'outdoor_furniture';
+    case MATTRESSES = 'mattresses';
+    case WOOD_MATERIALS = 'wood_materials';
+    case FURNITURE_ACCESSORIES = 'furniture_accessories';
+
+    //HOME DECOR
     case HOME_DECOR = 'home_decor';
+
+    //LIGHTING
     case LIGHTING = 'lighting';
-    
+
     //$productType->category()->businessType();
-    public function productTypes(){
-        return match($this){
-            self::FOOD => [
-                ProductType::CANNED_FOODS,
-                ProductType::FRESH_FOODS,
-                ProductType::REFRIGERATED_FOODS,
-                ProductType::FROZEN_FOODS,
-                ProductType::FRUITS_VEGETABLES,
-                ProductType::MEAT_POULTRY,
-                ProductType::SEAFOOD,
-                ProductType::DAIRY_PRODUCTS,
-                ProductType::BAKERY_PRODUCTS,
-                ProductType::SNACKS,
-                ProductType::SPICES_SEASONINGS,
-            ],
-
-            self::BEVERAGES =>[
-                ProductType::BEVERAGES,
-                ProductType::COFFEE_TEA,
-            ],
-            
-            self::CLEANING =>[
-                ProductType::CLEANING_SUPPLIES,
-            ],
-            
-            self::MEDICINE =>[
-                ProductType::MEDICINE,
-                ProductType::VITAMINS_SUPPLEMENTS,
-                ProductType::PRESCRIPTION_MEDICINE,
-                ProductType::OVER_THE_COUNTER_MEDICINE,
-            ],
-            
-            self::MEDICAL_SUPPLIES =>[
-                ProductType::MEDICAL_EQUIPMENT,
-                ProductType::FIRST_AID_SUPPLIES,
-                ProductType::SURGICAL_SUPPLIES,
-            ],
-            
-            self::PERSONAL_CARE =>[
-                ProductType::PERSONAL_CARE,
-                ProductType::PERSONAL_HYGIENE,
-                ProductType::BODY_CARE,
-            ],
-
-            self::BABY_CARE =>[
-                ProductType::BABY_CARE,
-                ProductType::BABY_PRODUCTS,
-            ],
-            
-            self::COSMETICS,
-
-            self::BEAUTY => [
-                ProductType::COSMETICS,
-                ProductType::MAKEUP,
-                ProductType::SKINCARE,
-                ProductType::HAIR_CARE,
-                ProductType::PERFUMES,
-                ProductType::NAIL_PRODUCTS,
-                ProductType::BEAUTY_TOOLS,
-                ProductType::PROFESSIONAL_BEAUTY_PRODUCTS,
-            ],
-
-            self::CLOTHING => [
-                ProductType::MENS_CLOTHING,
-                ProductType::WOMENS_CLOTHING,
-                ProductType::KIDS_CLOTHING,
-                ProductType::SPORTSWEAR,
-                ProductType::UNDERWEAR,
-                ProductType::SEASONAL_FASHION,
-                ProductType::FABRIC_MATERIALS,
-            ],
-
-            self::SHOES => [
-                ProductType::SHOES,
-            ],
-
-            self::ACCESSORIES => [
-                ProductType::BAGS,
-                ProductType::ACCESSORIES,
-                ProductType::JEWELRY,
-            ],
-            
-            self::COMPUTERS => [
-                ProductType::LAPTOPS,
-                ProductType::DESKTOP_COMPUTERS,
-                ProductType::TABLETS,
-                ProductType::COMPUTER_ACCESSORIES,
-            ],
-
-            self::PHONES => [
-                ProductType::SMARTPHONES,
-                ProductType::PHONE_ACCESSORIES,
-            ],
-            
-            self::AUDIO => [ 
-                ProductType::AUDIO_DEVICES,
-            ],
-            
-            self::SMART_HOME => [
-                ProductType::SMART_HOME_DEVICES,
-            ],
-            
-            self::NETWORKING => [
-                ProductType::NETWORK_EQUIPMENT,
-            ],
-            
-            self::ELECTRONIC_PARTS => [
-                ProductType::ELECTRONIC_PARTS,
-                ProductType::BATTERIES,
-            ],
-            
-            self::PET_SUPPLIES => [
-                ProductType::PET_SUPPLIES,
-            ],
-            
-            self::FURNITURE => [
-                ProductType::HOME_FURNITURE,
-                ProductType::OFFICE_FURNITURE,
-                ProductType::BEDROOM_FURNITURE,
-                ProductType::LIVING_ROOM_FURNITURE,
-                ProductType::KITCHEN_FURNITURE,
-                ProductType::OUTDOOR_FURNITURE,
-                ProductType::MATTRESSES,
-                ProductType::WOOD_MATERIALS,
-                ProductType::FURNITURE_ACCESSORIES,
-            ],
-
-            self::HOME_DECOR => [
-                ProductType::HOME_DECOR,
-            ],
-
-            self::LIGHTING => [
-                ProductType::LIGHTING,
-            ],
-        };
-    }
 }

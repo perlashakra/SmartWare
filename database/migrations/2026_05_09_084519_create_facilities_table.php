@@ -18,7 +18,6 @@ return new class extends Migration
             $table->string('facility_name')->nullable();
             $table->string('facility_type');
             $table->enum('facility_status', ['pending', 'submitted', 'approved', 'rejected'])->default('pending');
-            //description
             $table->timestamps();
         });
     }

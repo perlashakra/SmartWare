@@ -17,8 +17,6 @@ return new class extends Migration
             $table->string('personal_image')->nullable();
             $table->boolean('preferences_submitted')->default(false);
             $table->boolean('completed')->default(false);
-            //delete business type table and add this
-            //$table->string('business_type')->nullable();
             $table->timestamps();
         });
     }
