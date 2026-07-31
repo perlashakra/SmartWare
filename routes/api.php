@@ -48,7 +48,6 @@ Route::middleware(['auth:sanctum', 'locale'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::delete('/delete', [AuthController::class, 'delete']);
     //Onboarding functions:
-    Route::get('/onboarding/getOnboardingOptions', [OnboardingController::class, 'getOnboardingOptions']);
     Route::post('/onboarding/savePreferences', [OnboardingController::class, 'savePreferences']);
 });
 
@@ -94,5 +93,5 @@ Route::controller(FacilityController::class)->prefix('/facilities')->middleware(
     Route::delete('/{facility}', 'destroy')->middleware(['role:client,warehouse_admin,super_admin']);
 });
 
-//Importing excel files 
+//Importing excel files
 Route::post('/imports', [ImportController::class, 'import'])->middleware(['auth:sanctum']);

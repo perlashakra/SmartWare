@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\CategoryEnum;
 use App\Http\Requests\SavePreferencesRequest;
+use App\Enums\BusinessTypeEnum;
+use App\Enums\CategoryEnum;
 use App\Models\Category;
 use App\Models\Facility;
-use App\Enums\BusinessTypeEnum;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 
 class OnboardingController extends Controller
 {
@@ -16,12 +17,21 @@ class OnboardingController extends Controller
         return array_map(fn($enum) => $enum->value, $businessType->categories());
     }
 
-    public function savePreferences(SavePreferencesRequest $request, Facility $facility): JsonResponse
+    public function savePreferences(SavePreferencesRequest $request): JsonResponse
     {
+        $user = $request->user();
         $role = $request->validated('role');
-        $selectedCategories = $request->validated('categories', []); // array of string values
+        $selectedCategories = $request->validated('categories', []);
 
-        // --- 1. CRITICAL LEGAL VALIDATION FOR WAREHOUSE MANAGERS ---
+        // --- 1. DETERMINE BUSINESS TYPE BASED ON ROLE ---
+        if ($role === 'warehouse_manager') {
+            $businessType = 'warehouse';
+        } else {
+            // Client business type validated by SavePreferencesRequest
+            $businessType = $request->validated('business_type');
+        }
+
+        // --- 2. LEGAL COMPLIANCE VALIDATION (WAREHOUSE MANAGERS) ---
         if ($role === 'warehouse_manager') {
             $medicalValues = [
                 CategoryEnum::MEDICINE->value,
@@ -43,9 +53,9 @@ class OnboardingController extends Controller
             }
         }
 
-        // --- 2. DEFENSIVE VALIDATION FOR CLIENTS ---
+        // --- 3. SECURITY VALIDATION (CLIENTS) ---
         if ($role === 'client') {
-            $businessTypeEnum = BusinessTypeEnum::from($facility->business_type);
+            $businessTypeEnum = BusinessTypeEnum::from($businessType);
             $allowedCategories = $this->getAllowedCategoriesByBusiness($businessTypeEnum);
 
             $illegalChoices = array_diff($selectedCategories, $allowedCategories);
@@ -57,13 +67,31 @@ class OnboardingController extends Controller
             }
         }
 
-        // --- 3. ATTACH CATEGORIES TO FACILITY ---
-        // Fetch matching database IDs for the passed enum strings
-        $categoryIds = Category::whereIn('name', $selectedCategories)->pluck('id');
+        // --- 4. DATABASE TRANSACTION (FACILITY CREATION + PIVOT SYNC) ---
+        $facility = DB::transaction(function () use ($user, $businessType, $role, $selectedCategories) {
 
-        // Sync to pivot table
-        $facility->categories()->sync($categoryIds);
+            // Create or update draft facility for the onboarding user
+            $facility = Facility::updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'facility_type' => $role === 'warehouse_manager' ? 'warehouse' : 'store',
+                    'business_type' => $businessType,
+                    'facility_status' => 'pending',
+                ]
+            );
 
-        return response()->json(['status' => 'Preferences successfully saved!']);
+            // Translate category enum strings into DB Category IDs
+            $categoryIds = Category::whereIn('name', $selectedCategories)->pluck('id');
+
+            // Sync categories to pivot table (facility_category)
+            $facility->categories()->sync($categoryIds);
+
+            return $facility;
+        });
+
+        return response()->json([
+            'status' => 'Preferences saved and facility draft created successfully!',
+            'facility_id' => $facility->id,
+        ], 200);
     }
 }

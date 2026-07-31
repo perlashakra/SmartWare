@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('facility_name')->nullable();
             $table->string('facility_type');
             $table->enum('facility_status', ['pending', 'submitted', 'approved', 'rejected'])->default('pending');
+            $table->enum('business_type', ['warehouse', 'restaurant', 'pharmacy', 'clothing_store', 'electronics_store', 'supermarket', 'makeup_store', 'furniture_store']);
             $table->timestamps();
         });
     }
