@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('receipt_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('receipt_id')->constrained('receipts')->cascadeOnDelete();
-            $table->foreignId('orederItem_id')->constrained('oredr_items')->restrictOnDelete();
+            $table->foreignId('orderItem_id')->constrained('order_items')->restrictOnDelete();
             $table->unsignedInteger('quantity');
             $table->decimal('price', 10, 2);//good
             $table->timestamps();
