@@ -7,8 +7,12 @@ use App\Enums\BusinessTypeEnum;
 use App\Enums\CategoryEnum;
 use App\Models\Category;
 use App\Models\Facility;
+use App\Models\Profile;
+use App\Models\Document;
+use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class OnboardingController extends Controller
 {
@@ -17,6 +21,9 @@ class OnboardingController extends Controller
         return array_map(fn($enum) => $enum->value, $businessType->categories());
     }
 
+    /**
+     * Step 1: Save Category Preferences & Initialize Profile/Facility
+     */
     public function savePreferences(SavePreferencesRequest $request): JsonResponse
     {
         $user = $request->user();
@@ -24,15 +31,14 @@ class OnboardingController extends Controller
         $selectedCategories = $request->validated('categories', []);
 
         // --- 1. DETERMINE BUSINESS TYPE BASED ON ROLE ---
-        if ($role === 'warehouse_manager') {
+        if ($role === 'warehouse_manager' || $role === 'warehouse_admin') {
             $businessType = 'warehouse';
         } else {
-            // Client business type validated by SavePreferencesRequest
             $businessType = $request->validated('business_type');
         }
 
         // --- 2. LEGAL COMPLIANCE VALIDATION (WAREHOUSE MANAGERS) ---
-        if ($role === 'warehouse_manager') {
+        if ($role === 'warehouse_manager' || $role === 'warehouse_admin') {
             $medicalValues = [
                 CategoryEnum::MEDICINE->value,
                 CategoryEnum::PRESCRIPTION_MEDICINE->value,
@@ -67,14 +73,17 @@ class OnboardingController extends Controller
             }
         }
 
-        // --- 4. DATABASE TRANSACTION (FACILITY CREATION + PIVOT SYNC) ---
+        // --- 4. DATABASE TRANSACTION (PROFILE + FACILITY CREATION + PIVOT SYNC) ---
         $facility = DB::transaction(function () use ($user, $businessType, $role, $selectedCategories) {
+
+            // Ensure Profile instance exists
+            Profile::firstOrCreate(['user_id' => $user->id]);
 
             // Create or update draft facility for the onboarding user
             $facility = Facility::updateOrCreate(
                 ['user_id' => $user->id],
                 [
-                    'facility_type' => $role === 'warehouse_manager' ? 'warehouse' : 'store',
+                    'facility_type' => in_array($role, ['warehouse_manager', 'warehouse_admin']) ? 'warehouse' : 'store',
                     'business_type' => $businessType,
                     'facility_status' => 'pending',
                 ]
@@ -93,5 +102,94 @@ class OnboardingController extends Controller
             'status' => 'Preferences saved and facility draft created successfully!',
             'facility_id' => $facility->id,
         ], 200);
+    }
+
+    /**
+     * Step 2: Upload Personal ID Verification Documents
+     */
+    public function uploadIdentityDocument(Request $request): JsonResponse
+    {
+        $request->validate([
+            'document' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
+            'document_type' => ['required', 'string', 'in:national_id,passport,driver_license'],
+        ]);
+
+        $user = $request->user();
+        $path = $request->file('document')->store("documents/users/{$user->id}", 'public');
+
+        $document = Document::create([
+            'user_id' => $user->id,
+            'facility_id' => null,
+            'document_file' => $path,
+            'document_type' => $request->input('document_type'),
+            'status' => 'pending',
+        ]);
+
+        $this->checkAndFinalizeOnboarding($user);
+
+        return response()->json([
+            'message' => 'Identity document uploaded successfully.',
+            'document' => $document,
+        ], 201);
+    }
+
+    /**
+     * Step 3: Upload Facility Legal Documents (Ownership, Lease, Contracts)
+     */
+    public function uploadFacilityDocument(Request $request): JsonResponse
+    {
+        $request->validate([
+            'facility_id' => ['required', 'exists:facilities,id'],
+            'document' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
+            'document_type' => ['required', 'string', 'in:ownership_deed,lease_contract,commercial_register,authorization_letter'],
+        ]);
+
+        $user = $request->user();
+
+        // Verify facility belongs to user
+        $facility = Facility::where('id', $request->input('facility_id'))
+            ->where('user_id', $user->id)
+            ->firstOrFail();
+
+        $path = $request->file('document')->store("documents/facilities/{$facility->id}", 'public');
+
+        $document = Document::create([
+            'user_id' => $user->id,
+            'facility_id' => $facility->id,
+            'document_file' => $path,
+            'document_type' => $request->input('document_type'),
+            'status' => 'pending',
+        ]);
+
+        $this->checkAndFinalizeOnboarding($user);
+
+        return response()->json([
+            'message' => 'Facility legal document uploaded successfully.',
+            'document' => $document,
+        ], 201);
+    }
+
+    /**
+     * Helper to verify all mandatory document requirements and update onboarding status.
+     */
+    private function checkAndFinalizeOnboarding($user): void
+    {
+        $hasIdentityDoc = Document::where('user_id', $user->id)
+            ->whereNull('facility_id')
+            ->exists();
+
+        $hasFacilityDoc = Document::where('user_id', $user->id)
+            ->whereNotNull('facility_id')
+            ->exists();
+
+        if ($hasIdentityDoc && $hasFacilityDoc) {
+            Profile::where('user_id', $user->id)->update([
+                'onboarding_complete' => true
+            ]);
+
+            $user->update([
+                'identity_status' => 'submitted'
+            ]);
+        }
     }
 }
