@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CompanyController;
@@ -16,6 +17,15 @@ use Illuminate\Support\Facades\Route;
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
+
+//ADMIN REQUESTS
+Route::middleware(['auth', 'role:super_admin, locale'])->prefix('admin/dashboard')->group(function () {
+    Route::post('/admins', [AdminController::class, 'createAdmin']);
+    Route::get('/requests/pending', [AdminController::class, 'pendingRequests']);
+    Route::get('/requests/complete', [AdminController::class, 'completePendingRequests']);
+    Route::get('/requests/{id}', [AdminController::class, 'showRequest']);
+    Route::post('/requests/{id}/review', [AdminController::class, 'reviewRequest']);
+});
 
 //Registration routes:
 Route::post('/register-manager', [AuthController::class, 'registerManager']);
@@ -49,6 +59,8 @@ Route::middleware(['auth:sanctum', 'locale'])->group(function () {
     Route::delete('/delete', [AuthController::class, 'delete']);
     //Onboarding functions:
     Route::post('/onboarding/savePreferences', [OnboardingController::class, 'savePreferences']);
+    Route::post('/onboarding/uploadID', [OnboardingController::class, 'uploadIdentityDocument']);
+    Route::post('/onboarding/uploadFacilityDocument', [OnboardingController::class, 'uploadFacilityDocument']);
 });
 
 //Company CRUD Routes

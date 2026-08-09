@@ -15,8 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->string('personal_image')->nullable();
-            $table->boolean('preferences_submitted')->default(false);
-            $table->boolean('completed')->default(false);
+            $table->boolean('onboarding_complete')->default(false);
             $table->timestamps();
         });
     }
