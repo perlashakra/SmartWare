@@ -70,6 +70,19 @@ class AdminController extends Controller
 
         return response()->json($readyUsers);
     }
+    /**
+     * Stream a private document file to authenticated admins.
+     */
+    public function downloadDocument(int $documentId)
+    {
+        $document = Document::findOrFail($documentId);
+
+        if (!Storage::disk('local')->exists($document->document_file)) {
+            return response()->json(['message' => 'File not found.'], 404);
+        }
+
+        return Storage::disk('local')->response($document->document_file);
+    }
 
     /**
      * Get complete information for a specific user undergoing review.
@@ -87,7 +100,7 @@ class AdminController extends Controller
         // Map document file paths to secure downloadable storage URLs
         if ($user->relationLoaded('documents')) {
             $user->documents->transform(function ($doc) {
-                $doc->file_url = $doc->document_file ? asset('storage/' . $doc->document_file) : null;
+                $doc->file_url = route('admin.documents.download', ['id' => $doc->id]);
                 return $doc;
             });
         }

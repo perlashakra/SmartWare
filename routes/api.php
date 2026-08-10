@@ -38,7 +38,6 @@ Route::post('/email/resend', [EmailVerificationController::class, 'resend'])->mi
 Route::post('/email/verification-notification',[EmailVerificationController::class, 'sendNotification'])->middleware(['auth:sanctum', 'locale']);
 
 //Email verification page routes:
-Route::post('/email/change/{id}', [AuthController::class, 'changeEmail'])->middleware('locale');
 Route::post('/email/verified-login', [AuthController::class, 'verifiedLogin']);
 
 //Password Reset endpoints:
@@ -54,13 +53,22 @@ Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware(['auth:sanctum', 'locale'])->group(function () {
     //Basic authentication and registration functions
-    Route::post('/password/change', [AuthController::class, 'changePassword']);
+    Route::get('/getFacilities', [OnboardingController::class, 'getAllUserFacilities']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::delete('/delete', [AuthController::class, 'delete']);
     //Onboarding functions:
     Route::post('/onboarding/savePreferences', [OnboardingController::class, 'savePreferences']);
     Route::post('/onboarding/uploadID', [OnboardingController::class, 'uploadIdentityDocument']);
     Route::post('/onboarding/uploadFacilityDocument', [OnboardingController::class, 'uploadFacilityDocument']);
+    Route::post('/onboarding/uploadOnboardingDocuments', [OnboardingController::class, 'uploadOnboardingDocuments']);
+    //Profile editing:
+    Route::post('/addOrUpdatePersonalImage', [AuthController::class, 'addOrUpdatePersonalImage']);
+    Route::delete('/removePersonalImage', [AuthController::class, 'removePersonalImage']);
+    Route::post('/email/change/{id}', [AuthController::class, 'changeEmail']);
+    Route::post('/changePhoneNumber', [AuthController::class, 'changePhoneNumber']);
+    Route::post('/password/change', [AuthController::class, 'changePassword']);
+    Route::post('/editBusinessName', [OnboardingController::class, 'editBusinessName']);
+
 });
 
 //Company CRUD Routes

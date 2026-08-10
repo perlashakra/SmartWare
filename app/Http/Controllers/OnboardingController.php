@@ -16,6 +16,52 @@ use Illuminate\Support\Facades\Storage;
 
 class OnboardingController extends Controller
 {
+    /**
+     * Get all facilities belonging to the authenticated user.
+     */
+    public function getAllUserFacilities(Request $request): JsonResponse
+    {
+        $facilities = $request->user()
+            ->facilities()
+            ->with('categories')
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'facilities' => $facilities,
+        ], 200);
+    }
+
+    /**
+     * Update the business name for a specific user facility.
+     */
+    public function editBusinessName(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'facility_id'   => ['required', 'integer', 'exists:facilities,id'],
+            'business_name' => ['required', 'string', 'max:255'],
+        ]);
+
+        $facility = $request->user()
+            ->facilities()
+            ->find($validated['facility_id']);
+
+        if (!$facility) {
+            return response()->json([
+                'error' => 'Facility not found or access denied.'
+            ], 404);
+        }
+
+        $facility->update([
+            'business_name' => $validated['business_name'],
+        ]);
+
+        return response()->json([
+            'message'  => 'Business name updated successfully.',
+            'facility' => $facility,
+        ], 200);
+    }
+
     private function getAllowedCategoriesByBusiness(BusinessTypeEnum $businessType): array
     {
         return array_map(fn($enum) => $enum->value, $businessType->categories());
@@ -28,17 +74,40 @@ class OnboardingController extends Controller
     {
         $user = $request->user();
         $role = $request->validated('role');
-        $selectedCategories = $request->validated('categories', []);
+        $facilityName = $request->validated('facility_name');
+        $facilityId = $request->validated('facility_id');
 
-        // --- 1. DETERMINE BUSINESS TYPE BASED ON ROLE ---
-        if ($role === 'warehouse_manager' || $role === 'warehouse_admin') {
-            $businessType = 'warehouse';
-        } else {
-            $businessType = $request->validated('business_type');
+        // 1. RESOLVE EXISTING FACILITY & AUTHORIZE OWNERSHIP
+        $existingFacility = null;
+        if ($facilityId) {
+            $existingFacility = Facility::where('id', $facilityId)
+                ->where('user_id', $user->id)
+                ->with('categories')
+                ->first();
+
+            if (!$existingFacility) {
+                return response()->json([
+                    'error' => 'Facility not found or access denied.'
+                ], 404);
+            }
         }
 
-        // --- 2. LEGAL COMPLIANCE VALIDATION (WAREHOUSE MANAGERS) ---
-        if ($role === 'warehouse_manager' || $role === 'warehouse_admin') {
+        // 2. DETERMINE PROPOSED BUSINESS TYPE
+        if (in_array($role, ['warehouse_manager', 'warehouse_admin'])) {
+            $proposedBusinessType = 'warehouse';
+        } else {
+            $proposedBusinessType = $request->validated('business_type');
+        }
+
+        // 3. GET PROPOSED CATEGORIES
+        $proposedCategories = $request->validated('categories', []);
+
+        // --- 4. VALIDATION CHECKS ---
+        $isValid = true;
+        $errorMessage = null;
+
+        // A. Warehouse Legal Compliance
+        if (in_array($role, ['warehouse_manager', 'warehouse_admin'])) {
             $medicalValues = [
                 CategoryEnum::MEDICINE->value,
                 CategoryEnum::PRESCRIPTION_MEDICINE->value,
@@ -49,63 +118,135 @@ class OnboardingController extends Controller
                 CategoryEnum::SURGICAL_SUPPLIES->value,
             ];
 
-            $hasMedical = count(array_intersect($selectedCategories, $medicalValues)) > 0;
-            $hasNonMedical = count(array_diff($selectedCategories, $medicalValues)) > 0;
+            $hasMedical = count(array_intersect($proposedCategories, $medicalValues)) > 0;
+            $hasNonMedical = count(array_diff($proposedCategories, $medicalValues)) > 0;
 
             if ($hasMedical && $hasNonMedical) {
-                return response()->json([
-                    'error' => 'Legal compliance error: Under Syrian law, warehouses storing medical supplies/medicines are strictly prohibited from co-storing commercial or non-medical goods.'
-                ], 422);
+                $isValid = false;
+                $errorMessage = 'Legal compliance error: Under Syrian law, warehouses storing medical supplies/medicines are strictly prohibited from co-storing commercial or non-medical goods.';
             }
         }
 
-        // --- 3. SECURITY VALIDATION (CLIENTS) ---
+        // B. Client Business Category Rules
         if ($role === 'client') {
-            $businessTypeEnum = BusinessTypeEnum::from($businessType);
+            $businessTypeEnum = BusinessTypeEnum::from($proposedBusinessType);
             $allowedCategories = $this->getAllowedCategoriesByBusiness($businessTypeEnum);
 
-            $illegalChoices = array_diff($selectedCategories, $allowedCategories);
+            $illegalChoices = array_diff($proposedCategories, $allowedCategories);
 
             if (count($illegalChoices) > 0) {
-                return response()->json([
-                    'error' => 'Security Error: One or more selected categories are invalid for your chosen business category.'
-                ], 422);
+                $isValid = false;
+                $errorMessage = 'Security Error: One or more selected categories are invalid for your chosen business category.';
             }
         }
 
-        // --- 4. DATABASE TRANSACTION (PROFILE + FACILITY CREATION + PIVOT SYNC) ---
-        $facility = DB::transaction(function () use ($user, $businessType, $role, $selectedCategories) {
+        // --- 5. HANDLE OVERWRITE OR FALLBACK ---
+        if ($isValid) {
+            // Validation Passed -> Use new request inputs
+            $targetBusinessType = $proposedBusinessType;
+            $targetCategories = $proposedCategories;
+        } else {
+            // Validation Failed
+            if ($existingFacility) {
+                // Restore existing facility state & reject update
+                return response()->json([
+                    'error' => $errorMessage,
+                    'facility' => $existingFacility,
+                ], 422);
+            }
 
-            // Ensure Profile instance exists
+            // New facility creation attempt failed -> reject request
+            return response()->json(['error' => $errorMessage], 422);
+        }
+
+        // --- 6. SAVE OR UPDATE DATABASE RECORD ---
+        $facility = DB::transaction(function () use ($user, $role, $existingFacility, $facilityName, $targetBusinessType, $targetCategories) {
             Profile::firstOrCreate(['user_id' => $user->id]);
 
-            // Create or update draft facility for the onboarding user
+            // Target either existing facility ID or create a new row
             $facility = Facility::updateOrCreate(
-                ['user_id' => $user->id],
+                ['id' => $existingFacility?->id],
                 [
+                    'user_id' => $user->id,
                     'facility_type' => in_array($role, ['warehouse_manager', 'warehouse_admin']) ? 'warehouse' : 'store',
-                    'business_type' => $businessType,
+                    'facility_name' => $facilityName,
+                    'business_type' => $targetBusinessType,
                     'facility_status' => 'pending',
                 ]
             );
 
-            // Translate category enum strings into DB Category IDs
-            $categoryIds = Category::whereIn('name', $selectedCategories)->pluck('id');
-
-            // Sync categories to pivot table (facility_category)
+            $categoryIds = Category::whereIn('name', $targetCategories)->pluck('id');
             $facility->categories()->sync($categoryIds);
 
             return $facility;
         });
 
         return response()->json([
-            'status' => 'Preferences saved and facility draft created successfully!',
-            'facility_id' => $facility->id,
+            'message' => 'Preferences saved successfully.',
+            'facility' => $facility->load('categories'),
         ], 200);
     }
 
     /**
      * Step 2: Upload Personal ID Verification Documents
+     */
+    /**
+     * Single Combined Upload for Onboarding
+     */
+    public function uploadOnboardingDocuments(Request $request): JsonResponse
+    {
+        $request->validate([
+            'facility_id' => ['required', 'exists:facilities,id'],
+            'identity_document' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
+            'identity_document_type' => ['required', 'string', 'in:national_id,passport,driver_license'],
+            'facility_document' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
+            'facility_document_type' => ['required', 'string', 'in:ownership_deed,lease_contract,commercial_register,authorization_letter'],
+        ]);
+
+        $user = $request->user();
+
+        $facility = Facility::where('id', $request->input('facility_id'))
+            ->where('user_id', $user->id)
+            ->firstOrFail();
+
+        $createdDocuments = DB::transaction(function () use ($request, $user, $facility) {
+
+            // 1. Private storage for Identity Document
+            $idPath = $request->file('identity_document')->store("documents/users/{$user->id}", 'local');
+            $identityDoc = Document::create([
+                'user_id' => $user->id,
+                'facility_id' => null,
+                'document_file' => $idPath,
+                'document_type' => $request->input('identity_document_type'),
+                'status' => 'pending',
+            ]);
+
+            // 2. Private storage for Facility Document
+            $facilityPath = $request->file('facility_document')->store("documents/facilities/{$facility->id}", 'local');
+            $facilityDoc = Document::create([
+                'user_id' => $user->id,
+                'facility_id' => $facility->id,
+                'document_file' => $facilityPath,
+                'document_type' => $request->input('facility_document_type'),
+                'status' => 'pending',
+            ]);
+
+            return [
+                'identity_document' => $identityDoc,
+                'facility_document' => $facilityDoc,
+            ];
+        });
+
+        $this->checkAndFinalizeOnboarding($user);
+
+        return response()->json([
+            'message' => 'Onboarding documents uploaded and submitted successfully.',
+            'documents' => $createdDocuments,
+        ], 201);
+    }
+
+    /**
+     * Individual Upload: Identity Document
      */
     public function uploadIdentityDocument(Request $request): JsonResponse
     {
@@ -115,7 +256,7 @@ class OnboardingController extends Controller
         ]);
 
         $user = $request->user();
-        $path = $request->file('document')->store("documents/users/{$user->id}", 'public');
+        $path = $request->file('document')->store("documents/users/{$user->id}", 'local');
 
         $document = Document::create([
             'user_id' => $user->id,
@@ -134,7 +275,7 @@ class OnboardingController extends Controller
     }
 
     /**
-     * Step 3: Upload Facility Legal Documents (Ownership, Lease, Contracts)
+     * Individual Upload: Facility Document
      */
     public function uploadFacilityDocument(Request $request): JsonResponse
     {
@@ -146,12 +287,11 @@ class OnboardingController extends Controller
 
         $user = $request->user();
 
-        // Verify facility belongs to user
         $facility = Facility::where('id', $request->input('facility_id'))
             ->where('user_id', $user->id)
             ->firstOrFail();
 
-        $path = $request->file('document')->store("documents/facilities/{$facility->id}", 'public');
+        $path = $request->file('document')->store("documents/facilities/{$facility->id}", 'local');
 
         $document = Document::create([
             'user_id' => $user->id,
