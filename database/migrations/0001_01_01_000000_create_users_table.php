@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('phone_number')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('personal_image')->nullable();
             $table->enum('role', ['super_admin', 'warehouse_admin', 'worker', 'client']);
             $table->enum('account_status', ['pending', 'approved', 'deleted'])->default('pending');
             $table->enum('identity_status', ['pending', 'submitted', 'approved', 'rejected'])->default('pending');

@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Password as PasswordBroker;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 class AuthController extends Controller
 {
@@ -113,15 +115,7 @@ class AuthController extends Controller
         unset($validated['business_name']);
 
         // 3. Pass the clean user-only data to the engine
-        return $this->processRegistration($validated, $lang, function ($user) use ($storeName) {
-            // Run Client specific actions safely using the extracted store name
-            Facility::create([
-                'facility_name' => $storeName,
-                'user_id' => $user->id,
-                'facility_type' => 'business',
-                'address_id' => 1,//TEMPORARYYYYYYYY
-            ]);
-        });
+        return $this->processRegistration($validated, $lang);
     }
 
     public function registerWorker(RegisterWorkerRequest $request): JsonResponse
@@ -325,6 +319,41 @@ class AuthController extends Controller
             'message' => __('auth.password_changed_success')
         ], 200);
     }
+
+    /**
+     * Adds or updates the user's personal image publicly.
+     * Removes the old image if one exists.
+     */
+    public function addOrUpdatePersonalImage(UploadedFile $image): string
+    {
+        // 1. Remove old image if present
+        $this->removePersonalImage();
+
+        // 2. Store the new file publicly in 'profile-images' directory
+        $path = $image->store('profile-images', 'public');
+
+        // 3. Update database record
+        $this->update([
+            'personal_image' => $path,
+        ]);
+
+        return $path;
+    }
+
+    /**
+     * Removes the user's personal image from disk and resets the DB column.
+     */
+    public function removePersonalImage(): bool
+    {
+        if ($this->personal_image && Storage::disk('public')->exists($this->personal_image)) {
+            Storage::disk('public')->delete($this->personal_image);
+        }
+
+        return $this->update([
+            'personal_image' => null,
+        ]);
+    }
+
     public function logout(Request $request)
     {
         $request->user()->tokens()->delete();
