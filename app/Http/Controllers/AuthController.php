@@ -20,6 +20,7 @@ use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Password as PasswordBroker;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class AuthController extends Controller
 {
@@ -289,6 +290,34 @@ class AuthController extends Controller
             'token' => $token,
             'role' => $user->role,
 
+        ], 200);
+    }
+
+    /**
+     * Update the phone number for the authenticated user.
+     */
+    public function changePhoneNumber(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'phone_number' => [
+                'required',
+                'digits:10',
+                Rule::unique('users', 'phone_number')->ignore($user->id),
+            ],
+        ], [
+            'phone_number.unique' => __('The provided phone number is already registered.'),
+        ]);
+
+        // Replaces the old phone_number in the DB with the new unique one
+        $user->update([
+            'phone_number' => $validated['phone_number'],
+        ]);
+
+        return response()->json([
+            'message' => 'Phone number updated successfully.',
+            'phone_number' => $user->phone_number,
         ], 200);
     }
 
