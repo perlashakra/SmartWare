@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CompanyController;
@@ -17,6 +18,15 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+//ADMIN REQUESTS
+Route::middleware(['auth', 'role:super_admin, locale'])->prefix('admin/dashboard')->group(function () {
+    Route::post('/admins', [AdminController::class, 'createAdmin']);
+    Route::get('/requests/pending', [AdminController::class, 'pendingRequests']);
+    Route::get('/requests/complete', [AdminController::class, 'completePendingRequests']);
+    Route::get('/requests/{id}', [AdminController::class, 'showRequest']);
+    Route::post('/requests/{id}/review', [AdminController::class, 'reviewRequest']);
+});
+
 //Registration routes:
 Route::post('/register-manager', [AuthController::class, 'registerManager']);
 Route::post('/register-client', [AuthController::class, 'registerClient']);
@@ -28,7 +38,6 @@ Route::post('/email/resend', [EmailVerificationController::class, 'resend'])->mi
 Route::post('/email/verification-notification',[EmailVerificationController::class, 'sendNotification'])->middleware(['auth:sanctum', 'locale']);
 
 //Email verification page routes:
-Route::post('/email/change/{id}', [AuthController::class, 'changeEmail'])->middleware('locale');
 Route::post('/email/verified-login', [AuthController::class, 'verifiedLogin']);
 
 //Password Reset endpoints:
@@ -44,12 +53,22 @@ Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware(['auth:sanctum', 'locale'])->group(function () {
     //Basic authentication and registration functions
-    Route::post('/password/change', [AuthController::class, 'changePassword']);
+    Route::get('/getFacilities', [OnboardingController::class, 'getAllUserFacilities']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::delete('/delete', [AuthController::class, 'delete']);
     //Onboarding functions:
-    Route::get('/onboarding/getOnboardingOptions', [OnboardingController::class, 'getOnboardingOptions']);
     Route::post('/onboarding/savePreferences', [OnboardingController::class, 'savePreferences']);
+    Route::post('/onboarding/uploadID', [OnboardingController::class, 'uploadIdentityDocument']);
+    Route::post('/onboarding/uploadFacilityDocument', [OnboardingController::class, 'uploadFacilityDocument']);
+    Route::post('/onboarding/uploadOnboardingDocuments', [OnboardingController::class, 'uploadOnboardingDocuments']);
+    //Profile editing:
+    Route::post('/addOrUpdatePersonalImage', [AuthController::class, 'addOrUpdatePersonalImage']);
+    Route::delete('/removePersonalImage', [AuthController::class, 'removePersonalImage']);
+    Route::post('/changeEmail', [AuthController::class, 'changeEmail']);
+    Route::post('/changePhoneNumber', [AuthController::class, 'changePhoneNumber']);
+    Route::post('/password/change', [AuthController::class, 'changePassword']);
+    Route::post('/editBusinessName', [OnboardingController::class, 'editBusinessName']);
+
 });
 
 //Company CRUD Routes
@@ -97,5 +116,5 @@ Route::controller(FacilityController::class)->prefix('/facilities')->middleware(
     
 });
 
-//Importing excel files 
+//Importing excel files
 Route::post('/imports', [ImportController::class, 'import'])->middleware(['auth:sanctum']);

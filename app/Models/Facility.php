@@ -14,6 +14,7 @@ class Facility extends Model
         'facility_name_en',
         'facility_name_ar',
         'facility_type',
+        'business_type',
         'facility_status',
         'user_id',
         'address_id',
@@ -50,7 +51,7 @@ class Facility extends Model
 
     public function categories()
     {
-        return $this->belongToMany(Category::class);
+        return $this->belongsToMany(Category::class);
     }
 
     public function importFiles(){
