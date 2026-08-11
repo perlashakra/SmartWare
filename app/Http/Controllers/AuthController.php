@@ -160,14 +160,9 @@ class AuthController extends Controller
         });
     }
 
-    public function changeEmail(ChangeEmailRequest $request, $id)
+    public function changeEmail(ChangeEmailRequest $request)
     {
-        $user = User::findOrFail($id);
-
-        if(!$user)
-        {
-            return response()->json(['Message' => __('auth.user_not_found')],404);
-        }
+        $user = $request->user();
 
         $user->email = $request->email;
 

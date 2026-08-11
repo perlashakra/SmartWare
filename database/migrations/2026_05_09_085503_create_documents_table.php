@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('facility_id')->nullable()->constrained('facilities')->nullOnDelete();
             $table->string('document_file');
-            $table->string('document_type');
+            $table->string('document_type')->nullable();
             $table->date('start_date')->nullable();
             $table->date('expiration_date')->nullable();
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
