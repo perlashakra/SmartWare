@@ -23,7 +23,8 @@ class UpdateCompanyRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'sometimes|string|max:255',
+            'name_en' => 'sometimes|string|max:255',
+            'name_ar' => 'sometimes|string|max:255',
             'phone' => 'sometimes|digits:10',
             'email' => 'sometimes|string|email|max:255',
             'website' => 'sometimes|string',

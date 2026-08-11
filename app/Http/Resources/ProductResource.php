@@ -13,9 +13,9 @@ class ProductResource extends JsonResource
         return [
             'id' => $this->id,
             'sku' => $this->sku,
-            'name' => $this->name,
+            'name' => $request->user()->language_preference === 'ar' ? $this->name_ar : $this->name_en,
             'price' => $this->price,
-            'container_type' => $this->container_type,
+            'container_type' => __('container_type.'.$this->container_type),
             'company' => new CompanyResource($this->whenLoaded('company')),
             'categories' => CategoryResource::collection($this->whenLoaded('categories')),
             'product_image' => $this->product_image ? Storage::url($this->product_image) : null,

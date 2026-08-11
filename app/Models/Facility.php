@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\FacilityType;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -10,7 +11,8 @@ class Facility extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'facility_name',
+        'facility_name_en',
+        'facility_name_ar',
         'facility_type',
         'facility_status',
         'user_id',
@@ -67,15 +69,14 @@ class Facility extends Model
         return $this->facility_type === FacilityType::Business;
     }
 
-    public function scopeWarehouses($query)
+    public function scopeWarehouses(Builder $query)
     {
-        return $query->where('facility_type', FacilityType::Warehouse);
+        return $query->where('facility_type', FacilityType::Warehouse->value);
     }
 
-    //Facility::warehouses()->get(); in controller
-    public function scopeBusinesses($query)
+    public function scopeBusinesses(Builder $query)
     {
-        return $query->where('facility_type', FacilityType::Business);
+        return $query->where('facility_type', FacilityType::Business->value);
     }
 
 }

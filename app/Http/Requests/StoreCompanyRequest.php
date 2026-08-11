@@ -24,7 +24,8 @@ class StoreCompanyRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required','string', 'max:255', Rule::unique('companies', 'name')->ignore($this->id)],
+            'name_en' => ['required_without:name_ar','string', 'max:255', Rule::unique('companies', 'name_en')->ignore($this->id)],
+            'name_ar' => ['required_without:name_en','string', 'max:255', Rule::unique('companies', 'name_ar')->ignore($this->id)],
             'phone' => ['required', 'digits:10', Rule::unique('companies', 'phone')->ignore($this->id)],
             'email' => ['required|string|email|max:255', Rule::unique('companies', 'email')->ignore($this->id)],
             'website' => ['required', 'string', Rule::unique('companies', 'website')->ignore($this->id)],

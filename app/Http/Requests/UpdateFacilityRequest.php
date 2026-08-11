@@ -25,7 +25,8 @@ class UpdateFacilityRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'facility_name' => 'sometimes|required',
+            'facility_name_en' => 'sometimes|required',
+            'facility_name_ar' => 'sometimes|required',
             'facility_type' => ['sometimes', Rule::enum(FacilityType::class)],
             'facility_status' => 'sometimes|in:pending,submitted,approved,rejected',
             'address_id' => 'sometimes|exists:addresses,id',

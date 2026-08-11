@@ -2,25 +2,21 @@
 
 namespace App\Models;
 
-use App\Models\Order;
 use App\Models\OrderItem;
-use App\Enums\ProductType;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
+    use HasFactory;
     protected $fillable = [
         'company_id',
         'sku',
-        'name',
+        'name_en',
+        'name_ar',
         'price',
         'container_type',
-        'product_type',
         'product_image',
-    ];
-
-    protected $casts = [
-        'product_type' => ProductType::class,
     ];
 
     public function categories(){

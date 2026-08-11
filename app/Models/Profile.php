@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\BusinessTypeEnum;
 use Illuminate\Database\Eloquent\Model;
 
 class Profile extends Model

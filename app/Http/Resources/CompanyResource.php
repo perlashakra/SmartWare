@@ -16,7 +16,7 @@ class CompanyResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->name,
+            'name' =>  $request->user()->language_preference === 'ar' ? $this->name_ar : $this->name_en,
             'phone' => $this->phone,
             'email' => $this->email,
             'website' => $this->website,

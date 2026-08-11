@@ -18,20 +18,20 @@ class CategoryController extends Controller
 
         $category = Category::create($request->validated());
 
-        return response()->json(['message' => 'Category Created Successfully!', 'data' => new CategoryResource($category)], 201);
+        return response()->json(['message' => __('category.created'), 'data' => new CategoryResource($category)], 201);
     }
 
     public function update(UpdateCategoryRequest $request, Category $category){
         $this->authorize('update', $category);
 
         $category->update($request->validated());
-        return response()->json(['message' => 'Category Updated Successfully', 'data' => new CategoryResource($category)], 200);
+        return response()->json(['message' => __('category.updated'), 'data' => new CategoryResource($category)], 200);
     }
 
     public function destroy(Category $category){
         $this->authorize('delete', $category);
 
         $category->delete();
-        return response()->json(['message' => 'Category Deleted Sucessfully'], 200);
+        return response()->json(['message' => __('category.deleted')], 200);
     }
 }

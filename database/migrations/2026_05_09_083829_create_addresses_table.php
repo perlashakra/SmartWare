@@ -22,6 +22,8 @@ return new class extends Migration
             $table->string('longitude');
             $table->timestamps();
         });
+        //shipment_id, latitude, longitude, recorded_at
+        //we need recorded at if we want to track something continuously
     }
 
     /**

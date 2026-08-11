@@ -14,10 +14,12 @@ return new class extends Migration
         Schema::create('companies', function (Blueprint $table) {
             $table->id();
             $table->foreignId('address_id')->constrained('addresses')->restrictOnDelete();
-            $table->string('name');
+            $table->string('name_en')->nullable();
+            $table->string('name_ar')->nullable();
             $table->string('phone')->unique();
             $table->string('email')->unique();
             $table->string('website');
+            $table->enum('translation_status', ['pending', 'failed', 'successful'])->default('pending');
             $table->timestamps();
         });
     }

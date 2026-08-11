@@ -118,6 +118,5 @@ enum CategoryEnum : string
 
     //LIGHTING
     case LIGHTING = 'lighting';
-
-    //$productType->category()->businessType();
+    
 }

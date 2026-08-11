@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 
 class ClientSeeder extends Seeder
@@ -19,6 +19,9 @@ class ClientSeeder extends Seeder
             'last_name' => 'Shakra',
             'email' => 'perla.shakra@gmail.com',
             'phone_number' => '0993579666',
+            'account_status' => 'approved',
+            'identity_status' => 'approved',
+            'email_verified_at' => Carbon::now(),
             'password' => Hash::make('0123456789'),
             'role' => 'client',
         ]);

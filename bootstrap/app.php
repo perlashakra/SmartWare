@@ -1,11 +1,7 @@
 <?php
 
-use App\Http\Middleware\ClientMiddleware;
 use App\Http\Middleware\RoleMiddleware;
 use App\Http\Middleware\SetLocale;
-use App\Http\Middleware\SuperAdminMiddleware;
-use App\Http\Middleware\WarehouseAdminMiddleware;
-use App\Http\Middleware\WorkerMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -18,8 +14,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->alias(['locale' => SetLocale::class]);
-        $middleware->alias(['role' => RoleMiddleware::class]);
+        $middleware->alias([
+            'locale' => SetLocale::class,
+            'role' => RoleMiddleware::class,
+        ]);
 
         $middleware->web(append: [
             SetLocale::class,

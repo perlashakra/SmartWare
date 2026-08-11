@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\ContainerType;
 use App\Enums\ProductType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -16,10 +17,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('company_id')->constrained('companies')->restrictOnDelete();
             $table->string('sku')->unique();
-            $table->string('name');
+            $table->string('name_en')->nullable();
+            $table->string('name_ar')->nullable();
             $table->decimal('price', 10, 2);
             $table->string('container_type');
-            $table->string('product_type');
             $table->string('product_image')->nullable();
             //barcode, description, weight
             $table->timestamps();

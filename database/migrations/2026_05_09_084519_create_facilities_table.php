@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('address_id')->constrained('addresses')->restrictOnDelete();
             $table->foreignId('user_id')->constrained('users')->restrictOnDelete();
-            $table->string('facility_name')->nullable();
+            $table->string('facility_name_en')->nullable();
+            $table->string('facility_name_ar')->nullable();
             $table->string('facility_type');
             $table->enum('facility_status', ['pending', 'submitted', 'approved', 'rejected'])->default('pending');
             $table->timestamps();

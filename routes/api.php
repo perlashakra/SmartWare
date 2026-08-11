@@ -70,7 +70,7 @@ Route::middleware(['auth:sanctum'])->prefix('/categories')->group(function(){
 });
 
 //Product CRUD Routes
-Route::controller(ProductController::class)->prefix('/products')->middleware(['auth:sanctum'])->group(function(){
+Route::controller(ProductController::class)->prefix('/products')->middleware(['auth:sanctum', 'locale'])->group(function(){
     Route::get('', 'index');
     Route::get('/{product}', 'show');
     Route::post('', 'store')->middleware(['role:super_admin,warehouse_admin']);
@@ -88,10 +88,13 @@ Route::controller(ProductController::class)->prefix('/products')->middleware(['a
 //Facility CRUD Routes
 Route::controller(FacilityController::class)->prefix('/facilities')->middleware(['auth:sanctum'])->group(function(){
     Route::get('', 'index');
+    Route::get('/warehouses', 'getWarehouses');
+    Route::get('/businesses', 'getBusinesses');
     Route::get('/{facility}', 'show');
     Route::post('', 'store')->middleware(['role:client,warehouse_admin']);
     Route::put('/{facility}', 'update')->middleware(['role:client,warehouse_admin']);
     Route::delete('/{facility}', 'destroy')->middleware(['role:client,warehouse_admin,super_admin']);
+    
 });
 
 //Importing excel files 

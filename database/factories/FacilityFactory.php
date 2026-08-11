@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\FacilityType;
 use App\Models\Address;
 use App\Models\Facility;
 use App\Models\User;
@@ -14,7 +15,8 @@ class FacilityFactory extends Factory
     {
         return [
             'address_id' => Address::inRandomOrder()->value('id'),
-            'facility_name' => fake()->company(),
+            'facility_name_en' => fake()->company(),
+            'facility_name_ar' => fake('ar_SA')->company(),
             'facility_status' => 'approved',
         ];
     }
@@ -23,7 +25,7 @@ class FacilityFactory extends Factory
     {
         return $this->state(fn() => [
             'user_id' => User::where('role', 'client')->inRandomOrder()->value('id'),
-            'facility_type' => 'business',
+            'facility_type' => FacilityType::Business->value,
         ]);
     }
 
@@ -31,7 +33,7 @@ class FacilityFactory extends Factory
     {
         return $this->state(fn() => [
             'user_id' => User::where('role', 'warehouse_admin')->inRandomOrder()->value('id'),
-            'facility_type' => 'warehouse',
+            'facility_type' => FacilityType::Warehouse->value,
         ]);
     }
 }

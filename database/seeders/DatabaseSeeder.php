@@ -19,11 +19,10 @@ class DatabaseSeeder extends Seeder
         $this->call([ClientSeeder::class]);
         $this->call([AddressSeeder::class]);
         $this->call([CategorySeeder::class]);
-        //this needs to be modified before seeding
-        //$this->call([BusinessTypeSeeder::class]);
+        $this->call([CompanySeeder::class]);
+        $this->call([ProductSeeder::class]);
         $this->call([BusinessSeeder::class]);
         $this->call([WarehouseSeeder::class]);
         $this->call([EmployeeAnnouncementSeeder::class]);
-        $this->call([CompanySeeder::class]);
     }
 }

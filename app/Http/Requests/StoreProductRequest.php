@@ -2,13 +2,11 @@
 
 namespace App\Http\Requests;
 
-use App\Enums\CategoryEnum;
-use App\Enums\ProductType;
-use Illuminate\Contracts\Validation\ValidationRule;
+use App\Enums\ContainerType;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class CreateProductRequest extends FormRequest
+class StoreProductRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -20,19 +18,13 @@ class CreateProductRequest extends FormRequest
         return [
             'company_id' => ['required', 'exists:companies,id'],
             'sku' => ['required', 'string', Rule::unique('products', 'sku'), 'max:100', 'regex:/^[A-Za-z0-9_-]+$/'],
-            'name' => 'required|string|max:255',
+            'name_en' => 'required_without:name_ar|string|max:255',
+            'name_ar' => 'required_without:name_en|string|max:255',
             'price' => 'required|numeric|min:0',
-            'container_type' => 'required|string',
+            'container_type' => ['required', Rule::enum(ContainerType::class)],
             'categories' => 'required|array',
-            'categories.*' => ['required', 'string', Rule::enum(CategoryEnum::class)],
-            'product_type' => ['required', 'string', Rule::enum(ProductType::class)],
+            'categories.*' => ['required', 'integer', 'exists:categories,id'],
             'product_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:4096',
-        ];
-    }
-
-    public function messages(){
-        return [
-            
         ];
     }
 }
