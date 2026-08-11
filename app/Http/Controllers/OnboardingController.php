@@ -198,9 +198,7 @@ class OnboardingController extends Controller
         $request->validate([
             'facility_id' => ['required', 'exists:facilities,id'],
             'identity_document' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
-            'identity_document_type' => ['required', 'string', 'in:national_id,passport,driver_license'],
             'facility_document' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
-            'facility_document_type' => ['required', 'string', 'in:ownership_deed,lease_contract,commercial_register,authorization_letter'],
         ]);
 
         $user = $request->user();
@@ -217,7 +215,7 @@ class OnboardingController extends Controller
                 'user_id' => $user->id,
                 'facility_id' => null,
                 'document_file' => $idPath,
-                'document_type' => $request->input('identity_document_type'),
+                'document_type' => null,
                 'status' => 'pending',
             ]);
 
@@ -227,7 +225,7 @@ class OnboardingController extends Controller
                 'user_id' => $user->id,
                 'facility_id' => $facility->id,
                 'document_file' => $facilityPath,
-                'document_type' => $request->input('facility_document_type'),
+                'document_type' => null,
                 'status' => 'pending',
             ]);
 
@@ -252,7 +250,6 @@ class OnboardingController extends Controller
     {
         $request->validate([
             'document' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
-            'document_type' => ['required', 'string', 'in:national_id,passport,driver_license'],
         ]);
 
         $user = $request->user();
@@ -262,7 +259,7 @@ class OnboardingController extends Controller
             'user_id' => $user->id,
             'facility_id' => null,
             'document_file' => $path,
-            'document_type' => $request->input('document_type'),
+            'document_type' => null,
             'status' => 'pending',
         ]);
 
@@ -282,7 +279,6 @@ class OnboardingController extends Controller
         $request->validate([
             'facility_id' => ['required', 'exists:facilities,id'],
             'document' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
-            'document_type' => ['required', 'string', 'in:ownership_deed,lease_contract,commercial_register,authorization_letter'],
         ]);
 
         $user = $request->user();
@@ -297,7 +293,7 @@ class OnboardingController extends Controller
             'user_id' => $user->id,
             'facility_id' => $facility->id,
             'document_file' => $path,
-            'document_type' => $request->input('document_type'),
+            'document_type' => null,
             'status' => 'pending',
         ]);
 

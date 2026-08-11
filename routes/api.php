@@ -64,7 +64,7 @@ Route::middleware(['auth:sanctum', 'locale'])->group(function () {
     //Profile editing:
     Route::post('/addOrUpdatePersonalImage', [AuthController::class, 'addOrUpdatePersonalImage']);
     Route::delete('/removePersonalImage', [AuthController::class, 'removePersonalImage']);
-    Route::post('/email/change/{id}', [AuthController::class, 'changeEmail']);
+    Route::post('/changeEmail', [AuthController::class, 'changeEmail']);
     Route::post('/changePhoneNumber', [AuthController::class, 'changePhoneNumber']);
     Route::post('/password/change', [AuthController::class, 'changePassword']);
     Route::post('/editBusinessName', [OnboardingController::class, 'editBusinessName']);
