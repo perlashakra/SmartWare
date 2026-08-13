@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\EmployeeAnnouncement;
 use App\Models\User;
 use App\Models\Document;
 use Illuminate\Http\Request;
@@ -143,6 +144,12 @@ class AdminController extends Controller
             }
 
             if ($validated['action'] === 'approve') {
+
+                if($user->role === 'warehouse_worker')
+                {
+                    EmployeeAnnouncement::where('employee_id', $user->id)->update(['status' => 'active']);
+                }
+
                 $user->update([
                     'account_status' => 'approved',
                     'identity_status' => 'approved',
@@ -153,8 +160,9 @@ class AdminController extends Controller
 
                 // TODO: Dispatch custom Welcome/Approval Notification email here
             } else {
+
                 $user->update([
-                    'account_status' => 'pending', // Keeps account open for re-upload or set to 'deleted'
+                    'account_status' => 'deleted',
                     'identity_status' => 'rejected',
                 ]);
 
