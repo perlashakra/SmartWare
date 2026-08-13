@@ -7,12 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 class EmployeeAnnouncement extends Model
 {
     protected $fillable = [
+        'employmentWarehouse_id',
+        'worker_id',
         'facility_id',
         'manager_id',
         'first_name',
         'last_name',
         'national_id',
         'claimed',
+        'status',
     ];
     public function warehouse()
     {

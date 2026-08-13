@@ -154,9 +154,12 @@ class AuthController extends Controller
         $validated['role'] = 'worker';
         $validated['manager_id'] = $announcement->manager_id;
 
-        return $this->processRegistration($validated, $lang, function () use ($announcement) {
+        return $this->processRegistration($validated, $lang, function (User $user) use ($announcement) {
             // Run Worker specific actions
-            $announcement->update(['claimed' => true]);
+            $announcement->update([
+                'worker_id' => $user->id,
+                'claimed' => true
+            ]);
         });
     }
 

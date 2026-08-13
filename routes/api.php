@@ -10,6 +10,7 @@ use App\Http\Controllers\ImportController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ResetPasswordController;
+use App\Http\Controllers\WarehouseManagerController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -69,6 +70,10 @@ Route::middleware(['auth:sanctum', 'locale'])->group(function () {
     Route::post('/password/change', [AuthController::class, 'changePassword']);
     Route::post('/editBusinessName', [OnboardingController::class, 'editBusinessName']);
 
+    //Warehouse manager functions:
+    //Worker announcement and termination
+    Route::post('/warehouse_manager/announceWorker', [WarehouseManagerController::class, 'announceWorker'])/*->middleware(['role:warehouse_manager'])*/;
+    Route::post('/warehouse_manager/terminateJob', [WarehouseManagerController::class, 'terminateJob'])/*->middleware(['role:warehouse_manager'])*/;
 });
 
 //Company CRUD Routes
@@ -113,7 +118,7 @@ Route::controller(FacilityController::class)->prefix('/facilities')->middleware(
     Route::post('', 'store')->middleware(['role:client,warehouse_admin']);
     Route::put('/{facility}', 'update')->middleware(['role:client,warehouse_admin']);
     Route::delete('/{facility}', 'destroy')->middleware(['role:client,warehouse_admin,super_admin']);
-    
+
 });
 
 //Importing excel files
