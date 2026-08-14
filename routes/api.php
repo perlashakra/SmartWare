@@ -9,6 +9,7 @@ use App\Http\Controllers\FacilityController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\ShipmentPlanController;
 use App\Http\Controllers\WarehouseManagerController;
@@ -126,5 +127,17 @@ Route::middleware(['auth:sanctum', 'locale'])->group(function () {
     });
 
 //Importing excel files
+Route::post('/imports', [ImportController::class, 'import'])->middleware(['auth:sanctum']);
+
+//Home Page
+Route::controller(FacilityController::class)->prefix('/home_page')->middleware(['auth:sanctum','role:client,warehouse_admin'])->group(function(){
+
+    Route::get('/ownedFacilities', 'getOwnedFacilities');
+    Route::get('/FacilityInfo{id}', 'getFacilityInfo');
+    Route::get('/sectionInfo{facility_id}{section_id}', 'getSectionInfo');
+});
+
+//profile
+Route::get('getProfile',[ProfileController::class, 'getProfile'])->middleware(['auth:sanctum','role:client,warehouse_admin']);
     Route::post('/imports', [ImportController::class, 'import'])->middleware(['auth:sanctum']);
 });

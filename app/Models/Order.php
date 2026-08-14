@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Company;
+use App\Models\Facility;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\User;
@@ -24,5 +25,8 @@ class Order extends Model
 
     public function products(){
         return $this -> hasMany(OrderItem::class);
+    }
+    public function warehouseOfTheOrder(){
+        return $this -> belongsTo(Facility::class);
     }
 }

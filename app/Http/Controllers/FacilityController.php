@@ -57,4 +57,34 @@ class FacilityController extends Controller
     public function getBusinesses(){
         return FacilityResource::collection(Facility::businesses()->with(['owner', 'address'])->paginate(12));
     }
+
+    public function getOwnedFacilities(){
+
+        $user = Auth::user();
+
+        return response()->json($user->owns, 200);
+
+    }
+
+    public function getFacilityInfo($id){
+        $Facility = Auth::user()
+        ->owns()
+        ->where('id', $id)
+        ->firstOrFail();
+
+        $Facility->load('sections');
+        return response()->json($Facility, 200);
+    }
+
+    public function getSectionInfo($facility_id,$section_id){
+        $Facility =  Auth::user()
+                    ->owns()
+                    ->where('id',$facility_id)
+                    ->firstOrFail();
+        $section = $Facility->sections()
+                    ->where('id',$section_id)
+                    ->firstOrFail();
+        $section->load('inventory.product');
+        return response()->json(['Section_info'=>$section], 200);
+    }
 }
