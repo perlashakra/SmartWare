@@ -70,10 +70,15 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function warehouse()
     {
-        return $this->belongsTo(Facility::class);//this has no end in the facility
+        return $this->belongsTo(Facility::class);
     }
 
     //Manager relationships:
+
+    public function facilities()
+    {
+        return $this->hasMany(Facility::class);
+    }
 
     public function announcedEmployees()
     {

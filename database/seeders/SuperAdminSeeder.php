@@ -20,7 +20,6 @@ class SuperAdminSeeder extends Seeder
             'email' => 'benyaminjoelle6@gmail.com',
             'phone_number' => '0968691004',
             'account_status' => 'approved',
-            'identity_status' => 'approved',
             'email_verified_at' => Carbon::now(),
             'password' => Hash::make('0123456789'),
             'role' => 'super_admin',

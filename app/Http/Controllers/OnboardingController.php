@@ -320,7 +320,7 @@ class OnboardingController extends Controller
 
         if ($hasIdentityDoc && $hasFacilityDoc) {
             Profile::where('user_id', $user->id)->update([
-                'onboarding_complete' => true
+                'completed' => true
             ]);
 
             $user->update([
