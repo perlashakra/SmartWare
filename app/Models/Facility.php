@@ -38,7 +38,7 @@ class Facility extends Model
     }
 
     public function sections(){
-        return $this->hasMany(Section::class);
+        return $this->hasMany(Section::class,'warehouse_id');
     }
 
     public function facilityUsers(){
@@ -78,6 +78,13 @@ class Facility extends Model
     public function scopeBusinesses(Builder $query)
     {
         return $query->where('facility_type', FacilityType::Business->value);
+    }
+
+    public function ordersToThisWarehouse(){
+        return $this->hasMany(Order::class,'dest_facility_id');
+    }
+    public function ordersFromThisWarehouse(){
+        return $this->hasMany(Order::class,'src_facility_id');
     }
 
 }

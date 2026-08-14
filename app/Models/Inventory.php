@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Models\Product;
 use app\Models\Section;
+use Illuminate\Database\Eloquent\Model;
 
 class Inventory extends Model
 {
@@ -11,5 +12,10 @@ class Inventory extends Model
     //section -> warehouse
     public function section(){
         return $this->belongsTo(Section::class);
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
     }
 }

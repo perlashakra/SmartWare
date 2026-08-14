@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Facility;
 use App\Models\Inbook;
 use App\Models\Order;
 use App\Notifications\QueuedResetPassword;
@@ -84,16 +85,20 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(User::class, 'manager_id');
     }
 
-    public function managedWarehouses()
-    {
-        return $this->hasMany(Facility::class, 'admin_id');
+
+    public function owns(){
+        return $this->hasMany(Facility::class,'user_id');
     }
+    // public function managedWarehouses()
+    // {
+    //     return $this->hasMany(Facility::class);//, 'admin_id'
+    // }
 
     //Client relationship with store
-    public function store()
-    {
-        return $this->hasOne(Facility::class);
-    }
+    // public function store()
+    // {
+    //     return $this->hasOne(Facility::class);
+    // }
 
     //Profile 1 to 1 relationship
     public function profile()
