@@ -20,7 +20,6 @@ class ClientSeeder extends Seeder
             'email' => 'perla.shakra@gmail.com',
             'phone_number' => '0993579666',
             'account_status' => 'approved',
-            'identity_status' => 'approved',
             'email_verified_at' => Carbon::now(),
             'password' => Hash::make('0123456789'),
             'role' => 'client',
