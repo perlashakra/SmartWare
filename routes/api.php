@@ -117,4 +117,4 @@ Route::controller(FacilityController::class)->prefix('/facilities')->middleware(
 });
 
 //Importing excel files
-Route::post('/imports', [ImportController::class, 'import'])->middleware(['auth:sanctum']);
+Route::post('/import-excel', [ImportController::class, 'import'])->middleware(['auth:sanctum', 'role:warehouse_admin', 'locale']);

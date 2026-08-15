@@ -19,10 +19,12 @@ return new class extends Migration
             $table->string('sku')->unique();
             $table->string('name_en')->nullable();
             $table->string('name_ar')->nullable();
-            $table->decimal('price', 10, 2);
-            $table->string('container_type');
+            $table->string('container_type')->nullable();
+            $table->string('unit')->nullable();
             $table->string('product_image')->nullable();
-            //barcode, description, weight
+            $table->text('description_en')->nullable();
+            $table->text('description_ar')->nullable();
+            $table->unique(['sku', 'company_id']);
             $table->timestamps();
         });
     }

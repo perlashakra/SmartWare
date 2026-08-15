@@ -2,15 +2,15 @@
 
 namespace App\Models;
 
-use App\Models\InbookProduct;
+use App\Models\InBookProduct;
 use App\Models\Section;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
-class Inbook extends Model
+class InBook extends Model
 {
     //
-    public function userWhoHandleTheInbook(){
+    public function userWhoHandleTheInBook(){
         return $this->belongsTo(User::class);
     }
 
@@ -19,6 +19,6 @@ class Inbook extends Model
     }
 
     public function products(){
-        return $this->hasMany(InbookProduct::class);
+        return $this->hasMany(InBookProduct::class);
     }
 }

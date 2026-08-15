@@ -15,8 +15,8 @@ class ImportFile extends Model
         'uploaded_at',
     ];
 
-    public function uploaded_by(){
-        return $this->belongsTo(User::class);
+    public function uploader(){
+        return $this->belongsTo(User::class, 'uploaded_by');
     }
 
     public function facility(){

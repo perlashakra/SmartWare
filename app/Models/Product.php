@@ -14,8 +14,10 @@ class Product extends Model
         'sku',
         'name_en',
         'name_ar',
-        'price',
         'container_type',
+        'unit',
+        'description_en',
+        'description_ar',
         'product_image',
     ];
 
@@ -32,6 +34,6 @@ class Product extends Model
     }
 
     public function orderItems(){
-        return $this -> has(OrderItem::class);
+        return $this->hasMany(OrderItem::class);
     }
 }

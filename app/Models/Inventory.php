@@ -3,13 +3,21 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use app\Models\Section;
 
 class Inventory extends Model
 {
-    //products -> company
-    //section -> warehouse
+    protected $fillable = [
+        'section_id',
+        'product_id',
+        'quantity',
+        'unit_price',
+    ];
+
     public function section(){
         return $this->belongsTo(Section::class);
+    }
+
+    public function product(){
+        return $this->belongsTo(Product::class);
     }
 }

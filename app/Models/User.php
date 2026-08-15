@@ -2,7 +2,8 @@
 
 namespace App\Models;
 
-use App\Models\Inbook;
+use App\Enums\FacilityType;
+use App\Models\InBook;
 use App\Models\Order;
 use App\Notifications\QueuedResetPassword;
 use App\Notifications\QueuedVerifyEmail;
@@ -86,7 +87,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function managedWarehouses()
     {
-        return $this->hasMany(Facility::class, 'admin_id');
+        return $this->hasMany(Facility::class, 'user_id')->where('facility_type', FacilityType::Warehouse->value);
     }
 
     //Client relationship with store
@@ -119,7 +120,7 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     //in book handle
-    public function inbooksHandled(){
-        return $this->hasMany(Inbook::class);
+    public function inBooksHandled(){
+        return $this->hasMany(InBook::class);
     }
 }
