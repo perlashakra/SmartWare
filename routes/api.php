@@ -23,7 +23,7 @@ Route::get('/user', function (Request $request) {
 
 //ADMIN REQUESTS
 Route::middleware(['auth', 'role:super_admin, locale'])->prefix('admin/dashboard')->group(function () {
-    Route::post('/admins', [AdminController::class, 'createAdmin']);
+    Route::post('/createAdmin', [AdminController::class, 'createAdmin']);
     Route::get('/requests/pending', [AdminController::class, 'pendingRequests']);
     Route::get('/requests/complete', [AdminController::class, 'completePendingRequests']);
     Route::get('/requests/{id}', [AdminController::class, 'showRequest']);
