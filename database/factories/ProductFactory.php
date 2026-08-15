@@ -19,10 +19,11 @@ class ProductFactory extends Factory
             'sku' => fake()->unique()->bothify('???###??##'),
             'name_en' => fake()->word(),
             'name_ar' => fake('ar_SA')->word(),
-            'unit' => fake(),
+            'unit' => fake()->randomElement(['kg', 'g', 'l', 'ml', 'piece', 'box', 'pack', 'meter',]),
             'container_type' => fake()->randomElement(ContainerType::cases())->value,
             'product_image' => fake()->image(),
-            'description' => fake()->text(200),
+            'description_en' => fake()->text(200),
+            'description_ar' => fake('ar_SA')->text(200),
         ];
     }
 }
