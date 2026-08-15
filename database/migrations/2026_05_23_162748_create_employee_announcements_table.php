@@ -13,12 +13,14 @@ return new class extends Migration
     {
         Schema::create('employee_announcements', function (Blueprint $table) {
             $table->id();
+            $table->string('worker_id')->nullable()->constrained('users')->cascadeOnDelete();
             $table->ForeignId('employmentWarehouse_id')->constrained('facilities')->cascadeOnDelete();
             $table->ForeignId('manager_id')->constrained('users')->cascadeOnDelete();
             $table->string('first_name');
             $table->string('last_name');
             $table->string('national_id')->unique();
             $table->boolean('claimed')->default(false);
+            $table->enum('status', ['pending', 'active', 'terminated'])->default('pending');
             $table->timestamps();
         });
     }

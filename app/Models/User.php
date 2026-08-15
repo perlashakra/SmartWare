@@ -3,11 +3,8 @@
 namespace App\Models;
 
 use App\Enums\FacilityType;
-use App\Models\InBook;
-use App\Models\Order;
 use App\Notifications\QueuedResetPassword;
 use App\Notifications\QueuedVerifyEmail;
-use Database\Factories\UserFactory;
 use Illuminate\Auth\MustVerifyEmail as MustVerifyEmailTrait;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -17,14 +14,8 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, HasApiTokens, MustVerifyEmailTrait;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'manager_id',
         'first_name',
@@ -70,10 +61,15 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function warehouse()
     {
-        return $this->belongsTo(Facility::class);//this has no end in the facility
+        return $this->belongsTo(Facility::class);
     }
 
     //Manager relationships:
+
+    public function facilities()
+    {
+        return $this->hasMany(Facility::class);
+    }
 
     public function announcedEmployees()
     {
@@ -88,6 +84,9 @@ class User extends Authenticatable implements MustVerifyEmail
     public function managedWarehouses()
     {
         return $this->hasMany(Facility::class, 'user_id')->where('facility_type', FacilityType::Warehouse->value);
+    }
+    public function owns(){
+        return $this->hasMany(Facility::class,'user_id');
     }
 
     //Client relationship with store

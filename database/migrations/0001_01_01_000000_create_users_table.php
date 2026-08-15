@@ -23,7 +23,6 @@ return new class extends Migration
             $table->string('personal_image')->nullable();
             $table->enum('role', ['super_admin', 'warehouse_admin', 'worker', 'client']);
             $table->enum('account_status', ['pending', 'approved', 'deleted'])->default('pending');
-            $table->enum('identity_status', ['pending', 'submitted', 'approved', 'rejected'])->default('pending');
             $table->string('language_preference')->default('en');
             $table->rememberToken();
             $table->timestamps();
