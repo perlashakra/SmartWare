@@ -12,7 +12,6 @@ use App\Models\Document;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 class OnboardingController extends Controller
 {
@@ -161,7 +160,6 @@ class OnboardingController extends Controller
 
         // --- 6. SAVE OR UPDATE DATABASE RECORD ---
         $facility = DB::transaction(function () use ($user, $role, $existingFacility, $facilityName, $targetBusinessType, $targetCategories) {
-            Profile::firstOrCreate(['user_id' => $user->id]);
 
             // Target either existing facility ID or create a new row
             $facility = Facility::updateOrCreate(
@@ -319,11 +317,8 @@ class OnboardingController extends Controller
             ->exists();
 
         if ($hasIdentityDoc && $hasFacilityDoc) {
-            Profile::where('user_id', $user->id)->update([
-                'completed' => true
-            ]);
-
             $user->update([
+                'onboarding_complete' => true,
                 'identity_status' => 'submitted'
             ]);
         }
