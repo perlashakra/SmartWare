@@ -214,6 +214,7 @@ return [
     'email_required' => 'Email is required.',
     'email_string' => 'Email must be a string.',
     'email_email' => 'Email must be a valid address.',
+    'email_not_verified' => 'Email is not verified.',
     'email_max' => 'Email must be less than :255 characters.',
 
     'phone_number_required' => 'Phone number is required.',
