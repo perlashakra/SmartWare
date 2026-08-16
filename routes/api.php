@@ -8,6 +8,7 @@ use App\Http\Controllers\EmailVerificationController;
 use App\Http\Controllers\FacilityController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\OnboardingController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ResetPasswordController;
@@ -71,6 +72,16 @@ Route::middleware(['auth:sanctum', 'locale'])->group(function () {
     Route::post('/changePhoneNumber', [AuthController::class, 'changePhoneNumber']);
     Route::post('/password/change', [AuthController::class, 'changePassword']);
     Route::post('/editBusinessName', [OnboardingController::class, 'editBusinessName']);
+
+    //Order routes
+    // Standard Order REST endpoints
+    Route::get('/orders', [OrderController::class, 'index']);
+    Route::post('/orders', [OrderController::class, 'store']);
+    Route::get('/orders/{order}', [OrderController::class, 'show']);
+
+    // Custom workflow endpoints
+    Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel']);
+    Route::post('/orders/{order}/process-decision', [OrderController::class, 'processDecision']);
 
     //Warehouse manager functions:
     //Worker announcement and termination
