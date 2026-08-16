@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('personal_image')->nullable();
             $table->enum('role', ['super_admin', 'warehouse_admin', 'worker', 'client']);
+            $table->boolean('onboarding_complete')->default(false);
             $table->enum('account_status', ['pending', 'approved', 'deleted'])->default('pending');
             $table->string('language_preference')->default('en');
             $table->rememberToken();

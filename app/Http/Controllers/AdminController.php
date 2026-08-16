@@ -46,11 +46,7 @@ class AdminController extends Controller
      */
     public function pendingRequests(): JsonResponse
     {
-        $incompleteUsers = User::where('account_status', 'pending')
-            ->where(function ($query) {
-                $query->whereDoesntHave('profile')
-                    ->orWhereHas('profile', fn($q) => $q->where('onboarding_complete', false));
-            })
+        $incompleteUsers = User::where('account_status', 'pending' && 'onboarding_complete' == false)
             ->select('id', 'first_name', 'last_name', 'email', 'phone_number', 'role', 'created_at')
             ->latest()
             ->paginate(15);
@@ -63,8 +59,7 @@ class AdminController extends Controller
      */
     public function completePendingRequests(): JsonResponse
     {
-        $readyUsers = User::where('account_status', 'pending')
-            ->whereHas('profile', fn($q) => $q->where('onboarding_complete', true))
+        $readyUsers = User::where('account_status', 'pending' && 'onboarding_complete' == true)
             ->with(['facilities:id,user_id,facility_type,business_type,facility_status'])
             ->select('id', 'first_name', 'last_name', 'email', 'phone_number', 'role', 'identity_status', 'created_at')
             ->latest()
@@ -93,7 +88,6 @@ class AdminController extends Controller
     {
         $user = User::where('account_status', 'pending')
             ->with([
-                'profile',
                 'documents',
                 'facilities.categories'
             ])

@@ -95,12 +95,6 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(Facility::class);
     }
 
-    //Profile 1 to 1 relationship
-    public function profile()
-    {
-        return $this->hasOne(Profile::class);
-    }
-
     //Email verification:
     public function sendEmailVerificationNotification()
     {

@@ -135,8 +135,4 @@ Route::controller(FacilityController::class)->prefix('/home_page')->middleware([
     Route::get('/ownedFacilities', 'getOwnedFacilities');
     Route::get('/FacilityInfo{id}', 'getFacilityInfo');
     Route::get('/sectionInfo{facility_id}{section_id}', 'getSectionInfo');
-});
-
-//profile
-Route::get('getProfile',[ProfileController::class, 'getProfile'])->middleware(['auth:sanctum','role:client,warehouse_admin']);
-});
+});});
