@@ -46,7 +46,8 @@ class AdminController extends Controller
      */
     public function pendingRequests(): JsonResponse
     {
-        $incompleteUsers = User::where('account_status', 'pending' && 'onboarding_complete' == false)
+        $incompleteUsers = User::where('account_status', 'pending')
+            ->where('onboarding_complete', false) // Evaluates as AND
             ->select('id', 'first_name', 'last_name', 'email', 'phone_number', 'role', 'created_at')
             ->latest()
             ->paginate(15);
