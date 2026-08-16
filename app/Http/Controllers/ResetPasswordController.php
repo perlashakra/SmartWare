@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use App\Models\User;
 use App\Mail\ResetPasswordOtpMail;
@@ -19,12 +20,19 @@ class ResetPasswordController extends Controller
      */
     public function sendResetOtp(Request $request): JsonResponse
     {
+
         $request->validate([
-            'email' => 'required|email',
+            'email' => [
+                'required',
+                'email',
+                Rule::exists('users', 'email')->whereNotNull('email_verified_at'),
+            ],
         ], [
             'email.required' => __('validation.email_required'),
             'email.email' => __('validation.email_email'),
+            'email.exists' => __('validation.email_not_verified'), // Add your custom error message key here
         ]);
+
 
         $user = User::where('email', $request->email)->first();
 
