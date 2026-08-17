@@ -137,15 +137,16 @@ class AuthController extends Controller
                 'manager_id' => $announcement->manager_id,
                 'employmentWarehouse_id' => $announcement->employmentWarehouse_id,
             ])->first();
-            if(!$user)
-            {
+            if (!$user) {
                 return response()->json(['message' => __('auth.employee_not_announced')], 403);
             }
             $user->sendEmailVerificationNotification();
             return response()->json(['message' => __('auth.employee_already_registered')], 409);
         }
-        if (strtolower(trim($announcement->first_name)) !== strtolower(trim($validated['first_name'])) ||
-            strtolower(trim($announcement->last_name)) !== strtolower(trim($validated['last_name']))) {
+        if (
+            strtolower(trim($announcement->first_name)) !== strtolower(trim($validated['first_name'])) ||
+            strtolower(trim($announcement->last_name)) !== strtolower(trim($validated['last_name']))
+        ) {
             return response()->json(['message' => __('auth.employee_identity_mismatch')], 422);
         }
 
@@ -217,13 +218,14 @@ class AuthController extends Controller
             'message' => __('auth.login_success'),
             'token' => $token,
             'role' => $user->role,
+            'user' => $user,
         ]);
     }
     public function login(LoginRequest $request)
     {
         $user = User::where('email', $request->login)
-        ->orWhere('phone_number', $request->login)
-        ->first();
+            ->orWhere('phone_number', $request->login)
+            ->first();
 
         $preferredLanguage =
             $request->getPreferredLanguage(['en', 'ar'])
@@ -244,11 +246,10 @@ class AuthController extends Controller
                 'password' => $request->password
             ];
 
-        if (!Auth::attempt($credentials))
-        {
+        if (!Auth::attempt($credentials)) {
             return response()->json([
                 'message' =>
-                    __('auth.username_password_mismatch')
+                __('auth.username_password_mismatch')
             ], 401);
         }
 
@@ -266,13 +267,12 @@ class AuthController extends Controller
         }
 
         // User has been rejected
-        if ($user->account_status === 'deleted')
-        {
+        if ($user->account_status === 'deleted') {
             Auth::logout();
 
             return response()->json([
                 'message' =>
-                    __('auth.account_rejected')
+                __('auth.account_rejected')
             ], 403);
         }
 
@@ -287,7 +287,7 @@ class AuthController extends Controller
             'message' => __('auth.login_success'),
             'token' => $token,
             'role' => $user->role,
-
+            'user' => $user,
         ], 200);
     }
 
