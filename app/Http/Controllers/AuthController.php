@@ -87,23 +87,10 @@ class AuthController extends Controller
 
         $user->sendEmailVerificationNotification();
 
-        $facilityName = $data['store_name'] ?? null;
-
-        if($facilityName)
-        {
-            return response()->json([
-                'message' => __('auth.register_success'),
-                'user' => $user,
-                'verification_required' => true,
-                'facility_name' => $facilityName,
-            ], 201);
-        }
-
         return response()->json([
             'message' => __('auth.register_success'),
             'user' => $user,
             'verification_required' => true,
-            'facility_name' => $facilityName,
         ], 201);
 
     }
