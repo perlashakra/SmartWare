@@ -446,12 +446,14 @@ class WarehouseAnalyticsSeeder extends Seeder
                 'order_id' => $order1->id,
                 'product_id' => $water->id,
                 'quantity' => 30,
+                'unit_price'=>30.3
             ]);
 
             OrderItem::create([
                 'order_id' => $order1->id,
                 'product_id' => $cola->id,
                 'quantity' => 10,
+                'unit_price'=>35
             ]);
 
 
@@ -470,12 +472,14 @@ class WarehouseAnalyticsSeeder extends Seeder
                 'order_id' => $order2->id,
                 'product_id' => $water->id,
                 'quantity' => 50,
+                'unit_price'=>25.3
             ]);
 
             OrderItem::create([
                 'order_id' => $order2->id,
                 'product_id' => $juice->id,
                 'quantity' => 20,
+                'unit_price'=>36
             ]);
 
 
@@ -494,12 +498,14 @@ class WarehouseAnalyticsSeeder extends Seeder
                 'order_id' => $order3->id,
                 'product_id' => $water->id,
                 'quantity' => 80,
+                'unit_price'=>74
             ]);
 
             OrderItem::create([
                 'order_id' => $order3->id,
                 'product_id' => $rice->id,
                 'quantity' => 5,
+                'unit_price'=>19
             ]);
 
 
@@ -527,6 +533,7 @@ class WarehouseAnalyticsSeeder extends Seeder
                 'order_id' => $cancelledOrder->id,
                 'product_id' => $water->id,
                 'quantity' => 999,
+                'unit_price'=>57
             ]);
 
 
@@ -554,12 +561,14 @@ class WarehouseAnalyticsSeeder extends Seeder
                 'order_id' => $warehouse2Order->id,
                 'product_id' => $water->id,
                 'quantity' => 1000,
+                'unit_price'=>23
             ]);
 
             OrderItem::create([
                 'order_id' => $warehouse2Order->id,
                 'product_id' => $cola->id,
                 'quantity' => 500,
+                'unit_price'=>12
             ]);
         });
     }
