@@ -91,4 +91,7 @@ class Facility extends Model
         return $this->hasMany(Order::class,'src_facility_id');
     }
 
+    public function cartItems(){
+        return $this->hasMany(CartItem::class, 'warehouse_id');
+    }
 }

@@ -10,15 +10,24 @@ use Illuminate\Database\Eloquent\Model;
 class InBook extends Model
 {
     //
-    public function userWhoHandleTheInBook(){
-        return $this->belongsTo(User::class);
-    }
+    protected $table = 'inbooks';
+    protected $fillable = [
+        'user_id',
+        'section_id',
+        'storage_date',
+    ];
 
-    public function section(){
+    public function userWhoHandleTheInBook()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+    public function section()
+    {
         return $this->belongsTo(Section::class);
     }
 
-    public function products(){
-        return $this->hasMany(InBookProduct::class);
+    public function products()
+    {
+        return $this->hasMany(InBookProduct::class, 'inbook_id');
     }
 }
