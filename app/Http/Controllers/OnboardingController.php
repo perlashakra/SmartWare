@@ -185,6 +185,23 @@ class OnboardingController extends Controller
         ], 200);
     }
 
+    public function getFacilityPreferences(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'facility_id' => ['required', 'exists:facilities,id']
+        ]);
+
+        $user = $request->user();
+        $facility = Facility::findOrFail($validated['facility_id']);
+        if($facility->user_id !== $user->id) {
+            return response()->json(['error' => 'Unauthorized.'], 403);
+        }
+
+        $preferences = $facility->categories;
+
+        return response()->json(['preferences' => $preferences]);
+    }
+
     /**
      * Step 2: Upload Personal ID Verification Documents
      */

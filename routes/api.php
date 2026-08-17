@@ -63,6 +63,7 @@ Route::middleware(['auth:sanctum', 'locale'])->group(function () {
     Route::delete('/delete', [AuthController::class, 'delete']);
     //Onboarding functions:
     Route::post('/onboarding/savePreferences', [OnboardingController::class, 'savePreferences']);
+    Route::post('/onboarding/getPreferences', [OnboardingController::class, 'getFacilityPreferences']);
     Route::post('/onboarding/uploadID', [OnboardingController::class, 'uploadIdentityDocument']);
     Route::post('/onboarding/uploadFacilityDocument', [OnboardingController::class, 'uploadFacilityDocument']);
     Route::post('/onboarding/uploadOnboardingDocuments', [OnboardingController::class, 'uploadOnboardingDocuments']);
