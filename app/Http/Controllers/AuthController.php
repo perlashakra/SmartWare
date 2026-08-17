@@ -87,7 +87,7 @@ class AuthController extends Controller
 
         $user->sendEmailVerificationNotification();
 
-        $facilityName = $data['business_name'];
+        $facilityName = $data['store_name'] ?? null;
 
         if($facilityName)
         {
@@ -122,12 +122,6 @@ class AuthController extends Controller
     {
         $validated = $request->validated();
         $lang = $request->getPreferredLanguage(['en', 'ar']) ?? 'en';
-
-        // 1. Extract the store name completely from the data array
-        $storeName = $validated['business_name'];
-
-        // 2. Remove it so it doesn't get passed to User::create() or update()
-        unset($validated['business_name']);
 
         // 3. Pass the clean user-only data to the engine
         return $this->processRegistration($validated, $lang);
