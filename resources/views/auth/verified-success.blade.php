@@ -26,10 +26,6 @@
     <p class="text-slate-600 mb-6">
         {{ __('Your email address has been successfully verified. Welcome aboard!') }}
     </p>
-
-    <a href="http://localhost:3000/login" class="inline-block w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-xl transition duration-200 shadow-sm">
-        {{ __('Go to Login') }}
-    </a>
 </div>
 
 </body>

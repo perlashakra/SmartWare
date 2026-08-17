@@ -10,10 +10,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class OrderItem extends Model
 {
-    //
-    protected $fillable = [  'order_id'  
-                            ,'product_id'
-                            ,'quantity'  ];
+    protected $fillable = [
+        'order_id',
+        'product_id',
+        'quantity',
+        'unit_price',
+        'status',
+        'rejection_reason',
+    ];
+
     public function itemsOfTheRecipt(){
         return $this->hasMany(ReceiptItem::class);
     }

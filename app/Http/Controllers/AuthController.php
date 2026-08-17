@@ -92,6 +92,7 @@ class AuthController extends Controller
             'user' => $user,
             'verification_required' => true,
         ], 201);
+
     }
 
     // --- CLEANED UP ENDPOINTS ---
@@ -108,12 +109,6 @@ class AuthController extends Controller
     {
         $validated = $request->validated();
         $lang = $request->getPreferredLanguage(['en', 'ar']) ?? 'en';
-
-        // 1. Extract the store name completely from the data array
-        $storeName = $validated['business_name'];
-
-        // 2. Remove it so it doesn't get passed to User::create() or update()
-        unset($validated['business_name']);
 
         // 3. Pass the clean user-only data to the engine
         return $this->processRegistration($validated, $lang);
@@ -137,15 +132,16 @@ class AuthController extends Controller
                 'manager_id' => $announcement->manager_id,
                 'employmentWarehouse_id' => $announcement->employmentWarehouse_id,
             ])->first();
-            if(!$user)
-            {
+            if (!$user) {
                 return response()->json(['message' => __('auth.employee_not_announced')], 403);
             }
             $user->sendEmailVerificationNotification();
             return response()->json(['message' => __('auth.employee_already_registered')], 409);
         }
-        if (strtolower(trim($announcement->first_name)) !== strtolower(trim($validated['first_name'])) ||
-            strtolower(trim($announcement->last_name)) !== strtolower(trim($validated['last_name']))) {
+        if (
+            strtolower(trim($announcement->first_name)) !== strtolower(trim($validated['first_name'])) ||
+            strtolower(trim($announcement->last_name)) !== strtolower(trim($validated['last_name']))
+        ) {
             return response()->json(['message' => __('auth.employee_identity_mismatch')], 422);
         }
 
@@ -217,13 +213,14 @@ class AuthController extends Controller
             'message' => __('auth.login_success'),
             'token' => $token,
             'role' => $user->role,
+            'user' => $user,
         ]);
     }
     public function login(LoginRequest $request)
     {
         $user = User::where('email', $request->login)
-        ->orWhere('phone_number', $request->login)
-        ->first();
+            ->orWhere('phone_number', $request->login)
+            ->first();
 
         $preferredLanguage =
             $request->getPreferredLanguage(['en', 'ar'])
@@ -244,11 +241,10 @@ class AuthController extends Controller
                 'password' => $request->password
             ];
 
-        if (!Auth::attempt($credentials))
-        {
+        if (!Auth::attempt($credentials)) {
             return response()->json([
                 'message' =>
-                    __('auth.username_password_mismatch')
+                __('auth.username_password_mismatch')
             ], 401);
         }
 
@@ -266,13 +262,12 @@ class AuthController extends Controller
         }
 
         // User has been rejected
-        if ($user->account_status === 'deleted')
-        {
+        if ($user->account_status === 'deleted') {
             Auth::logout();
 
             return response()->json([
                 'message' =>
-                    __('auth.account_rejected')
+                __('auth.account_rejected')
             ], 403);
         }
 
@@ -287,7 +282,7 @@ class AuthController extends Controller
             'message' => __('auth.login_success'),
             'token' => $token,
             'role' => $user->role,
-
+            'user' => $user,
         ], 200);
     }
 
@@ -351,33 +346,60 @@ class AuthController extends Controller
      * Adds or updates the user's personal image publicly.
      * Removes the old image if one exists.
      */
-    public function addOrUpdatePersonalImage(UploadedFile $image): string
-    {
-        // 1. Remove old image if present
-        $this->removePersonalImage();
 
-        // 2. Store the new file publicly in 'profile-images' directory
+    public function addOrUpdatePersonalImage(Request $request): JsonResponse
+    {
+        // Validate that the file is an actual uploaded image
+        $request->validate([
+            'image' => ['required', 'image', 'max:2048'], // 2MB max
+        ]);
+
+        $user = $request->user();
+
+        // Retrieve the file from the request
+        $image = $request->file('image');
+
+        // 1. Remove old image if present
+        if ($user->personal_image) {
+            if (Storage::disk('public')->exists($user->personal_image)) {
+                Storage::disk('public')->delete($user->personal_image);
+            }
+        }
+
+        // 2. Store in 'profile-images' directory on the 'public' disk
         $path = $image->store('profile-images', 'public');
 
         // 3. Update database record
-        $this->update([
+        $user->update([
             'personal_image' => $path,
         ]);
 
-        return $path;
+        return response()->json([
+            'message' => 'Image updated successfully',
+            'path' => $path,
+        ]);
     }
 
     /**
      * Removes the user's personal image from disk and resets the DB column.
      */
-    public function removePersonalImage(): bool
+    public function removePersonalImage(Request $request): JsonResponse
     {
-        if ($this->personal_image && Storage::disk('public')->exists($this->personal_image)) {
-            Storage::disk('public')->delete($this->personal_image);
+        $user = $request->user();
+        // 1. Delete old file from disk if path exists
+        if ($user->personal_image) {
+            if (Storage::disk('public')->exists($user->personal_image)) {
+                Storage::disk('public')->delete($user->personal_image);
+            }
         }
 
-        return $this->update([
-            'personal_image' => null,
+        // 2. Direct assignment + save guarantees the column is set to NULL
+        $user->personal_image = null;
+
+        $user->save();
+
+        return response()->json([
+            'message' => 'Image removed successfully',
         ]);
     }
 

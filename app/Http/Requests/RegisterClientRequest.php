@@ -29,7 +29,6 @@ class RegisterClientRequest extends FormRequest
             'phone_number' => 'required|digits:10',
             'password' => 'required|string|min:10',
             'role' => 'required|string|in:client',
-            'business_name' => 'required|string|max:25',
         ];
     }
 

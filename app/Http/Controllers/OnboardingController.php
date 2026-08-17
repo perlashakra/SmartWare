@@ -7,12 +7,10 @@ use App\Enums\BusinessTypeEnum;
 use App\Enums\CategoryEnum;
 use App\Models\Category;
 use App\Models\Facility;
-use App\Models\Profile;
 use App\Models\Document;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 class OnboardingController extends Controller
 {
@@ -161,14 +159,13 @@ class OnboardingController extends Controller
 
         // --- 6. SAVE OR UPDATE DATABASE RECORD ---
         $facility = DB::transaction(function () use ($user, $role, $existingFacility, $facilityName, $targetBusinessType, $targetCategories) {
-            Profile::firstOrCreate(['user_id' => $user->id]);
 
             // Target either existing facility ID or create a new row
             $facility = Facility::updateOrCreate(
                 ['id' => $existingFacility?->id],
                 [
                     'user_id' => $user->id,
-                    'facility_type' => in_array($role, ['warehouse_manager', 'warehouse_admin']) ? 'warehouse' : 'store',
+                    'facility_type' => in_array($role, ['warehouse_manager', 'warehouse_admin']) ? 'warehouse' : 'business',
                     'facility_name' => $facilityName,
                     'business_type' => $targetBusinessType,
                     'facility_status' => 'pending',
@@ -184,6 +181,7 @@ class OnboardingController extends Controller
         return response()->json([
             'message' => 'Preferences saved successfully.',
             'facility' => $facility->load('categories'),
+            'facility_name' => $facilityName,
         ], 200);
     }
 
@@ -319,11 +317,8 @@ class OnboardingController extends Controller
             ->exists();
 
         if ($hasIdentityDoc && $hasFacilityDoc) {
-            Profile::where('user_id', $user->id)->update([
-                'completed' => true
-            ]);
-
             $user->update([
+                'onboarding_complete' => true,
                 'identity_status' => 'submitted'
             ]);
         }
