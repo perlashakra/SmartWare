@@ -55,7 +55,7 @@ class Facility extends Model
 
     public function categories()
     {
-        return $this->belongsToMany(Category::class);
+        return $this->belongsToMany(Category::class, 'facility_category');
     }
 
     public function importFiles(){

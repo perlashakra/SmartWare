@@ -7,7 +7,6 @@ use App\Enums\BusinessTypeEnum;
 use App\Enums\CategoryEnum;
 use App\Models\Category;
 use App\Models\Facility;
-use App\Models\Profile;
 use App\Models\Document;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -166,7 +165,7 @@ class OnboardingController extends Controller
                 ['id' => $existingFacility?->id],
                 [
                     'user_id' => $user->id,
-                    'facility_type' => in_array($role, ['warehouse_manager', 'warehouse_admin']) ? 'warehouse' : 'store',
+                    'facility_type' => in_array($role, ['warehouse_manager', 'warehouse_admin']) ? 'warehouse' : 'business',
                     'facility_name' => $facilityName,
                     'business_type' => $targetBusinessType,
                     'facility_status' => 'pending',
