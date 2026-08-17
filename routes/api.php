@@ -10,7 +10,6 @@ use App\Http\Controllers\ImportController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
-use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\ShipmentPlanController;
 use App\Http\Controllers\WarehouseManagerController;
