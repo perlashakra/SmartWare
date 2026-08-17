@@ -181,6 +181,7 @@ class OnboardingController extends Controller
         return response()->json([
             'message' => 'Preferences saved successfully.',
             'facility' => $facility->load('categories'),
+            'facility_name' => $facilityName,
         ], 200);
     }
 
