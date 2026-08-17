@@ -7,6 +7,9 @@ use App\Http\Requests\StoreFacilityRequest;
 use App\Http\Requests\UpdateFacilityRequest;
 use App\Http\Resources\FacilityResource;
 use App\Models\Facility;
+use App\Models\InBookProduct;
+use App\Models\OrderItem;
+use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
 
 class FacilityController extends Controller
@@ -84,7 +87,255 @@ class FacilityController extends Controller
         $section = $Facility->sections()
                     ->where('id',$section_id)
                     ->firstOrFail();
-        $section->load('inventory.product');
+        $section->load('inventories.product');
         return response()->json(['Section_info'=>$section], 200);
+    }
+
+    public function topMovingProduct($facility_id)
+    { 
+        $facility = Auth::user()
+            ->owns()
+            ->where('id', $facility_id)
+            ->firstOrFail();
+
+        $products = Product::whereHas('orderItems.order', function ($query) use ($facility) {
+                $query->where('src_facility_id', $facility->id)
+                    ->whereIn('status', [
+                        'approved',
+                        'preparing',
+                        'shipping',
+                        'delivered',
+                    ]);
+            })
+            ->withSum([
+                'orderItems as total_sold' => function ($query) use ($facility) {
+                    $query->whereHas('order', function ($orderQuery) use ($facility) {
+                        $orderQuery->where('src_facility_id', $facility->id)
+                            ->whereIn('status', [
+                                'approved',
+                                'preparing',
+                                'shipping',
+                                'delivered',
+                            ]);
+                    });
+                }
+            ], 'quantity')
+            ->orderByDesc('total_sold')
+            ->paginate(12);
+
+        return response()->json($products, 200);
+    }
+
+    public function slowMovingProduct($facility_id)
+    {
+        $facility = Auth::user()
+            ->owns()
+            ->where('id', $facility_id)
+            ->firstOrFail();
+
+        $products = Product::whereHas('inventories.section', function ($query) use ($facility) {
+                $query->where('warehouse_id', $facility->id);
+            })
+            ->withSum([
+                'orderItems as total_sold' => function ($query) use ($facility) {
+                    $query->whereHas('order', function ($orderQuery) use ($facility) {
+                        $orderQuery->where('src_facility_id', $facility->id)
+                            ->whereIn('status', [
+                                'approved',
+                                'preparing',
+                                'shipping',
+                                'delivered',
+                            ]);
+                    });
+                }
+            ], 'quantity')
+            ->orderBy('total_sold')
+            ->paginate(12);
+
+        return response()->json($products, 200);
+    }
+
+    public function stockOutRisk($facility_id)
+    {
+        $facility = Auth::user()
+            ->owns()
+            ->where('id', $facility_id)
+            ->firstOrFail();
+    
+        $products = Product::whereHas('inventories.section', function ($query) use ($facility) {
+                $query->where('warehouse_id', $facility->id);
+            })
+            ->withSum([
+                'inventories as warehouse_quantity' => function ($query) use ($facility) {
+                    $query->whereHas('section', function ($sectionQuery) use ($facility) {
+                        $sectionQuery->where('warehouse_id', $facility->id);
+                    });
+                }
+            ], 'quantity')
+            ->having('warehouse_quantity', '<=', 10)
+            ->orderBy('warehouse_quantity')
+            ->paginate(12);
+    
+        return response()->json($products, 200);
+    }
+    public function showInventoryByCategory($facility_id)
+    {
+        $facility = Auth::user()
+            ->owns()
+            ->where('id', $facility_id)
+            ->firstOrFail();
+
+        $products = Product::with([
+                'categories',
+                'inventories.section'
+            ])
+            ->whereHas('inventories.section', function ($query) use ($facility) {
+                $query->where('warehouse_id', $facility->id);
+            })
+            ->get();
+
+        $categories = [];
+
+        foreach ($products as $product) {
+
+            $warehouseQuantity = $product->inventories
+                ->filter(function ($inventory) use ($facility) {
+                    return $inventory->section->warehouse_id == $facility->id;
+                })
+                ->sum('quantity');
+
+            foreach ($product->categories as $category) {
+
+                if (!isset($categories[$category->id])) {
+                    $categories[$category->id] = [
+                        'category_id' => $category->id,
+                        'category_name' => $category->name,
+                        'total_quantity' => 0,
+                        'products' => [],
+                    ];
+                }
+
+                $categories[$category->id]['total_quantity'] += $warehouseQuantity;
+
+                $categories[$category->id]['products'][] = [
+                    'product_id' => $product->id,
+                    'sku' => $product->sku,
+                    'name_en' => $product->name_en,
+                    'name_ar' => $product->name_ar,
+                    'quantity' => $warehouseQuantity,
+                ];
+            }
+        }
+
+        return response()->json(array_values($categories), 200);
+    }
+    public function stockMovement($facility_id)
+    {
+        // Make sure the authenticated user owns this warehouse
+        $facility = Auth::user()
+            ->owns()
+            ->where('id', $facility_id)
+            ->firstOrFail();
+    
+    
+      
+        $incoming = OrderItem::join(
+                'orders',
+                'order_items.order_id',
+                '=',
+                'orders.id'
+            )
+            ->join(
+                'products',
+                'order_items.product_id',
+                '=',
+                'products.id'
+            )
+            ->leftJoin(
+                'facilities',
+                'orders.dest_facility_id',
+                '=',
+                'facilities.id'
+            )
+            ->where('orders.dest_facility_id', $facility->id)
+            ->whereIn('orders.status', [
+                'approved',
+                'preparing',
+                'shipping',
+            ])
+            ->select([
+                'orders.order_date as date',
+                'products.id as product_id',
+                'products.name_en as product_name',
+                'order_items.quantity',
+                'facilities.id as destination_id',
+                'facilities.facility_name_en as destination_name',
+            ])
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'date' => $item->date,
+                    'type' => 'incoming',
+                    'product_id' => $item->product_id,
+                    'product_name' => $item->product_name,
+                    'quantity' => (int) $item->quantity,
+                    'destination' => null,
+                ];
+            });
+    
+    
+        
+        $outgoing = OrderItem::join(
+                'orders',
+                'order_items.order_id',
+                '=',
+                'orders.id'
+            )
+            ->join(
+                'products',
+                'order_items.product_id',
+                '=',
+                'products.id'
+            )
+            ->leftJoin(
+                'facilities',
+                'orders.dest_facility_id',
+                '=',
+                'facilities.id'
+            )
+            ->where('orders.src_facility_id', $facility->id)
+            ->whereIn('orders.status', [
+                'approved',
+                'preparing',
+                'shipping',
+                'delivered',
+            ])
+            ->select([
+                'orders.order_date as date',
+                'products.id as product_id',
+                'products.name_en as product_name',
+                'order_items.quantity',
+                'facilities.id as destination_id',
+                'facilities.facility_name_en as destination_name',
+            ])
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'date' => $item->date,
+                    'type' => 'outgoing',
+                    'product_id' => $item->product_id,
+                    'product_name' => $item->product_name,
+                    'quantity' => (int) $item->quantity,
+                    'destination' => $item->destination_name,
+                    'destination_id' => $item->destination_id,
+                ];
+            });
+    
+        $movement = $incoming
+            ->concat($outgoing)
+            ->sortBy('date')
+            ->values();
+    
+        return response()->json($movement, 200);
     }
 }

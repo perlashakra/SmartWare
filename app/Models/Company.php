@@ -31,4 +31,8 @@ class Company extends Model
     public function orders(){
         return $this->hasMany(Order::class);
     }
+
+    public function sections(){
+        return $this->hasMany(Section::class);
+    }
 }

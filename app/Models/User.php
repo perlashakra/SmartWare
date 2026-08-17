@@ -2,12 +2,9 @@
 
 namespace App\Models;
 
-use App\Models\Facility;
-use App\Models\Inbook;
-use App\Models\Order;
+use App\Enums\FacilityType;
 use App\Notifications\QueuedResetPassword;
 use App\Notifications\QueuedVerifyEmail;
-use Database\Factories\UserFactory;
 use Illuminate\Auth\MustVerifyEmail as MustVerifyEmailTrait;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -17,14 +14,8 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, HasApiTokens, MustVerifyEmailTrait;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'manager_id',
         'first_name',
@@ -90,20 +81,19 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(User::class, 'manager_id');
     }
 
-
+    public function managedWarehouses()
+    {
+        return $this->hasMany(Facility::class, 'user_id')->where('facility_type', FacilityType::Warehouse->value);
+    }
     public function owns(){
         return $this->hasMany(Facility::class,'user_id');
     }
-    // public function managedWarehouses()
-    // {
-    //     return $this->hasMany(Facility::class);//, 'admin_id'
-    // }
 
     //Client relationship with store
-    // public function store()
-    // {
-    //     return $this->hasOne(Facility::class);
-    // }
+    public function store()
+    {
+        return $this->hasOne(Facility::class);
+    }
 
     //Profile 1 to 1 relationship
     public function profile()
@@ -129,7 +119,7 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     //in book handle
-    public function inbooksHandled(){
-        return $this->hasMany(Inbook::class);
+    public function inBooksHandled(){
+        return $this->hasMany(InBook::class);
     }
 }

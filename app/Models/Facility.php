@@ -26,10 +26,14 @@ class Facility extends Model
         ];
     }
 
-    //this relation could be either for a business owner or a warehouse manager
-    public function owner()
+    public function client()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'user_id')->where('role', 'client');
+    }
+
+    public function manager()
+    {
+        return $this->belongsTo(User::class, 'user_id')->where('role', 'warehouse_admin');
     }
 
     public function address()
@@ -87,4 +91,7 @@ class Facility extends Model
         return $this->hasMany(Order::class,'src_facility_id');
     }
 
+    public function cartItems(){
+        return $this->hasMany(CartItem::class, 'warehouse_id');
+    }
 }

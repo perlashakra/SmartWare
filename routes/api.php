@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\EmailVerificationController;
@@ -127,17 +128,28 @@ Route::middleware(['auth:sanctum', 'locale'])->group(function () {
     });
 
 //Importing excel files
-Route::post('/imports', [ImportController::class, 'import'])->middleware(['auth:sanctum']);
+Route::post('/import-excel', [ImportController::class, 'import'])->middleware(['auth:sanctum', 'role:warehouse_admin', 'locale']);
 
 //Home Page
 Route::controller(FacilityController::class)->prefix('/home_page')->middleware(['auth:sanctum','role:client,warehouse_admin'])->group(function(){
 
     Route::get('/ownedFacilities', 'getOwnedFacilities');
     Route::get('/FacilityInfo{id}', 'getFacilityInfo');
+    Route::get('/topMovingProduct{facility_id}', 'topMovingProduct');
+    Route::get('/slowMovingProduct{facility_id}', 'slowMovingProduct');
+    Route::get('/stockOutRisk{facility_id}', 'stockOutRisk');
+    Route::get('/showInventoryByCategory{facility_id}', 'showInventoryByCategory');
+    Route::get('/stockMovement{facility_id}', 'stockMovement');
     Route::get('/sectionInfo{facility_id}{section_id}', 'getSectionInfo');
 });
+Route::controller(CartController::class)->prefix('/home_page/cart')->middleware(['auth:sanctum','role:client,warehouse_admin'])->group(function(){
+    Route::get('', 'show');
+    Route::post('/items', 'addItem');
+    Route::post('/submit', 'submit');
+    Route::put('/items/{cartItemId}', 'updateItem');
+    Route::delete('/items/{cartItem}', 'removeItem');
 
+});
 //profile
 Route::get('getProfile',[ProfileController::class, 'getProfile'])->middleware(['auth:sanctum','role:client,warehouse_admin']);
-    Route::post('/imports', [ImportController::class, 'import'])->middleware(['auth:sanctum']);
 });

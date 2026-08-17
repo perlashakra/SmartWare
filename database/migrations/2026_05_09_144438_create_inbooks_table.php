@@ -16,7 +16,7 @@ return new class extends Migration
         //inbooks -- inbook_items -- inventory -- section -- warehouse
         Schema::create('inbooks', function (Blueprint $table) {
             $table->id();
-            //remove: $table->foreignId('section_id')->constrained('sections')->restrictOnDelete();
+            $table->foreignId('section_id')->constrained('sections')->restrictOnDelete();
             //supplier_id
             $table->foreignId('user_id')->constrained('users')->restrictOnDelete();
             $table->date('storage_date');

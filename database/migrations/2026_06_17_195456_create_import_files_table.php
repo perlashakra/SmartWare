@@ -15,10 +15,13 @@ return new class extends Migration
             $table->id();
             $table->foreignId('uploaded_by')->constrained('users')->restrictOnDelete();
             $table->foreignId('facility_id')->constrained('facilities')->cascadeOnDelete();
+            //$table->foreignId('section_id')->constrained('sections')->cascadeOnDelete();
             $table->string('file_name');
             $table->string('file_path');
+            //$table->string('file_hash', 64);
             $table->timestamp('uploaded_at');
             $table->enum('status', ['processing', 'success', 'failed'])->default('processing');
+            //$table->unique(['facility_id', 'section_id', 'file_hash']);
             $table->timestamps();
         });
     }
