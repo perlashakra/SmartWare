@@ -319,7 +319,6 @@ class OnboardingController extends Controller
         if ($hasIdentityDoc && $hasFacilityDoc) {
             $user->update([
                 'onboarding_complete' => true,
-                'identity_status' => 'submitted'
             ]);
         }
     }
