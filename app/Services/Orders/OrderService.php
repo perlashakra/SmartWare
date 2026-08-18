@@ -147,4 +147,84 @@ class OrderService
             return $order->fresh(['products.product']);
         });
     }
+
+    /**
+     * Warehouse Manager: Creates an internal stock transfer between two owned warehouses.
+     * Items are automatically approved upon creation.
+     */
+    /**
+     * Warehouse Manager: Creates an internal stock transfer between two owned warehouses.
+     * Items are automatically approved upon creation after verifying stock availability.
+     */
+    public function createWarehouseTransfer(int $userId, int $srcFacilityId, int $destFacilityId, array $items, ?string $notes = null): Order
+    {
+        return DB::transaction(function () use ($userId, $srcFacilityId, $destFacilityId, $items, $notes) {
+            $productIds = collect($items)->pluck('product_id')->unique();
+
+            // Retrieve inventory records across all sections for the source warehouse
+            $inventories = Inventory::whereIn('product_id', $productIds)
+                ->whereHas('section', function ($query) use ($srcFacilityId) {
+                    $query->where('warehouse_id', $srcFacilityId);
+                })
+                ->get()
+                ->groupBy('product_id');
+
+            $productPrices = [];
+
+            // Verify stock availability and collect pricing for each requested item
+            foreach ($items as $item) {
+                $productId = $item['product_id'];
+                $requestedQty = $item['quantity'];
+
+                $itemInventories = $inventories->get($productId);
+
+                if (!$itemInventories || $itemInventories->isEmpty()) {
+                    throw new Exception("Product ID {$productId} is not currently stocked in source warehouse ID {$srcFacilityId}.");
+                }
+
+                // Sum available stock across all sections in this warehouse
+                $totalAvailableQuantity = $itemInventories->sum('quantity');
+
+                if ($totalAvailableQuantity < $requestedQty) {
+                    throw new Exception("Insufficient stock for Product ID {$productId} in warehouse ID {$srcFacilityId}. Available: {$totalAvailableQuantity}, Requested: {$requestedQty}.");
+                }
+
+                // Use the maximum unit price recorded across the warehouse's sections
+                $productPrices[$productId] = $itemInventories->max('unit_price');
+            }
+
+            // Calculate expected total price
+            $totalPrice = collect($items)->sum(function ($item) use ($productPrices) {
+                return $productPrices[$item['product_id']] * $item['quantity'];
+            });
+
+            // Create the Order
+            $order = Order::create([
+                'user_id'          => $userId,
+                'src_facility_id'  => $srcFacilityId,
+                'dest_facility_id' => $destFacilityId,
+                'order_type'       => 'warehouse_restock',
+                'expected_price'   => $totalPrice,
+                'status'           => 'approved', // Auto-approved for internal transfers
+                'has_shipment'     => false,
+                'order_date'       => now()->toDateString(),
+                'notes'            => $notes ?? 'Internal warehouse transfer request',
+            ]);
+
+            // Create Order Items marked as 'approved'
+            foreach ($items as $item) {
+                OrderItem::create([
+                    'order_id'   => $order->id,
+                    'product_id' => $item['product_id'],
+                    'quantity'   => $item['quantity'],
+                    'unit_price' => $productPrices[$item['product_id']],
+                    'status'     => 'approved',
+                ]);
+            }
+
+            $order->recalculateStatusAndPrice();
+
+            return $order->load(['products.product', 'warehouseOfTheOrder']);
+        });
+    }
 }

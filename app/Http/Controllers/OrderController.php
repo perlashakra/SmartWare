@@ -119,6 +119,63 @@ class OrderController extends Controller
             ], 400);
         }
     }
+
+    /**
+     * Warehouse Manager Action: Create a stock transfer order between two warehouses.
+     */
+    public function storeTransfer(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'src_facility_id'    => 'required|exists:facilities,id',
+            'dest_facility_id'   => 'required|exists:facilities,id|different:src_facility_id',
+            'notes'              => 'nullable|string|max:500',
+            'items'              => 'required|array|min:1',
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.quantity'   => 'required|integer|min:1',
+        ]);
+
+        $user = $request->user();
+        $ownedFacilityIds = $user->owns()->pluck('id')->toArray();
+
+        // Ensure the manager owns both the source and destination facilities
+        if (!in_array($validated['src_facility_id'], $ownedFacilityIds)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized: You do not own the source facility.'
+            ], 403);
+        }
+
+        if (!in_array($validated['dest_facility_id'], $ownedFacilityIds)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized: You do not own the destination facility.'
+            ], 403);
+        }
+
+        try {
+            $order = $this->orderService->createWarehouseTransfer(
+                userId: $user->id,
+                srcFacilityId: $validated['src_facility_id'],
+                destFacilityId: $validated['dest_facility_id'],
+                items: $validated['items'],
+                notes: $validated['notes'] ?? null
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Warehouse transfer request created and approved successfully.',
+                'data'    => $order
+            ], 201);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create warehouse transfer.',
+                'error'   => $e->getMessage()
+            ], 400);
+        }
+    }
+
     /**
      * Cancel an order (Client Action).
      */
