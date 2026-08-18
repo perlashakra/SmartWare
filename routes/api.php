@@ -77,8 +77,8 @@ Route::middleware(['auth:sanctum', 'locale'])->group(function () {
     //Order routes
     Route::prefix('orders')->group(function () {
         Route::get('/', [OrderController::class, 'index']);             // GET /api/orders
-        Route::post('/', [OrderController::class, 'store']);            // POST /api/orders
-        Route::post('/transfer', [OrderController::class, 'storeTransfer']);
+        Route::post('/', [OrderController::class, 'store'])->middleware('role:client');            // POST /api/orders
+        Route::post('/transfer', [OrderController::class, 'storeTransfer'])->middleware('role:warehouse_admin');
         Route::get('/{order}', [OrderController::class, 'show']);       // GET /api/orders/{id}
         Route::post('/{order}/cancel', [OrderController::class, 'cancel']); // POST /api/orders/{id}/cancel
         Route::post('/{order}/decisions', [OrderController::class, 'processDecision'])->middleware('role:warehouse_admin'); // POST /api/orders/{id}/decisions
