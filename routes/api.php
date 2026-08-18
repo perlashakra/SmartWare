@@ -76,14 +76,13 @@ Route::middleware(['auth:sanctum', 'locale'])->group(function () {
     Route::post('/editBusinessName', [OnboardingController::class, 'editBusinessName']);
 
     //Order routes
-    // Standard Order REST endpoints
-    Route::get('/orders', [OrderController::class, 'index']);
-    Route::post('/orders', [OrderController::class, 'store']);
-    Route::get('/orders/{order}', [OrderController::class, 'show']);
-
-    // Custom workflow endpoints
-    Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel']);
-    Route::post('/orders/{order}/process-decision', [OrderController::class, 'processDecision']);
+    Route::prefix('orders')->group(function () {
+        Route::get('/', [OrderController::class, 'index']);             // GET /api/orders
+        Route::post('/', [OrderController::class, 'store']);            // POST /api/orders
+        Route::get('/{order}', [OrderController::class, 'show']);       // GET /api/orders/{id}
+        Route::post('/{order}/cancel', [OrderController::class, 'cancel']); // POST /api/orders/{id}/cancel
+        Route::post('/{order}/decisions', [OrderController::class, 'processDecision']); // POST /api/orders/{id}/decisions
+    });
 
     //Warehouse manager functions:
     //Worker announcement and termination

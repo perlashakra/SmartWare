@@ -2,9 +2,10 @@
 
 namespace App\Services\Orders;
 
+use App\Models\Cart;
+use App\Models\Inventory;
 use App\Models\Order;
 use App\Models\OrderItem;
-use App\Models\Product;
 use Illuminate\Support\Facades\DB;
 use Exception;
 
@@ -12,22 +13,40 @@ class OrderService
 {
     /**
      * Client: Confirms cart and creates orders grouped by warehouse.
+     * Fetches unit price directly from warehouse inventory.
      */
-    public function createOrdersFromCart(int $userId, ?int $destFacilityId, array $cartItems, ?string $notes = null): array
+    public function createOrdersFromCart(int $userId, ?int $destFacilityId, array $cartItems, ?string $notes = null, ?int $cartId = null): array
     {
-        return DB::transaction(function () use ($userId, $destFacilityId, $cartItems, $notes) {
-            $productIds = collect($cartItems)->pluck('product_id')->unique();
-            $products = Product::whereIn('id', $productIds)->get()->keyBy('id');
-
-            // Group products by warehouse (src_facility_id)
+        return DB::transaction(function () use ($userId, $destFacilityId, $cartItems, $notes, $cartId) {
             $groupedCart = collect($cartItems)->groupBy('warehouse_id');
             $createdOrders = [];
 
             foreach ($groupedCart as $warehouseId => $items) {
-                // Calculate expected total for this warehouse
-                $totalPrice = $items->sum(function ($item) use ($products) {
-                    $product = $products->get($item['product_id']);
-                    return $product->price * $item['quantity'];
+                $productIds = $items->pluck('product_id')->unique();
+
+                // Retrieve inventory pricing for products within this specific warehouse's sections
+                $inventories = Inventory::whereIn('product_id', $productIds)
+                    ->whereHas('section', function ($query) use ($warehouseId) {
+                        $query->where('warehouse_id', $warehouseId);
+                    })
+                    ->get()
+                    ->groupBy('product_id');
+
+                // Map product IDs to their warehouse unit prices (picks the max price if stocked in multiple sections)
+                $productPrices = [];
+                foreach ($productIds as $productId) {
+                    $itemInventories = $inventories->get($productId);
+
+                    if (!$itemInventories || $itemInventories->isEmpty()) {
+                        throw new Exception("Product ID {$productId} is not currently stocked in warehouse ID {$warehouseId}.");
+                    }
+
+                    $productPrices[$productId] = $itemInventories->max('unit_price');
+                }
+
+                // Calculate subtotal for this warehouse
+                $totalPrice = $items->sum(function ($item) use ($productPrices) {
+                    return $productPrices[$item['product_id']] * $item['quantity'];
                 });
 
                 $order = Order::create([
@@ -43,17 +62,27 @@ class OrderService
                 ]);
 
                 foreach ($items as $item) {
-                    $product = $products->get($item['product_id']);
+                    $unitPrice = $productPrices[$item['product_id']];
+
                     OrderItem::create([
                         'order_id'   => $order->id,
                         'product_id' => $item['product_id'],
                         'quantity'   => $item['quantity'],
-                        'unit_price' => $product->price,
+                        'unit_price' => $unitPrice,
                         'status'     => 'pending',
                     ]);
                 }
 
-                $createdOrders[] = $order->load('items');
+                $createdOrders[] = $order->load('products.product');
+            }
+
+            // Clear stored cart if ID provided
+            if ($cartId) {
+                $cart = Cart::where('id', $cartId)->where('user_id', $userId)->first();
+                if ($cart) {
+                    $cart->items()->delete();
+                    $cart->delete();
+                }
             }
 
             return $createdOrders;
@@ -69,7 +98,6 @@ class OrderService
             throw new Exception("Unauthorized to cancel this order.");
         }
 
-        // Rule: Cannot cancel if shipment exists or if it's already in shipping/delivered states
         if ($order->has_shipment || in_array($order->status, ['shipping', 'delivered', 'cancelled'])) {
             throw new Exception("Order cannot be cancelled because a shipment has already been created or processed.");
         }
@@ -77,10 +105,12 @@ class OrderService
         return DB::transaction(function () use ($order) {
             $order->update(['status' => 'cancelled']);
 
-            // Mark all underlying pending/approved items as cancelled/rejected
-            $order->items()
+            $order->products()
                 ->whereIn('status', ['pending', 'approved'])
-                ->update(['status' => 'rejected', 'rejection_reason' => 'Cancelled by client']);
+                ->update([
+                    'status'           => 'rejected',
+                    'rejection_reason' => 'Cancelled by client'
+                ]);
 
             return true;
         });
@@ -88,30 +118,33 @@ class OrderService
 
     /**
      * Warehouse Admin: Batch update item statuses (Approve/Reject).
-     *
-     * $decisions format: [
-     *    ['item_id' => 12, 'status' => 'approved'],
-     *    ['item_id' => 13, 'status' => 'rejected', 'reason' => 'Out of stock']
-     * ]
+     */
+    /**
+     * Warehouse Admin: Batch update item statuses (Approve/Reject).
      */
     public function processWarehouseDecision(Order $order, array $decisions): Order
     {
         return DB::transaction(function () use ($order, $decisions) {
             foreach ($decisions as $decision) {
-                $item = OrderItem::where('order_id', $order->id)
+                // Search strictly within the order's items relationship
+                $item = $order->products()
                     ->where('id', $decision['item_id'])
-                    ->firstOrFail();
+                    ->first();
+
+                if (!$item) {
+                    throw new Exception("Order item ID {$decision['item_id']} does not belong to Order ID {$order->id}.");
+                }
 
                 $item->update([
-                    'status'           => $decision['status'], // 'approved' or 'rejected'
+                    'status'           => $decision['status'],
                     'rejection_reason' => $decision['reason'] ?? null,
                 ]);
             }
 
-            // Sync parent order expected price and status based on decisions
+            // Recalculate parent order expected price and overall status
             $order->recalculateStatusAndPrice();
 
-            return $order->fresh(['items']);
+            return $order->fresh(['products.product']);
         });
     }
 }
