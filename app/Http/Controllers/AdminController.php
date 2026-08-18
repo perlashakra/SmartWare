@@ -75,6 +75,15 @@ class AdminController extends Controller
 
         return response()->json($readyUsers);
     }
+
+    public function approvedAccounts(): JsonResponse
+    {
+        $completeUsers = User::where('account_status', 'approved')
+            ->select('id', 'first_name', 'last_name', 'email', 'phone_number', 'role', 'created_at')
+            ->latest()
+            ->paginate(15);
+        return response()->json($completeUsers);
+    }
     /**
      * Stream a private document file to authenticated admins.
      */

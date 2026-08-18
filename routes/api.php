@@ -28,6 +28,7 @@ Route::middleware(['auth:sanctum', 'role:super_admin', 'locale'])->prefix('admin
     Route::post('/createAdmin', [AdminController::class, 'createAdmin']);
     Route::get('/requests/pending', [AdminController::class, 'pendingRequests']);
     Route::get('/requests/complete', [AdminController::class, 'completePendingRequests']);
+    Route::get('/requests/approved', [AdminController::class, 'approvedAccounts']);
     Route::get('/requests/{id}', [AdminController::class, 'showRequest']);
     Route::post('/requests/{id}/review', [AdminController::class, 'reviewRequest']);
     Route::get('/documents/{documentId}/download', [AdminController::class, 'downloadDocument'])
@@ -65,6 +66,7 @@ Route::middleware(['auth:sanctum', 'locale'])->group(function () {
     Route::delete('/delete', [AuthController::class, 'delete']);
     //Onboarding functions:
     Route::post('/onboarding/savePreferences', [OnboardingController::class, 'savePreferences']);
+    Route::post('/onboarding/getPreferences', [OnboardingController::class, 'getFacilityPreferences']);
     Route::post('/onboarding/uploadID', [OnboardingController::class, 'uploadIdentityDocument']);
     Route::post('/onboarding/uploadFacilityDocument', [OnboardingController::class, 'uploadFacilityDocument']);
     Route::post('/onboarding/uploadOnboardingDocuments', [OnboardingController::class, 'uploadOnboardingDocuments']);
