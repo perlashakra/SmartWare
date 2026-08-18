@@ -12,35 +12,58 @@ class OrderController extends Controller
 {
     protected OrderService $orderService;
 
-    // Inject OrderService into the controller
     public function __construct(OrderService $orderService)
     {
         $this->orderService = $orderService;
     }
 
     /**
-     * Display a listing of orders (for client or warehouse admin).
+     * Display a listing of orders.
+     */
+    /**
+     * Display a simple listing of orders (without pagination).
      */
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
+        $ownedFacilityIds = $user->owns()->pluck('id')->toArray();
 
-        // Query orders created by the client or destined for their warehouse
         $orders = Order::with(['products.product', 'warehouseOfTheOrder'])
-            ->where(function ($query) use ($user) {
+            ->where(function ($query) use ($user, $ownedFacilityIds) {
                 $query->where('user_id', $user->id);
 
-                // If user is affiliated with a facility/warehouse, include incoming orders
-                if ($user->facility_id) {
-                    $query->orWhere('src_facility_id', $user->facility_id);
+                if (!empty($ownedFacilityIds)) {
+                    $query->orWhereIn('src_facility_id', $ownedFacilityIds)
+                        ->orWhereIn('dest_facility_id', $ownedFacilityIds);
                 }
             })
             ->latest()
-            ->paginate(15);
+            ->get(); // Fetch simple array instead of paginating
 
         return response()->json([
             'success' => true,
             'data'    => $orders
+        ]);
+    }
+
+    /**
+     * Display a specific order with its products (handles missing IDs gracefully).
+     */
+    public function show(int $id): JsonResponse
+    {
+        $order = Order::with(['products.product', 'warehouseOfTheOrder', 'userWhoMadeTheOrder'])
+            ->find($id);
+
+        if (!$order) {
+            return response()->json([
+                'success' => false,
+                'message' => "Order with ID {$id} not found."
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data'    => $order
         ]);
     }
 
@@ -50,20 +73,36 @@ class OrderController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'dest_facility_id'            => 'nullable|exists:facilities,id',
-            'notes'                       => 'nullable|string|max:500',
-            'items'                       => 'required|array|min:1',
-            'items.*.product_id'          => 'required|exists:products,id',
-            'items.*.warehouse_id'        => 'required|exists:facilities,id',
-            'items.*.quantity'            => 'required|integer|min:1',
+            'cart_id'              => 'nullable|exists:carts,id',
+            'dest_facility_id'     => 'nullable|exists:facilities,id',
+            'notes'                => 'nullable|string|max:500',
+            'items'                => 'required|array|min:1',
+            'items.*.product_id'   => 'required|exists:products,id',
+            'items.*.warehouse_id' => 'required|exists:facilities,id',
+            'items.*.quantity'     => 'required|integer|min:1',
         ]);
+
+        $user = $request->user();
+
+        // Ensure user owns the destination facility if provided
+        if (!empty($validated['dest_facility_id'])) {
+            $ownedFacilityIds = $user->owns()->pluck('id')->toArray();
+
+            if (!in_array($validated['dest_facility_id'], $ownedFacilityIds)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized: Destination facility does not belong to you.'
+                ], 403);
+            }
+        }
 
         try {
             $orders = $this->orderService->createOrdersFromCart(
-                userId: $request->user()->id,
+                userId: $user->id,
                 destFacilityId: $validated['dest_facility_id'] ?? null,
                 cartItems: $validated['items'],
-                notes: $validated['notes'] ?? null
+                notes: $validated['notes'] ?? null,
+                cartId: $validated['cart_id'] ?? null
             );
 
             return response()->json([
@@ -80,20 +119,6 @@ class OrderController extends Controller
             ], 400);
         }
     }
-
-    /**
-     * Display a specific order with its products.
-     */
-    public function show(Order $order): JsonResponse
-    {
-        $order->load(['products.product', 'warehouseOfTheOrder', 'userWhoMadeTheOrder']);
-
-        return response()->json([
-            'success' => true,
-            'data'    => $order
-        ]);
-    }
-
     /**
      * Cancel an order (Client Action).
      */
@@ -124,14 +149,16 @@ class OrderController extends Controller
     public function processDecision(Request $request, Order $order): JsonResponse
     {
         $validated = $request->validate([
-            'decisions'                   => 'required|array|min:1',
-            'decisions.*.item_id'         => 'required|exists:order_items,id',
-            'decisions.*.status'          => 'required|in:approved,rejected',
-            'decisions.*.reason'          => 'nullable|required_if:decisions.*.status,rejected|string|max:255',
+            'decisions'           => 'required|array|min:1',
+            'decisions.*.item_id' => 'required|exists:order_items,id',
+            'decisions.*.status'  => 'required|in:approved,rejected',
+            'decisions.*.reason'  => 'nullable|required_if:decisions.*.status,rejected|string|max:255',
         ]);
 
-        // Optional authorization guard for warehouse admins
-        if ($request->user()->facility_id && $order->src_facility_id !== $request->user()->facility_id) {
+        $user = $request->user();
+        $ownedFacilityIds = $user->owns()->pluck('id')->toArray();
+
+        if (!in_array($order->src_facility_id, $ownedFacilityIds)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized to process decisions for this warehouse.'

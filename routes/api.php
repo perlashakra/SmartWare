@@ -73,6 +73,15 @@ Route::middleware(['auth:sanctum', 'locale'])->group(function () {
     Route::post('/password/change', [AuthController::class, 'changePassword']);
     Route::post('/editBusinessName', [OnboardingController::class, 'editBusinessName']);
 
+    //Order routes
+    Route::prefix('orders')->group(function () {
+        Route::get('/', [OrderController::class, 'index']);             // GET /api/orders
+        Route::post('/', [OrderController::class, 'store']);            // POST /api/orders
+        Route::get('/{order}', [OrderController::class, 'show']);       // GET /api/orders/{id}
+        Route::post('/{order}/cancel', [OrderController::class, 'cancel']); // POST /api/orders/{id}/cancel
+        Route::post('/{order}/decisions', [OrderController::class, 'processDecision']); // POST /api/orders/{id}/decisions
+    });
+
     //Warehouse manager functions:
     //Worker announcement and termination
     Route::post('/warehouse_manager/announceWorker', [WarehouseManagerController::class, 'announceWorker'])->middleware(['role:warehouse_manager']);
