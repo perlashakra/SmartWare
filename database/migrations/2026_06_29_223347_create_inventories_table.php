@@ -12,12 +12,12 @@ return new class extends Migration
         //+100 from inbook, -50 shipped to clients => current stock here changes based on these
         //inbook => updates => inventory => clients seas available products
         Schema::create('inventories', function (Blueprint $table) {
-            //$table->id();
+            $table->id();
             $table->foreignId('section_id')->constrained('sections')->cascadeOnDelete();
             $table->foreignId('product_id')->constrained('products')->cascadeOnDelete();
             $table->integer('quantity');
             $table->decimal('unit_price', 10, 2)->default(0);
-            $table->primary(['section_id', 'product_id']);
+            $table->unique(['section_id', 'product_id']);
             $table->timestamps();
         });
     }

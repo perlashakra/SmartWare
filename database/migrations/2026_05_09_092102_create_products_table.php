@@ -19,7 +19,6 @@ return new class extends Migration
             $table->string('sku')->unique();
             $table->string('name_en')->nullable();
             $table->string('name_ar')->nullable();
-            $table->string('container_type')->nullable();
             $table->string('unit')->nullable();
             $table->string('product_image')->nullable();
             $table->text('description_en')->nullable();

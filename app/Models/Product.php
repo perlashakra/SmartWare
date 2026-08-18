@@ -14,7 +14,6 @@ class Product extends Model
         'sku',
         'name_en',
         'name_ar',
-        'container_type',
         'unit',
         'description_en',
         'description_ar',
