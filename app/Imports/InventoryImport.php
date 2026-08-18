@@ -32,7 +32,6 @@ class InventoryImport implements ToModel, WithHeadingRow
         $unit = $data['unit'];
         $quantity = $data['quantity'];
         $unit_price = $data['unit_price'];
-        $container_type = $data['container_type'];
 
         //ignore empty product rows
         if($name === null){
@@ -57,7 +56,6 @@ class InventoryImport implements ToModel, WithHeadingRow
                 'sku' => $sku ?? 'pr-'.Str::uuid(),
                 'name_ar' => $name,
                 'unit' => $unit,
-                'container_type' => $container_type,
             ]);
 
             //generate sku if not exists

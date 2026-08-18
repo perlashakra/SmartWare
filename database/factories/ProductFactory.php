@@ -2,11 +2,11 @@
 
 namespace Database\Factories;
 
-use App\Enums\ContainerType;
+use App\Enums\UnitEnum;
 use App\Models\Company;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use UnitEnum;
+
 
 /**
  * @extends Factory<Product>
