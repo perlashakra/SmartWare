@@ -10,6 +10,7 @@ use App\Http\Controllers\EmailVerificationController;
 use App\Http\Controllers\FacilityController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\OnboardingController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\ShipmentPlanController;
@@ -79,13 +80,13 @@ Route::middleware(['auth:sanctum', 'locale'])->group(function () {
         Route::post('/', [OrderController::class, 'store']);            // POST /api/orders
         Route::get('/{order}', [OrderController::class, 'show']);       // GET /api/orders/{id}
         Route::post('/{order}/cancel', [OrderController::class, 'cancel']); // POST /api/orders/{id}/cancel
-        Route::post('/{order}/decisions', [OrderController::class, 'processDecision']); // POST /api/orders/{id}/decisions
+        Route::post('/{order}/decisions', [OrderController::class, 'processDecision'])->middleware('role:warehouse_admin'); // POST /api/orders/{id}/decisions
     });
 
     //Warehouse manager functions:
     //Worker announcement and termination
-    Route::post('/warehouse_manager/announceWorker', [WarehouseManagerController::class, 'announceWorker'])->middleware(['role:warehouse_manager']);
-    Route::post('/warehouse_manager/terminateJob', [WarehouseManagerController::class, 'terminateJob'])->middleware(['role:warehouse_manager']);
+    Route::post('/warehouse_manager/announceWorker', [WarehouseManagerController::class, 'announceWorker'])->middleware(['role:warehouse_admin']);
+    Route::post('/warehouse_manager/terminateJob', [WarehouseManagerController::class, 'terminateJob'])->middleware(['role:warehouse_admin']);
     Route::prefix('shipments')->group(function () {
         Route::post('/generate-plan', [ShipmentPlanController::class, 'generatePlan']);
         Route::post('/confirm-batches', [ShipmentPlanController::class, 'confirmBatches']);
