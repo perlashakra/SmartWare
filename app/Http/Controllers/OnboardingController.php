@@ -51,7 +51,7 @@ class OnboardingController extends Controller
         }
 
         $facility->update([
-            'business_name' => $validated['business_name'],
+            'facility_name_en' => $validated['business_name'],
         ]);
 
         return response()->json([
