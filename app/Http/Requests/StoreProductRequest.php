@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Enums\ContainerType;
+use App\Enums\UnitEnum;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -20,8 +20,7 @@ class StoreProductRequest extends FormRequest
             'sku' => ['required', 'string', Rule::unique('products', 'sku'), 'max:100', 'regex:/^[A-Za-z0-9_-]+$/'],
             'name_en' => 'required_without:name_ar|string|max:255',
             'name_ar' => 'required_without:name_en|string|max:255',
-            'unit' => 'nullable',
-            'container_type' => ['nullable', Rule::enum(ContainerType::class)],
+            'unit' => ['nullable', Rule::enum(UnitEnum::class)],
             'categories' => 'required|array',
             'categories.*' => ['required', 'integer', 'exists:categories,id'],
             'description_en' => 'nullable|string',

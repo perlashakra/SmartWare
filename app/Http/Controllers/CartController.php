@@ -270,6 +270,7 @@ class CartController extends Controller
                         'order_id' => $order->id,
                         'product_id' => $cartItem->product_id,
                         'quantity' => $cartItem->quantity,
+                        'unit_price'=>$inventory->unit_price
                     ]);
                 }
 

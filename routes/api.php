@@ -5,13 +5,13 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\EmailVerificationController;
 use App\Http\Controllers\FacilityController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
-use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\ShipmentPlanController;
 use App\Http\Controllers\WarehouseManagerController;
@@ -75,19 +75,19 @@ Route::middleware(['auth:sanctum', 'locale'])->group(function () {
     Route::post('/editBusinessName', [OnboardingController::class, 'editBusinessName']);
 
     //Order routes
-    // Standard Order REST endpoints
-    Route::get('/orders', [OrderController::class, 'index']);
-    Route::post('/orders', [OrderController::class, 'store']);
-    Route::get('/orders/{order}', [OrderController::class, 'show']);
-
-    // Custom workflow endpoints
-    Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel']);
-    Route::post('/orders/{order}/process-decision', [OrderController::class, 'processDecision']);
+    Route::prefix('orders')->group(function () {
+        Route::get('/', [OrderController::class, 'index']);             // GET /api/orders
+        Route::post('/', [OrderController::class, 'store'])->middleware('role:client');            // POST /api/orders
+        Route::post('/transfer', [OrderController::class, 'storeTransfer'])->middleware('role:warehouse_admin');
+        Route::get('/{order}', [OrderController::class, 'show']);       // GET /api/orders/{id}
+        Route::post('/{order}/cancel', [OrderController::class, 'cancel']); // POST /api/orders/{id}/cancel
+        Route::post('/{order}/decisions', [OrderController::class, 'processDecision'])->middleware('role:warehouse_admin'); // POST /api/orders/{id}/decisions
+    });
 
     //Warehouse manager functions:
     //Worker announcement and termination
-    Route::post('/warehouse_manager/announceWorker', [WarehouseManagerController::class, 'announceWorker'])->middleware(['role:warehouse_manager']);
-    Route::post('/warehouse_manager/terminateJob', [WarehouseManagerController::class, 'terminateJob'])->middleware(['role:warehouse_manager']);
+    Route::post('/warehouse_manager/announceWorker', [WarehouseManagerController::class, 'announceWorker'])->middleware(['role:warehouse_admin']);
+    Route::post('/warehouse_manager/terminateJob', [WarehouseManagerController::class, 'terminateJob'])->middleware(['role:warehouse_admin']);
     Route::prefix('shipments')->group(function () {
         Route::post('/generate-plan', [ShipmentPlanController::class, 'generatePlan']);
         Route::post('/confirm-batches', [ShipmentPlanController::class, 'confirmBatches']);
@@ -141,18 +141,23 @@ Route::middleware(['auth:sanctum', 'locale'])->group(function () {
 //Importing excel files
 Route::post('/import-excel', [ImportController::class, 'import'])->middleware(['auth:sanctum', 'role:warehouse_admin', 'locale']);
 
+//Discount routes
+Route::controller(DiscountController::class)->prefix('/discounts')->middleware(['auth:sanctum', 'locale'])->group(function(){
+    Route::get('', 'index');
+    Route::get('/{discount}', 'show');
+    Route::post('', 'store')->middleware(['role:warehouse_admin']);
+    Route::put('/{discount}', 'update')->middleware(['role:warehouse_admin']);
+    Route::delete('/{discount}', 'delete')->middleware(['role:warehouse_admin']);
+});
+
 //Home Page
 Route::controller(FacilityController::class)->prefix('/home_page')->middleware(['auth:sanctum','role:client,warehouse_admin'])->group(function(){
-
     Route::get('/ownedFacilities', 'getOwnedFacilities');
     Route::get('/FacilityInfo{id}', 'getFacilityInfo');
-    Route::get('/topMovingProduct{facility_id}', 'topMovingProduct');
-    Route::get('/slowMovingProduct{facility_id}', 'slowMovingProduct');
-    Route::get('/stockOutRisk{facility_id}', 'stockOutRisk');
-    Route::get('/showInventoryByCategory{facility_id}', 'showInventoryByCategory');
-    Route::get('/stockMovement{facility_id}', 'stockMovement');
     Route::get('/sectionInfo{facility_id}{section_id}', 'getSectionInfo');
 });
+});
+
 Route::controller(CartController::class)->prefix('/home_page/cart')->middleware(['auth:sanctum','role:client,warehouse_admin'])->group(function(){
     Route::get('', 'show');
     Route::post('/items', 'addItem');
@@ -161,7 +166,3 @@ Route::controller(CartController::class)->prefix('/home_page/cart')->middleware(
     Route::delete('/items/{cartItem}', 'removeItem');
 
 });
-//profile
-Route::get('getProfile',[ProfileController::class, 'getProfile'])->middleware(['auth:sanctum','role:client,warehouse_admin']);
-});
-
