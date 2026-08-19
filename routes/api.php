@@ -4,6 +4,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ClientController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\EmailVerificationController;
@@ -181,3 +182,19 @@ Route::controller(CartController::class)->prefix('/home_page/cart')->middleware(
     Route::delete('/items/{cartItem}', 'removeItem');
 
 });
+
+Route::controller(FacilityController::class)->prefix('/worker')->middleware(['auth:sanctum','role:worker'])->group(function(){
+    Route::get('{facility_id}/dashboard', 'warehouseDashboard');
+    Route::post('{facility_id}/orders/{order_id}/departure', 'recordDeparture');
+    Route::post('{facility_id}/orders/{order_id}/arrival', 'recordArrival');
+});
+
+Route::controller(ClientController::class)->prefix('/client')->middleware(['auth:sanctum','role:client'])->group(function(){
+    Route::get('/orders', 'clientOrders');
+    Route::get('/orders/{order_id}', 'clientOrder');
+    Route::post('/orders/{order_id}/confirm-delivery', 'confirmDelivery');
+});
+//profile
+Route::get('getProfile',[ProfileController::class, 'getProfile'])->middleware(['auth:sanctum','role:client,warehouse_admin']);
+
+
