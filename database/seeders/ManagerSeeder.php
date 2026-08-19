@@ -14,7 +14,7 @@ class ManagerSeeder extends Seeder
         User::create([
             'first_name' => 'Nicole',
             'last_name' => 'Ekkeh',
-            'email' => 'nicole.ekkeh@gmail.com',
+            'email' => 'nicole.okeh@gmail.com',
             'phone_number' => '0936684934',
             'account_status' => 'approved',
             'email_verified_at' => Carbon::now(),
