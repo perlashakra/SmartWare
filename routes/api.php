@@ -195,5 +195,5 @@ Route::controller(ClientController::class)->prefix('/client')->middleware(['auth
 });
 //profile
 Route::get('getProfile',[ProfileController::class, 'getProfile'])->middleware(['auth:sanctum','role:client,warehouse_admin']);
-});
+
 
