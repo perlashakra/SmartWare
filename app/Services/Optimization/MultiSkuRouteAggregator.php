@@ -41,18 +41,19 @@ class MultiSkuRouteAggregator
             $activeDemand = [];
             $totalUsableStock = array_sum($usableSupply);
 
+            // Step 2: Enforce 100% Full Fulfillment Threshold per Demand Line
             foreach ($demands as $demand) {
                 $facilityId = $demand['facility_id'];
                 $requiredQty = $demand['required_qty'];
 
-                // If available network stock can't satisfy at least 50% of this demand line, warn and flag
-                if ($totalUsableStock < ($requiredQty * 0.50)) {
+                // Reject allocation if usable stock cannot cover 100% of the demand
+                if ($totalUsableStock < $requiredQty) {
                     $unfulfilledWarnings[] = [
                         'sku_id' => $skuId,
                         'facility_id' => $facilityId,
-                        'reason' => "Insufficient stock to meet 50% minimum fulfillment threshold."
+                        'reason' => "Insufficient stock to meet 100% full fulfillment threshold."
                     ];
-                    continue; // Skip from automatic allocation
+                    continue; // Skip automatic allocation
                 }
 
                 $activeDemand[$facilityId] = $requiredQty;
