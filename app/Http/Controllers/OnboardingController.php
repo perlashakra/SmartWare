@@ -51,7 +51,7 @@ class OnboardingController extends Controller
         }
 
         $facility->update([
-            'business_name' => $validated['business_name'],
+            'facility_name_en' => $validated['business_name'],
         ]);
 
         return response()->json([
@@ -166,7 +166,7 @@ class OnboardingController extends Controller
                 [
                     'user_id' => $user->id,
                     'facility_type' => in_array($role, ['warehouse_manager', 'warehouse_admin']) ? 'warehouse' : 'business',
-                    'facility_name' => $facilityName,
+                    'facility_name_en' => $facilityName,
                     'business_type' => $targetBusinessType,
                     'facility_status' => 'pending',
                 ]
@@ -182,7 +182,25 @@ class OnboardingController extends Controller
             'message' => 'Preferences saved successfully.',
             'facility' => $facility->load('categories'),
             'facility_name' => $facilityName,
+            'facility_id' => $facility->id,
         ], 200);
+    }
+
+    public function getFacilityPreferences(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'facility_id' => ['required', 'exists:facilities,id']
+        ]);
+
+        $user = $request->user();
+        $facility = Facility::findOrFail($validated['facility_id']);
+        if($facility->user_id !== $user->id) {
+            return response()->json(['error' => 'Unauthorized.'], 403);
+        }
+
+        $preferences = $facility->categories;
+
+        return response()->json(['preferences' => $preferences]);
     }
 
     /**
@@ -227,13 +245,14 @@ class OnboardingController extends Controller
                 'status' => 'pending',
             ]);
 
+            $user->onboarding_complete = true;
+            $user->save();
+
             return [
                 'identity_document' => $identityDoc,
                 'facility_document' => $facilityDoc,
             ];
         });
-
-        $this->checkAndFinalizeOnboarding($user);
 
         return response()->json([
             'message' => 'Onboarding documents uploaded and submitted successfully.',
@@ -260,8 +279,6 @@ class OnboardingController extends Controller
             'document_type' => null,
             'status' => 'pending',
         ]);
-
-        $this->checkAndFinalizeOnboarding($user);
 
         return response()->json([
             'message' => 'Identity document uploaded successfully.',
@@ -295,32 +312,9 @@ class OnboardingController extends Controller
             'status' => 'pending',
         ]);
 
-        $this->checkAndFinalizeOnboarding($user);
-
         return response()->json([
             'message' => 'Facility legal document uploaded successfully.',
             'document' => $document,
         ], 201);
-    }
-
-    /**
-     * Helper to verify all mandatory document requirements and update onboarding status.
-     */
-    private function checkAndFinalizeOnboarding($user): void
-    {
-        $hasIdentityDoc = Document::where('user_id', $user->id)
-            ->whereNull('facility_id')
-            ->exists();
-
-        $hasFacilityDoc = Document::where('user_id', $user->id)
-            ->whereNotNull('facility_id')
-            ->exists();
-
-        if ($hasIdentityDoc && $hasFacilityDoc) {
-            $user->update([
-                'onboarding_complete' => true,
-                'identity_status' => 'submitted'
-            ]);
-        }
     }
 }

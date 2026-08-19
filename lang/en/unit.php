@@ -9,4 +9,9 @@ return
     'pack' => 'Pack',
     'piece' => 'Piece',
     'pallet' => 'Pallet',
+    'kg' => 'KG',
+    'g' => 'g',
+    'l' => 'L',
+    'm' => 'M',
+    'ton' => 'Ton',
 ];

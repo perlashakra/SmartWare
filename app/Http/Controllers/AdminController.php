@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Document;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -19,20 +20,26 @@ class AdminController extends Controller
      */
     public function createAdmin(Request $request): JsonResponse
     {
+        $verifiedAt = Carbon::now();
         $validated = $request->validate([
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'email_verified_at'=> $verifiedAt,
+            'phone_number' => ['required', 'digits:10', 'unique:users'],
             'password' => ['required', Password::defaults()],
+            'language_preference' => ['required', 'string', 'in:ar,en'],
         ]);
 
         $admin = User::create([
             'first_name' => $validated['first_name'],
             'last_name' => $validated['last_name'],
             'email' => $validated['email'],
+            'phone_number' => $validated['phone_number'],
             'password' => Hash::make($validated['password']),
             'role' => 'warehouse_admin', // Mapped to migration enum
             'account_status' => 'approved',
+            'language_preference' => $validated['language_preference'],
         ]);
 
         return response()->json([
@@ -47,7 +54,8 @@ class AdminController extends Controller
     public function pendingRequests(): JsonResponse
     {
         $incompleteUsers = User::where('account_status', 'pending')
-            ->where('onboarding_complete', false) // Evaluates as AND
+            ->where('onboarding_complete', false)
+            ->whereNotNull('email_verified_at')
             ->select('id', 'first_name', 'last_name', 'email', 'phone_number', 'role', 'created_at')
             ->latest()
             ->paginate(15);
@@ -60,13 +68,24 @@ class AdminController extends Controller
      */
     public function completePendingRequests(): JsonResponse
     {
-        $readyUsers = User::where('account_status', 'pending' && 'onboarding_complete' == true)
+        $readyUsers = User::where('account_status', 'pending')
+            ->where('onboarding_complete', true)
+            ->whereNotNull('email_verified_at')
             ->with(['facilities:id,user_id,facility_type,business_type,facility_status'])
-            ->select('id', 'first_name', 'last_name', 'email', 'phone_number', 'role', 'identity_status', 'created_at')
+            ->select('id', 'first_name', 'last_name', 'email', 'phone_number', 'role', 'created_at')
             ->latest()
             ->paginate(15);
 
         return response()->json($readyUsers);
+    }
+
+    public function approvedAccounts(): JsonResponse
+    {
+        $completeUsers = User::where('account_status', 'approved')
+            ->select('id', 'first_name', 'last_name', 'email', 'phone_number', 'role', 'created_at')
+            ->latest()
+            ->paginate(15);
+        return response()->json($completeUsers);
     }
     /**
      * Stream a private document file to authenticated admins.
@@ -88,22 +107,33 @@ class AdminController extends Controller
     public function showRequest(int $id): JsonResponse
     {
         $user = User::where('account_status', 'pending')
+            ->where('onboarding_complete', true)
+            ->whereNotNull('email_verified_at')
             ->with([
-                'documents',
-                'facilities.categories'
+                'document',             // Personal Identity Document (facility_id = null)
+                'facilities' => function ($query) {
+                    $query->with(['document', 'categories']);
+                },
             ])
             ->findOrFail($id);
 
-        // Map document file paths to secure downloadable storage URLs
-        if ($user->relationLoaded('documents')) {
-            $user->documents->transform(function ($doc) {
-                $doc->file_url = route('admin.documents.download', ['id' => $doc->id]);
-                return $doc;
-            });
+        // 1. Personal Identity Document URL
+        if ($user->document) {
+            $user->document->file_url = route('admin.documents.download', [
+                'documentId' => $user->document->id,
+            ]);
+        }
+
+        // 2. Primary Facility Document URL
+        $primaryFacility = $user->facilities->first();
+        if ($primaryFacility && $primaryFacility->document) {
+            $primaryFacility->document->file_url = route('admin.documents.download', [
+                'documentId' => $primaryFacility->document->id,
+            ]);
         }
 
         return response()->json([
-            'user' => $user
+            'user' => $user,
         ]);
     }
 
@@ -141,14 +171,13 @@ class AdminController extends Controller
 
             if ($validated['action'] === 'approve') {
 
-                if($user->role === 'warehouse_worker')
+                if($user->role === 'worker')
                 {
                     EmployeeAnnouncement::where('employee_id', $user->id)->update(['status' => 'active']);
                 }
 
                 $user->update([
                     'account_status' => 'approved',
-                    'identity_status' => 'approved',
                 ]);
 
                 // Update associated user facilities status
@@ -159,7 +188,6 @@ class AdminController extends Controller
 
                 $user->update([
                     'account_status' => 'deleted',
-                    'identity_status' => 'rejected',
                 ]);
 
                 // TODO: Dispatch custom Rejection Notification email with $validated['rejection_reason']
@@ -169,7 +197,6 @@ class AdminController extends Controller
         return response()->json([
             'message' => $validated['action'] === 'approve' ? 'User registration approved successfully.' : 'User registration rejected.',
             'account_status' => $user->fresh()->account_status,
-            'identity_status' => $user->fresh()->identity_status,
         ]);
     }
 }

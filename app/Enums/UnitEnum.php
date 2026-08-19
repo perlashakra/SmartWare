@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-enum ContainerType: string
+enum UnitEnum: string
 {
     case BOX = 'box';
     case CARTON = 'carton';
@@ -12,4 +12,9 @@ enum ContainerType: string
     case PACK = 'pack';
     case PIECE = 'piece';
     case PALLET = 'pallet';
+    case KG = 'kg';
+    case G = 'g';
+    case L = 'l';
+    case M = 'm';
+    case TON = 'ton';
 }

@@ -19,7 +19,7 @@ class Section extends Model
     }
 
     public function warehouse(){
-        return $this->belongsTo(Facility::class);
+        return $this->belongsTo(Facility::class, 'warehouse_id');
     }
 
     public function inventories(){
@@ -28,6 +28,14 @@ class Section extends Model
 
     public function inBooks(){
         return $this->hasMany(InBook::class);
+    }
+
+    public function parent(){
+        return $this->belongsTo(Section::class, 'parent_id');
+    }
+
+    public function children(){
+        return $this->hasMany(Section::class, 'parent_id');
     }
 
 }

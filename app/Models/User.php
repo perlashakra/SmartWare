@@ -81,10 +81,16 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(User::class, 'manager_id');
     }
 
-    public function managedWarehouses()
+    public function warehouses()
     {
         return $this->hasMany(Facility::class, 'user_id')->where('facility_type', FacilityType::Warehouse->value);
     }
+
+    public function canManageSection(Section $section)
+    {
+        return $section->warehouse !== null &&  $section->warehouse->user_id === $this->id;
+    }
+
     public function owns(){
         return $this->hasMany(Facility::class,'user_id');
     }
