@@ -48,6 +48,37 @@ class WarehouseAnalyticsSeeder extends Seeder
                 'account_status' => 'approved',
             ]);
 
+            $businessOwner1 = User::create([
+                'first_name' => 'bb1',
+                'last_name' => 'bb1',
+                'email' => 'bb1@bb1.com',
+                'phone_number' => '0600000003',
+                'password' => Hash::make('password'),
+                'role' => 'client',
+                'account_status' => 'approved',
+            ]);
+
+            $businessOwner2 = User::create([
+                'first_name' => 'bb2',
+                'last_name' => 'bb2',
+                'email' => 'bb2@bb2.com',
+                'phone_number' => '0600000004',
+                'password' => Hash::make('password'),
+                'role' => 'client',
+                'account_status' => 'approved',
+            ]);
+
+
+            $worker = User::create([
+                'manager_id'=>$warehouseAdmin1->id,
+                'first_name' => 'ww',
+                'last_name' => 'ww',
+                'email' => 'ww@ww.com',
+                'phone_number' => '0600000005',
+                'password' => Hash::make('password'),
+                'role' => 'client',
+                'account_status' => 'approved',
+            ]);
 
             /*
             |--------------------------------------------------------------------------
@@ -78,6 +109,25 @@ class WarehouseAnalyticsSeeder extends Seeder
                 'longitude'     =>'second_address', 
             ]);
 
+            $address3 = \App\Models\Address::create([
+                'name'          =>'address_3',
+                'country'       =>'address_3',
+                'city'          =>'address_3',
+                'street'        =>'address_3',
+                'postal_code'   =>'address_3',
+                'latitude'      =>'address_3',
+                'longitude'     =>'address_3', 
+            ]);
+
+            $address4 = \App\Models\Address::create([
+                'name'          =>'address_4',
+                'country'       =>'address_4',
+                'city'          =>'address_4',
+                'street'        =>'address_4',
+                'postal_code'   =>'address_4',
+                'latitude'      =>'address_4',
+                'longitude'     =>'address_4', 
+            ]);
 
             /*
             |--------------------------------------------------------------------------
@@ -139,6 +189,25 @@ class WarehouseAnalyticsSeeder extends Seeder
                 'business_type' => 'warehouse',
             ]);
 
+            $store1 = Facility::create([
+                'address_id' => $address3->id,
+                'user_id' => $businessOwner1->id,
+                'facility_name_en' => 'first store',
+                'facility_name_ar' => 'المحل الأول',
+                'facility_type' => 'business',
+                'facility_status' => 'approved',
+                'business_type' => 'restaurant',
+            ]);
+
+            $store2 = Facility::create([
+                'address_id' => $address4->id,
+                'user_id' => $businessOwner2->id,
+                'facility_name_en' => 'second store',
+                'facility_name_ar' => 'المحل الأول',
+                'facility_type' => 'business',
+                'facility_status' => 'approved',
+                'business_type' => 'clothing_store',
+            ]);
 
             /*
             |--------------------------------------------------------------------------
@@ -356,8 +425,7 @@ class WarehouseAnalyticsSeeder extends Seeder
             */
 
             $inbook1 = InBook::create([
-                'user_id' => $warehouseAdmin1->id,
-                'section_id' => $warehouse1SectionA->id,
+                'user_id' => $worker->id,
                 'storage_date' => '2026-08-01',
             ]);
 
@@ -365,18 +433,19 @@ class WarehouseAnalyticsSeeder extends Seeder
                 'inbook_id' => $inbook1->id,
                 'product_id' => $water->id,
                 'quantity' => 100,
+                'section_id' => $warehouse1SectionA->id,
             ]);
 
             InBookProduct::create([
                 'inbook_id' => $inbook1->id,
                 'product_id' => $cola->id,
                 'quantity' => 50,
+                'section_id' => $warehouse1SectionA->id,
             ]);
 
 
             $inbook2 = InBook::create([
-                'user_id' => $warehouseAdmin1->id,
-                'section_id' => $warehouse1SectionB->id,
+                'user_id' => $worker->id,
                 'storage_date' => '2026-08-05',
             ]);
 
@@ -384,18 +453,19 @@ class WarehouseAnalyticsSeeder extends Seeder
                 'inbook_id' => $inbook2->id,
                 'product_id' => $juice->id,
                 'quantity' => 150,
+                'section_id' => $warehouse1SectionB->id,
             ]);
 
             InBookProduct::create([
                 'inbook_id' => $inbook2->id,
                 'product_id' => $soap->id,
                 'quantity' => 20,
+                'section_id' => $warehouse1SectionB->id,
             ]);
 
 
             $inbook3 = InBook::create([
-                'user_id' => $warehouseAdmin1->id,
-                'section_id' => $warehouse1SectionA->id,
+                'user_id' => $worker->id,
                 'storage_date' => '2026-08-10',
             ]);
 
@@ -403,6 +473,7 @@ class WarehouseAnalyticsSeeder extends Seeder
                 'inbook_id' => $inbook3->id,
                 'product_id' => $water->id,
                 'quantity' => 200,
+                'section_id' => $warehouse1SectionA->id,
             ]);
 
 
@@ -414,7 +485,6 @@ class WarehouseAnalyticsSeeder extends Seeder
 
             $inbook4 = InBook::create([
                 'user_id' => $warehouseAdmin2->id,
-                'section_id' => $warehouse2SectionA->id,
                 'storage_date' => '2026-08-05',
             ]);
 
@@ -422,6 +492,7 @@ class WarehouseAnalyticsSeeder extends Seeder
                 'inbook_id' => $inbook4->id,
                 'product_id' => $water->id,
                 'quantity' => 1000,
+                'section_id' => $warehouse2SectionA->id,
             ]);
 
 

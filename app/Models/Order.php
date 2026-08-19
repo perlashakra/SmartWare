@@ -17,6 +17,15 @@ class Order extends Model
         'has_shipment',
         'order_date',
         'notes',
+        'departed_at',
+       'arrived_at',
+       'delivery_confirmed_at',
+    ];
+
+    protected $casts = [
+       'departed_at' => 'datetime',
+       'arrived_at' => 'datetime',
+       'delivery_confirmed_at' => 'datetime',
     ];
 
     public function userWhoMadeTheOrder() {
@@ -36,7 +45,13 @@ class Order extends Model
     public function warehouseOfTheOrder() {
         return $this->belongsTo(Facility::class, 'src_facility_id');
     }
-
+    public function destination()
+    {
+        return $this->belongsTo(
+            Facility::class,
+            'dest_facility_id'
+        );
+    }
     public function recalculateStatusAndPrice(): void
     {
         $items = $this->products;

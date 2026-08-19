@@ -29,6 +29,10 @@ return new class extends Migration {
             $table->boolean('has_shipment')->default(false); // Quick guard for client cancellations
             $table->date('order_date');
             $table->text('notes')->nullable();
+            $table->timestamp('departed_at')->nullable();
+            $table->timestamp('arrived_at')->nullable();
+            $table->timestamp('delivery_confirmed_at')->nullable();
+            $table->text('delivery_issue')->nullable();
             $table->timestamps();
         });
     }
