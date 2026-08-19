@@ -41,6 +41,11 @@ class Facility extends Model
         return $this->belongsTo(Address::class);
     }
 
+    public function document()
+    {
+        return $this->hasOne(Document::class);
+    }
+
     public function sections(){
         return $this->hasMany(Section::class,'warehouse_id');
     }
