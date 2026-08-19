@@ -52,8 +52,6 @@ class DiscountController extends Controller
             'is_active' => true,
         ]);
 
-        
-
         return response()->json(['message' => 'Discount created successfully!', 'data' => new DiscountResource($discount)], 201);
     }
 

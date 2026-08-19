@@ -8,9 +8,6 @@ return new class extends Migration
 {
     public function up(): void
     {
-        //available items in warehouse 
-        //+100 from inbook, -50 shipped to clients => current stock here changes based on these
-        //inbook => updates => inventory => clients seas available products
         Schema::create('inventories', function (Blueprint $table) {
             $table->id();
             $table->foreignId('section_id')->constrained('sections')->cascadeOnDelete();

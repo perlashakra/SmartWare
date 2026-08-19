@@ -9,6 +9,7 @@ use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\EmailVerificationController;
 use App\Http\Controllers\FacilityController;
 use App\Http\Controllers\ImportController;
+use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
@@ -148,6 +149,15 @@ Route::controller(DiscountController::class)->prefix('/discounts')->middleware([
     Route::post('', 'store')->middleware(['role:warehouse_admin']);
     Route::put('/{discount}', 'update')->middleware(['role:warehouse_admin']);
     Route::delete('/{discount}', 'delete')->middleware(['role:warehouse_admin']);
+});
+
+//Inventory routes
+Route::controller(InventoryController::class)->prefix('/inventories')->middleware(['auth:sanctum', 'locale'])->group(function(){
+    //Route::get('', 'index');
+    Route::get('/{inventory}', 'show');
+    Route::put('/{inventory}/adjust', 'adjust')->middleware(['role:warehouse_admin']);
+    Route::get('/{section}/section', 'sectionInventory');
+    Route::get('/{warehouse_id}/warehouse', 'warehouseInventory');
 });
 
 //Home Page
