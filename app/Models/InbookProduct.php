@@ -11,6 +11,7 @@ class InBookProduct extends Model
         'inbook_id',
         'product_id',
         'quantity',
+        'section_id'
     ];
 
     public function inbook()

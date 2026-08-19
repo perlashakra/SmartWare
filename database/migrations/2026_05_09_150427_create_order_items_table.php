@@ -16,6 +16,8 @@ return new class extends Migration {
             // Item-level approval state
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->string('rejection_reason')->nullable();
+            $table->unsignedInteger('received_quantity')->nullable();
+            $table->text('delivery_issue')->nullable();
             $table->timestamps();
         });
     }
