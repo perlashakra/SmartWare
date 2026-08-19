@@ -166,7 +166,7 @@ class OnboardingController extends Controller
                 [
                     'user_id' => $user->id,
                     'facility_type' => in_array($role, ['warehouse_manager', 'warehouse_admin']) ? 'warehouse' : 'business',
-                    'facility_name' => $facilityName,
+                    'facility_name_en' => $facilityName,
                     'business_type' => $targetBusinessType,
                     'facility_status' => 'pending',
                 ]
