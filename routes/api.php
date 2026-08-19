@@ -158,10 +158,11 @@ Route::controller(DiscountController::class)->prefix('/discounts')->middleware([
 //Inventory routes
 Route::controller(InventoryController::class)->prefix('/inventories')->middleware(['auth:sanctum', 'locale'])->group(function(){
     //Route::get('', 'index');
+    Route::get('/products', 'storedProducts');
+    Route::get('/products/{product}/warehouses', 'productWarehouses');
     Route::get('/{inventory}', 'show');
     Route::put('/{inventory}/adjust', 'adjust')->middleware(['role:warehouse_admin']);
     Route::get('/{section}/section', 'sectionInventory');
-    Route::get('/{warehouse_id}/warehouse', 'warehouseInventory');
 });
 
 //Home Page
