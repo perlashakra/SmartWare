@@ -21,7 +21,7 @@ class ProductController extends Controller
 
     //this is not working for now
     public function index(ProductFilterRequest $request){
-        $query = Product::query()->with(['company', 'categories']);
+        $query = Product::query()->with(['categories']);
 
         $user = Auth::user();
         if($user->role === 'client'){

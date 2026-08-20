@@ -60,11 +60,11 @@ class FacilityController extends Controller
     }
 
     public function getWarehouses(){
-        return FacilityResource::collection(Facility::warehouses()->with(['owner', 'address'])->paginate(12));
+        return FacilityResource::collection(Facility::warehouses()->with(['manager', 'address'])->paginate(12));
     }
 
     public function getBusinesses(){
-        return FacilityResource::collection(Facility::businesses()->with(['owner', 'address'])->paginate(12));
+        return FacilityResource::collection(Facility::businesses()->with(['client', 'address'])->paginate(12));
     }
 
     public function getOwnedFacilities(){
