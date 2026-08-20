@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('warehouse_id')->constrained('facilities')->restrictOnDelete();
             $table->string('name');
-            $table->string('capacity');
+            $table->string('capacity')->default(0);
             $table->timestamps();
         });
     }

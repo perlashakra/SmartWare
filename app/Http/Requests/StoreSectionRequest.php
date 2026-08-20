@@ -17,7 +17,7 @@ class StoreSectionRequest extends FormRequest
         return [
             'warehouse_id' => ['required', Rule::exists('facilities', 'id')->where('facility_type', 'warehouse')],
             'name' => 'required|string|max:255',
-            'capacity' => 'nullable|integer|min:0',
+            'capacity' => 'required|integer|min:0',
         ];
     }
 }
