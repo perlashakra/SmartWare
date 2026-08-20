@@ -7,14 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class Address extends Model
 {
     protected $fillable = [
-        'name',
-        'country',
-        'city',
-        'street',
-        'postal_code',
         'latitude',
-        'longitude', 
-        //'parent_id',
+        'longitude',
+        'address',
     ];
     public function facility()
     {
