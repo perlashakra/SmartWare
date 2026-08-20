@@ -5,7 +5,6 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ClientController;
-use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\EmailVerificationController;
 use App\Http\Controllers\FacilityController;
@@ -150,12 +149,13 @@ Route::controller(DiscountController::class)->prefix('/discounts')->middleware([
 });
 
 //Inventory routes
-Route::controller(InventoryController::class)->prefix('/inventories')->middleware(['auth:sanctum', 'locale'])->group(function(){
-    Route::get('/products', 'storedProducts');
-    Route::get('/products/{product}/warehouses', 'productWarehouses');
-    Route::get('/{inventory}', 'show');
-    Route::put('/{inventory}/adjust', 'adjust')->middleware(['role:warehouse_admin']);
-    Route::get('/sections/{section}/inventory', 'sectionInventory');
+Route::controller(InventoryController::class)->middleware(['auth:sanctum', 'locale'])->group(function(){
+    Route::get('/inventories/products', 'storedProducts');
+    Route::get('/inventories/products/{product}/warehouses', 'productWarehouses');
+    Route::get('/inventories/{inventory}', 'show');
+    Route::put('/inventories/{inventory}/adjust', 'adjust')->middleware(['role:warehouse_admin']);
+    Route::get('/section/{section}/inventory', 'sectionInventory');
+    Route::get('/warehouse/{warehouse}/inventory', 'warehouseInventory');
 });
 
 //Home Page
