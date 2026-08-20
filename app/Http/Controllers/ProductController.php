@@ -20,52 +20,32 @@ class ProductController extends Controller
     }
 
     //this is not working for now
-    public function index(ProductFilterRequest $request){
-        $query = Product::query()->with(['company', 'categories']);
+    public function index(ProductFilterRequest $request)
+{
+    $query = Product::query()->with(['company', 'categories']);
 
-        $user = Auth::user();
-        if($user->role === 'client'){
-            $preferred_categories = 
-            Category::whereHas('facilities', function($query){
-                    $query->where('category_id', );
-                })->whereHas('products', function($query){
-                    $query->where('category_id', );
-                })->get();
-    
-            $query->whereIn($query->categories(), $preferred_categories);
-        }
+    $filter = $request->validated();
 
-        $filter = $request->validated();
-
-        $query->when(!empty($filter['search']), function($query) use ($filter){
-            $query->where(function($q) use ($filter){
-                $q->where('name_en', 'like', "%{$filter['search']}%")
+    $query->when(!empty($filter['search']), function ($query) use ($filter) {
+        $query->where(function ($q) use ($filter) {
+            $q->where('name_en', 'like', "%{$filter['search']}%")
                 ->orWhere('name_ar', 'like', "%{$filter['search']}%")
-                ->orWhere('sku', 'like', "%{$filter['search']}%");      
-            });
+                ->orWhere('sku', 'like', "%{$filter['search']}%");
         });
+    });
 
-        $query->when(isset($filter['min_price']), function($query) use ($filter){
-            $query->where('price', '>=', $filter['min_price']);
+    $query->when(!empty($filter['categories']), function ($query) use ($filter) {
+        $query->whereHas('categories', function ($q) use ($filter) {
+            $q->whereIn('categories.id', $filter['categories']);
         });
-        
-        $query->when(isset($filter['max_price']), function($query) use ($filter){
-            $query->where('price', '<=', $filter['max_price']);
-        });
+    });
 
-        $query->when(!empty($filter['categories']), function ($query) use ($filter) {
-            $query->whereHas('categories', function ($q) use ($filter) {
-                $q->whereIn('categories.id', $filter['categories']);
-            });
-        });
+    $query->when(!empty($filter['container_type']), function ($query) use ($filter) {
+        $query->where('container_type', $filter['container_type']);
+    });
 
-        $query->when(!empty($filter['container_type']), function($query) use ($filter){
-            $query->where('container_type', $filter['container_type']);
-        });
-
-        return ProductResource::collection($query->paginate(12));
-    }
-        
+    return ProductResource::collection($query->paginate(12));
+}        
     public function show(Product $product){
         return new ProductResource($product->load(['categories', 'company']));
     }
