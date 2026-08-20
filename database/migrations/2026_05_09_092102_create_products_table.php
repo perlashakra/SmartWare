@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            //$table->foreignId('company_id')->nullable()->constrained('companies')->restrictOnDelete();
             $table->string('sku')->unique();
             $table->string('name_en')->nullable();
             $table->string('name_ar')->nullable();
@@ -21,7 +20,6 @@ return new class extends Migration
             $table->string('product_image')->nullable();
             $table->text('description_en')->nullable();
             $table->text('description_ar')->nullable();
-            //$table->unique(['sku', /*'company_id'*/]);
             $table->timestamps();
         });
     }

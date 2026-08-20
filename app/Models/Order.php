@@ -29,29 +29,25 @@ class Order extends Model
        'delivery_confirmed_at' => 'datetime',
     ];
 
-    public function userWhoMadeTheOrder() {
-        return $this->belongsTo(User::class, 'user_id');
+    public function user() {
+        return $this->belongsTo(User::class);
     }
 
-    public function company(){
-        return $this->belongsTo(Company::class);
-    }
     public function receipts(){
         return $this->hasMany(Receipt::class);
     }
 
-    public function products(){
-        return $this -> hasMany(OrderItem::class);
+    public function items(){
+        return $this->hasMany(OrderItem::class);
     }
-    public function warehouseOfTheOrder() {
+
+    public function sourceFacility() {
         return $this->belongsTo(Facility::class, 'src_facility_id');
     }
-    public function destination()
+    
+    public function destinationFacility()
     {
-        return $this->belongsTo(
-            Facility::class,
-            'dest_facility_id'
-        );
+        return $this->belongsTo(Facility::class,'dest_facility_id');
     }
 
     public function shipment()

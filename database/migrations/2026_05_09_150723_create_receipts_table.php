@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('receipts', function (Blueprint $table) {
             $table->id();//this one
             $table->foreignId('order_id')->constrained('orders')->restrictOnDelete();
-            $table->foreignId('company_id')->constrained('companies')->restrictOnDelete();
             $table->decimal('total_price', 10, 2);
             $table->date('receipt_date');
             $table->timestamps();

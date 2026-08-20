@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class ValidateFileRequest extends FormRequest
+class StoreSectionRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -15,8 +15,9 @@ class ValidateFileRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'facility_id' =>['required', 'exists:facilities,id'],
-            'file' => 'required|file|mimes:xlsx,xls,csv',
+            'warehouse_id' => ['required', Rule::exists('facilities', 'id')->where('facility_type', 'warehouse')],
+            'name' => 'required|string|max:255',
+            'capacity' => 'required|integer|min:0',
         ];
     }
 }
