@@ -13,13 +13,11 @@ return new class extends Migration
     {
         Schema::create('addresses', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('address');
             $table->string('latitude');
             $table->string('longitude');
             $table->timestamps();
         });
-        //shipment_id, latitude, longitude, recorded_at
-        //we need recorded at if we want to track something continuously
     }
 
     /**
