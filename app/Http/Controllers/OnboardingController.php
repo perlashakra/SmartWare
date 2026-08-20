@@ -207,10 +207,10 @@ class OnboardingController extends Controller
     public function submitLocation(Request $request)
     {
         $validated = $request->validate([
-            'facility_id'   => ['required', 'integer', 'exists:facilities,id'],
+            'facility_id' => ['required', 'integer', 'exists:facilities,id'],
             'longitude' => ['required', 'numeric', 'min:-90', 'max:90'],
-            'latitude'     => ['required', 'numeric', 'min:-90', 'max:90'],
-            'address'      => ['required', 'string'],
+            'latitude' => ['required', 'numeric', 'min:-90', 'max:90'],
+            'address' => ['required', 'string'],
         ]);
 
         $user = $request->user();
@@ -223,6 +223,7 @@ class OnboardingController extends Controller
             'latitude' => $validated['latitude'],
             'address' => $validated['address'],
         ]);
+
         $facility->address_id=$address->id;
         $facility->save();
         return response()->json(['location' => $address]);
