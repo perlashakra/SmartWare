@@ -14,41 +14,25 @@ class AddressSeeder extends Seeder
     public function run(): void
     {
         Address::create([
-            'name' => 'Mezzeh',
-            'country' => 'Syria',
-            'city' => 'Damascus',
-            'street' => 'Fayez Mansour',
-            'postal_code' => '70001',
+            'name' => 'Fayez Mansour, Mezzeh, Damascus, Syria',
             'latitude' => '36.267696',
             'longitude' => '33.508627',
         ]);
 
         Address::create([
-            'name' => 'Mashroo3 Dummar',
-            'country' => 'Syria',
-            'city' => 'Damascus',
-            'street' => 'Mashroo3 Dummar',
-            'postal_code' => '45566',
+            'name' => 'Mashroo3 Dummar, Damascus, Syria',
             'latitude' => '36.267696',
             'longitude' => '33.508627',
         ]);
 
         Address::create([
-            'name' => 'Sahnaya',
-            'country' => 'Syria',
-            'city' => 'Damascus',
-            'street' => 'Sahnaya',
-            'postal_code' => '45000',
+            'name' => 'Sahnaya, Damascus, Syria',
             'latitude' => '36.267696',
             'longitude' => '33.508627',
         ]);
 
         Address::create([
-            'name' => 'Adra',
-            'country' => 'Syria',
-            'city' => 'Damascus',
-            'street' => 'Adra',
-            'postal_code' => '20002',
+            'name' => 'Adra, Damascus, Syria',
             'latitude' => '36.267696',
             'longitude' => '33.508627',
         ]);
