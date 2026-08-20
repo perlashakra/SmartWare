@@ -22,7 +22,7 @@ class SectionSeeder extends Seeder
             // Main Storage Zone (Parent)
             $parentSection = Section::create([
                 'warehouse_id' => $warehouse->id,
-                'company_id' => $company?->id,
+                //'company_id' => $company?->id,
                 'parent_id' => null,
                 'name' => 'Zone A - Main Hold',
                 'capacity' => 1000,
@@ -31,7 +31,7 @@ class SectionSeeder extends Seeder
             // Sub-sections (Children)
             Section::create([
                 'warehouse_id' => $warehouse->id,
-                'company_id' => $company?->id,
+                //'company_id' => $company?->id,
                 'parent_id' => $parentSection->id,
                 'name' => 'Rack A1 - General',
                 'capacity' => 250,
@@ -39,7 +39,7 @@ class SectionSeeder extends Seeder
 
             Section::create([
                 'warehouse_id' => $warehouse->id,
-                'company_id' => $company?->id,
+                //'company_id' => $company?->id,
                 'parent_id' => $parentSection->id,
                 'name' => 'Rack A2 - High Value',
                 'capacity' => 100,

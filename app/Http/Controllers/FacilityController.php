@@ -15,6 +15,7 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\Section;
 use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -98,7 +99,7 @@ class FacilityController extends Controller
     }
 
     public function topMovingProduct($facility_id)
-    { 
+    {
         $facility = Auth::user()
             ->owns()
             ->where('id', $facility_id)
@@ -167,7 +168,7 @@ class FacilityController extends Controller
             ->owns()
             ->where('id', $facility_id)
             ->firstOrFail();
-    
+
         $products = Product::whereHas('inventories.section', function ($query) use ($facility) {
                 $query->where('warehouse_id', $facility->id);
             })
@@ -181,7 +182,7 @@ class FacilityController extends Controller
             ->having('warehouse_quantity', '<=', 10)
             ->orderBy('warehouse_quantity')
             ->paginate(12);
-    
+
         return response()->json($products, 200);
     }
     public function showInventoryByCategory($facility_id)
@@ -242,9 +243,9 @@ class FacilityController extends Controller
             ->owns()
             ->where('id', $facility_id)
             ->firstOrFail();
-    
-    
-      
+
+
+
         $incoming = OrderItem::join(
                 'orders',
                 'order_items.order_id',
@@ -288,9 +289,9 @@ class FacilityController extends Controller
                     'destination' => null,
                 ];
             });
-    
-    
-        
+
+
+
         $outgoing = OrderItem::join(
                 'orders',
                 'order_items.order_id',
@@ -336,26 +337,26 @@ class FacilityController extends Controller
                     'destination_id' => $item->destination_id,
                 ];
             });
-    
+
         $movement = $incoming
             ->concat($outgoing)
             ->sortBy('date')
             ->values();
-    
+
         return response()->json($movement, 200);
     }
 
     public function warehouseDashboard($facility_id)
     {
         $facility = $this->getWorkerFacility($facility_id);
-    
-    
+
+
         /*
         |--------------------------------------------------------------------------
         | Current stock
         |--------------------------------------------------------------------------
         */
-    
+
         $inventory = Inventory::with('product')
             ->whereHas('section', function ($query) use ($facility) {
                 $query->where('warehouse_id', $facility->id);
@@ -370,8 +371,8 @@ class FacilityController extends Controller
                     'section_id' => $item->section_id,
                 ];
             });
-    
-    
+
+
         /*
         |--------------------------------------------------------------------------
         | Incoming
@@ -380,7 +381,7 @@ class FacilityController extends Controller
         | Orders where this warehouse is the destination.
         |
         */
-    
+
         $incoming = Order::with([
                 'products.product',
             ])
@@ -395,7 +396,7 @@ class FacilityController extends Controller
             ->orderBy('order_date')
             ->get()
             ->map(function ($order) {
-    
+
                 return [
                     'order_id' => $order->id,
                     'order_type' => $order->order_type,
@@ -403,7 +404,7 @@ class FacilityController extends Controller
                     'order_date' => $order->order_date,
                     'departed_at' => $order->departed_at,
                     'arrived_at' => $order->arrived_at,
-    
+
                     'products' => $order->products->map(function ($item) {
                         return [
                             'product_id' => $item->product_id,
@@ -414,14 +415,14 @@ class FacilityController extends Controller
                     }),
                 ];
             });
-    
-    
+
+
         /*
         |--------------------------------------------------------------------------
         | Outgoing
         |--------------------------------------------------------------------------
         */
-    
+
         $outgoing = Order::with([
                 'products.product',
                 'destination',
@@ -437,23 +438,23 @@ class FacilityController extends Controller
             ->orderBy('order_date')
             ->get()
             ->map(function ($order) {
-    
+
                 return [
                     'order_id' => $order->id,
                     'order_type' => $order->order_type,
                     'status' => $order->status,
                     'order_date' => $order->order_date,
-    
+
                     'departed_at' => $order->departed_at,
                     'arrived_at' => $order->arrived_at,
-    
+
                     'destination' => $order->destination
                         ? [
                             'id' => $order->destination->id,
                             'name' => $order->destination->facility_name_en,
                         ]
                         : null,
-    
+
                     'products' => $order->products->map(function ($item) {
                         return [
                             'product_id' => $item->product_id,
@@ -464,15 +465,15 @@ class FacilityController extends Controller
                     }),
                 ];
             });
-    
-    
+
+
         return response()->json([
             'facility_id' => $facility->id,
-    
+
             'inventory' => $inventory,
-    
+
             'incoming' => $incoming,
-    
+
             'outgoing' => $outgoing,
         ], 200);
     }
@@ -480,121 +481,144 @@ class FacilityController extends Controller
     private function getWorkerFacility($facility_id)
     {
         $user = Auth::user();
-    
+
         if ($user->role !== 'worker') {
             abort(403, 'Only warehouse workers can access this endpoint.');
         }
-    
+
         return Facility::where('id', $facility_id)
             ->where('user_id', $user->manager_id)
             ->where('facility_type', 'warehouse')
             ->firstOrFail();
     }
 
-    public function recordDeparture($facility_id, $order_id)
+    /**
+     * Record Departure from Origin / Intermediate Warehouse
+     */
+    public function recordDeparture(Request $request, $facility_id, $order_id)
     {
         $facility = $this->getWorkerFacility($facility_id);
-    
+
+        // Validate optional/required shipment_id input
+        $shipmentId = $request->input('shipment_id');
+
         $order = Order::where('id', $order_id)
+            ->when($shipmentId, fn($q) => $q->where('shipment_id', $shipmentId))
             ->where('src_facility_id', $facility->id)
             ->firstOrFail();
-    
-    
-        if (!in_array($order->status, ['approved','preparing',])) {
+
+        if (!in_array($order->status, ['approved', 'preparing'])) {
             return response()->json([
                 'message' => 'This order cannot be dispatched in its current status.',
                 'status' => $order->status,
             ], 422);
         }
-    
-    
+
         if ($order->departed_at) {
-            return response()->json([
-                'message' => 'Departure has already been recorded.',
-                'departed_at' => $order->departed_at,
-            ], 422);
+            return response()->json(['message' => 'Departure has already been recorded.'], 422);
         }
 
-        if($order->has_shipment){
+        if (!$order->has_shipment) {
+            return response()->json(['message' => 'The order does not have any shipment assigned to depart.'], 422);
+        }
+
+        DB::transaction(function () use ($order, $facility) {
+            // 1. Record Outbook & decrement origin inventory
+            $outbook = Outbook::create([
+                'user_id' => Auth::id(),
+                'dispatch_date' => now()->toDateString(),
+                'warehouse_id' => $facility->id,
+            ]);
+
+            foreach ($order->products as $orderProduct) {
+                $product = $orderProduct->product;
+
+                $section = Section::where('warehouse_id', $facility->id)
+                    ->where('company_id', $product->company_id)
+                    ->firstOrFail();
+
+                OutbookProduct::create([
+                    'outbook_id' => $outbook->id,
+                    'product_id' => $product->id,
+                    'section_id' => $section->id,
+                    'quantity' => $orderProduct->quantity,
+                ]);
+
+                Inventory::where('section_id', $section->id)
+                    ->where('product_id', $product->id)
+                    ->decrement('quantity', $orderProduct->quantity);
+            }
+
+            // 2. Update order status
             $order->update([
                 'departed_at' => now(),
                 'status' => 'shipping',
             ]);
-            $order->refresh();
+        });
 
-            return response()->json([
-                'message' => 'Shipment departure recorded successfully.',
-                'data' => [
-                    'order_id' => $order->id,
-                    'status' => $order->status,
-                    'departed_at' => $order->departed_at,
-                    'tot_price'=>$order->expected_price,
-                ],
-            ], 200);
-        }
-        else{
-            return response()->json([
-                'message'=>'the order does not have any shipment to be departured'
-            ],422);
-        }
+        return response()->json([
+            'message' => 'Shipment departure recorded successfully.',
+            'data' => [
+                'order_id' => $order->id,
+                'shipment_id' => $order->shipment_id,
+                'status' => 'shipping',
+                'departed_at' => now(),
+            ],
+        ], 200);
     }
 
-    //here You must add the inbook product functionality 
-    public function recordArrival($facility_id, $order_id)
+    /**
+     * Record Arrival at Destination Warehouse
+     */
+    public function recordArrival(Request $request, $facility_id, $order_id)
     {
         $facility = $this->getWorkerFacility($facility_id);
+        $shipmentId = $request->input('shipment_id');
 
-        $order = Order::where('id', $order_id)
+        $order = Order::with('products.product')
+            ->where('id', $order_id)
+            ->when($shipmentId, fn($q) => $q->where('shipment_id', $shipmentId))
             ->where('dest_facility_id', $facility->id)
             ->firstOrFail();
 
-
         if ($order->status !== 'shipping') {
-            return response()->json([
-                'message' => 'This order is not currently shipping.',
-                'status' => $order->status,
-            ], 422);
+            return response()->json(['message' => 'This order is not currently shipping.', 'status' => $order->status], 422);
         }
-
 
         if (!$order->departed_at) {
-            return response()->json([
-                'message' => 'Departure must be recorded before arrival.'
-            ], 422);
+            return response()->json(['message' => 'Departure must be recorded before arrival.'], 422);
         }
 
-
         if ($order->arrived_at) {
-            return response()->json([
-                'message' => 'Arrival has already been recorded.',
-                'arrived_at' => $order->arrived_at,
-            ], 422);
+            return response()->json(['message' => 'Arrival has already been recorded.'], 422);
+        }
+
+        // Pre-flight section check OUTSIDE transaction to prevent silent rollback failures
+        foreach ($order->products as $orderProduct) {
+            $sectionExists = Section::where('warehouse_id', $order->dest_facility_id)
+                ->where('company_id', $orderProduct->product->company_id)
+                ->exists();
+
+            if (!$sectionExists) {
+                return response()->json([
+                    'message' => "No section available for company ID {$orderProduct->product->company_id} in target warehouse."
+                ], 422);
+            }
         }
 
         DB::transaction(function () use ($order) {
-
-            // Create one inbook for the whole shipment
             $inbook = Inbook::create([
                 'user_id' => Auth::id(),
                 'storage_date' => now()->toDateString(),
             ]);
 
             foreach ($order->products as $orderProduct) {
-
                 $product = $orderProduct->product;
 
-                // Find a section for this product's company
                 $section = Section::where('warehouse_id', $order->dest_facility_id)
                     ->where('company_id', $product->company_id)
                     ->first();
 
-                if (!$section) {
-                    return response()->json([
-                    'message' => 'No section available for company {$product->company_id}',
-                    ], 422);
-                }
-
-                // Record the incoming product
                 InbookProduct::create([
                     'inbook_id' => $inbook->id,
                     'product_id' => $product->id,
@@ -602,40 +626,31 @@ class FacilityController extends Controller
                     'quantity' => $orderProduct->quantity,
                 ]);
 
-                // Update inventory
-                $inventory = Inventory::where('section_id', $section->id)
-                    ->where('product_id', $product->id)
-                    ->first();
-                
-                if ($inventory) {
-                    Inventory::where('section_id', $section->id)
-                        ->where('product_id', $product->id)
-                        ->increment('quantity', $orderProduct->quantity);
-                } else {
-                    Inventory::create([
+                Inventory::updateOrCreate(
+                    [
                         'section_id' => $section->id,
                         'product_id' => $product->id,
-                        'quantity' => $orderProduct->quantity,
+                    ],
+                    [
                         'unit_price' => $orderProduct->unit_price ?? 0,
-                    ]);
-                }
+                    ]
+                )->increment('quantity', $orderProduct->quantity);
             }
 
-            // Finally mark the order as arrived
             $order->update([
                 'arrived_at' => now(),
                 'status' => 'delivered',
             ]);
         });
 
-
         return response()->json([
             'message' => 'Shipment arrival recorded successfully.',
             'data' => [
                 'order_id' => $order->id,
-                'status' => $order->status,
+                'shipment_id' => $order->shipment_id,
+                'status' => 'delivered',
                 'departed_at' => $order->departed_at,
-                'arrived_at' => $order->arrived_at,
+                'arrived_at' => now(),
             ],
         ], 200);
     }

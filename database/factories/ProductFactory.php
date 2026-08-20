@@ -16,7 +16,6 @@ class ProductFactory extends Factory
     public function definition(): array
     {
         return [
-            'company_id' => Company::inRandomOrder()->value('id'),
             'sku' => fake()->unique()->bothify('???###??##'),
             'name_en' => fake()->word(),
             'name_ar' => fake('ar_SA')->word(),
@@ -27,4 +26,3 @@ class ProductFactory extends Factory
         ];
     }
 }
- 

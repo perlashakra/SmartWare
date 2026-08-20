@@ -14,12 +14,13 @@ class Order extends Model
         'order_type',
         'expected_price',
         'status',
+        'rejection_reason',
         'has_shipment',
         'order_date',
         'notes',
         'departed_at',
-       'arrived_at',
-       'delivery_confirmed_at',
+        'arrived_at',
+        'delivery_confirmed_at',
     ];
 
     protected $casts = [
@@ -52,6 +53,12 @@ class Order extends Model
             'dest_facility_id'
         );
     }
+
+    public function shipment()
+    {
+        return $this->belongsTo(Shipment::class);
+    }
+
     public function recalculateStatusAndPrice(): void
     {
         $items = $this->products;
