@@ -91,40 +91,24 @@ class WarehouseAnalyticsSeeder extends Seeder
             */
 
             $address1 = \App\Models\Address::create([
-                'name'          =>'first_address',
-                'country'       =>'first_address',
-                'city'          =>'first_address',
-                'street'        =>'first_address',
-                'postal_code'   =>'first_address',
+                'address'          =>'first_address',
                 'latitude'      =>'first_address',
                 'longitude'     =>'first_address', 
             ]);
             $address2 = \App\Models\Address::create([
-                'name'          =>'second_address',
-                'country'       =>'second_address',
-                'city'          =>'second_address',
-                'street'        =>'second_address',
-                'postal_code'   =>'second_address',
+                'address'          =>'second_address',
                 'latitude'      =>'second_address',
                 'longitude'     =>'second_address', 
             ]);
 
             $address3 = \App\Models\Address::create([
-                'name'          =>'address_3',
-                'country'       =>'address_3',
-                'city'          =>'address_3',
-                'street'        =>'address_3',
-                'postal_code'   =>'address_3',
+                'address'          =>'address_3',
                 'latitude'      =>'address_3',
                 'longitude'     =>'address_3', 
             ]);
 
             $address4 = \App\Models\Address::create([
-                'name'          =>'address_4',
-                'country'       =>'address_4',
-                'city'          =>'address_4',
-                'street'        =>'address_4',
-                'postal_code'   =>'address_4',
+                'address'          =>'address_4',
                 'latitude'      =>'address_4',
                 'longitude'     =>'address_4', 
             ]);
@@ -138,22 +122,6 @@ class WarehouseAnalyticsSeeder extends Seeder
             |
             */
 
-            $company1 = \App\Models\Company::create([
-                'address_id'    =>$address1->id,
-                'name_en'       =>'first_comp',
-                'name_ar'       =>'first_comp',
-                'phone'         =>'first_comp',
-                'email'         =>'first_comp',
-                'website'       =>'first_comp',
-            ]);
-            $company2 = \App\Models\Company::create([
-                'address_id'    =>$address2->id,
-                'name_en'       =>'second_comp',
-                'name_ar'       =>'second_comp',
-                'phone'         =>'second_comp',
-                'email'         =>'second_comp',
-                'website'       =>'second_comp',
-            ]);
 
 
             /*
@@ -217,16 +185,12 @@ class WarehouseAnalyticsSeeder extends Seeder
 
             $warehouse1SectionA = Section::create([
                 'warehouse_id' => $warehouse1->id,
-                'company_id' => $company1->id,
-                'parent_id' => null,
                 'name' => 'Section A',
                 'capacity' => '1000',
             ]);
 
             $warehouse1SectionB = Section::create([
                 'warehouse_id' => $warehouse1->id,
-                'company_id' => $company1->id,
-                'parent_id' => null,
                 'name' => 'Section B',
                 'capacity' => '1000',
             ]);
@@ -240,8 +204,6 @@ class WarehouseAnalyticsSeeder extends Seeder
 
             $warehouse2SectionA = Section::create([
                 'warehouse_id' => $warehouse2->id,
-                'company_id' => $company2->id,
-                'parent_id' => null,
                 'name' => 'Section A',
                 'capacity' => '2000',
             ]);
@@ -273,55 +235,45 @@ class WarehouseAnalyticsSeeder extends Seeder
             */
 
             $water = Product::create([
-                'company_id' => $company1->id,
                 'sku' => 'WATER-001',
                 'name_en' => 'Mineral Water',
                 'name_ar' => 'مياه معدنية',
-                'container_type' => 'bottle',
                 'unit' => 'bottle',
                 'description_en' => 'Mineral water',
                 'description_ar' => 'مياه معدنية',
             ]);
 
             $cola = Product::create([
-                'company_id' => $company1->id,
                 'sku' => 'COLA-001',
                 'name_en' => 'Cola',
                 'name_ar' => 'كولا',
-                'container_type' => 'bottle',
                 'unit' => 'bottle',
                 'description_en' => 'Cola drink',
                 'description_ar' => 'مشروب كولا',
             ]);
 
             $juice = Product::create([
-                'company_id' => $company1->id,
                 'sku' => 'JUICE-001',
                 'name_en' => 'Orange Juice',
                 'name_ar' => 'عصير برتقال',
-                'container_type' => 'bottle',
                 'unit' => 'bottle',
                 'description_en' => 'Orange juice',
                 'description_ar' => 'عصير برتقال',
             ]);
 
             $rice = Product::create([
-                'company_id' => $company1->id,
                 'sku' => 'RICE-001',
                 'name_en' => 'Rice',
                 'name_ar' => 'أرز',
-                'container_type' => 'bag',
                 'unit' => 'bag',
                 'description_en' => 'Rice',
                 'description_ar' => 'أرز',
             ]);
 
             $soap = Product::create([
-                'company_id' => $company1->id,
                 'sku' => 'SOAP-001',
                 'name_en' => 'Liquid Soap',
                 'name_ar' => 'صابون سائل',
-                'container_type' => 'bottle',
                 'unit' => 'bottle',
                 'description_en' => 'Liquid soap',
                 'description_ar' => 'صابون سائل',

@@ -18,7 +18,6 @@ class StoreFacilityRequest extends FormRequest
             'facility_name_en' => 'required_without:facility_name_ar|string',
             'facility_name_ar' => 'required_without:facility_name_en|string',
             'facility_type' => ['required', Rule::enum(FacilityType::class)],
-            'address_id' => 'required|exists:addresses,id',
         ];
     }
 }

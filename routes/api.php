@@ -5,7 +5,6 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ClientController;
-use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\EmailVerificationController;
 use App\Http\Controllers\FacilityController;
@@ -166,6 +165,7 @@ Route::controller(InventoryController::class)->middleware(['auth:sanctum', 'loca
 Route::controller(FacilityController::class)->prefix('/home_page')->middleware(['auth:sanctum','role:client,warehouse_admin'])->group(function(){
     Route::get('/ownedFacilities', 'getOwnedFacilities');
     Route::get('/FacilityInfo{id}', 'getFacilityInfo');
+    Route::get('/showInventoryByCategory{facility_id}', 'showInventoryByCategory');
     Route::get('/sectionInfo{facility_id}{section_id}', 'getSectionInfo');
 });
 });
