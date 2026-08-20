@@ -17,7 +17,9 @@ class InventoryService
      * the quantity instead of adding to the existing quantity.
      */
     public function setImportedStock(Section $section, Product $product, int|float $quantity, float|int $unitPrice = 0): Inventory {
-        $this->validateProductBelongsToSectionCompany($section, $product);
+        if($quantity < 0){
+            throw new InvalidArgumentException('Inventory quantity cannot be negative.');
+        }
 
         return DB::transaction(function () use ($section, $product, $quantity, $unitPrice) {
             return Inventory::updateOrCreate(
@@ -35,8 +37,6 @@ class InventoryService
 
     
     public function increaseStock(Section $section, Product $product, int|float $quantity, float|int|null $unitPrice = null): Inventory {
-        $this->validateProductBelongsToSectionCompany($section, $product);
-
         if ($quantity <= 0) {
             throw new InvalidArgumentException('The quantity to add must be greater than zero.');
         }

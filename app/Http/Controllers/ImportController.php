@@ -15,47 +15,55 @@ class ImportController extends Controller
 {
     public function import(ValidateFileRequest $request)
     {
-        $section = Section::findOrFail($request->section_id);
-
-        $user = Auth::user();
-
-        if ($user->role !== 'warehouse_admin' && !$user->warehouses()->whereKey($section->warehouse_id)->exists()) {
-            return response()->json(['message' => 'Unauthorized. You do not own this warehouse.',], 403);
-        }
-
-        $file = $request->file('file');
-
-        $filePath = $file->store("imports/facility_{$section->warehouse_id}/inventory", 'private');
-
-        $importFile = ImportFile::create([
-            'uploaded_by' => $user->id,
-            'facility_id' => $section->warehouse_id,
-            'file_name' => $file->getClientOriginalName(),
-            'file_path' => $filePath,
-            'status' => 'processing',
-            'uploaded_at' => now(),
-        ]);
-
+        DB::beginTransaction();
         try {
-            DB::transaction(function () use (
-                $file,
-                $section
-            ) {
-                Excel::import(
-                    new InventoryImport(
-                        $section,
-                        new InventoryService(),
-                    ),
-                    $file
-                );
-            });
+            $user = Auth::user();
+
+            $warehouse_id = $request->facility_id;
+
+            if(!$user->warehouses()->whereKey($warehouse_id)->exists()) {
+                return response()->json(['message' => 'Unauthorized. You do not own this warehouse.',], 403);
+            }
+
+            $section = Section::firstOrCreate(
+                [
+                    'warehouse_id' => $warehouse_id,
+                    'name' => 'Main Storage',
+                ],
+                [
+                    'capacity' => null,
+                ]
+            );
+
+            $file = $request->file('file');
+
+            $filePath = $file->store("imports/facility_{$warehouse_id}/inventory", 'private');
+
+            $importFile = ImportFile::create([
+                'uploaded_by' => $user->id,
+                'facility_id' => $warehouse_id,
+                'file_name' => $file->getClientOriginalName(),
+                'file_path' => $filePath,
+                'status' => 'processing',
+                'uploaded_at' => now(),
+            ]);
+
+            Excel::import(
+                new InventoryImport(
+                    $section,
+                    new InventoryService(),
+                ),
+                $file
+            );
 
             $importFile->update(['status' => 'success']);
+
+            DB::commit();
 
             return response()->json(['message' => 'Inventory imported successfully.', 'import_file_id' => $importFile->id,], 200);
 
         } catch (\Throwable $e) {
-            $importFile->update(['status' => 'failed']);
+            DB::rollBack();
             throw $e;
         }
     }

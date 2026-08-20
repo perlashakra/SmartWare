@@ -154,7 +154,7 @@ Route::controller(InventoryController::class)->prefix('/inventories')->middlewar
     Route::get('/products/{product}/warehouses', 'productWarehouses');
     Route::get('/{inventory}', 'show');
     Route::put('/{inventory}/adjust', 'adjust')->middleware(['role:warehouse_admin']);
-    Route::get('/{section}/section', 'sectionInventory');
+    Route::get('/sections/{section}/inventory', 'sectionInventory');
 });
 
 //Home Page

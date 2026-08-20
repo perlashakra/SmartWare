@@ -38,8 +38,6 @@ class InventoryImport implements ToModel, WithHeadingRow
             return null;
         }
 
-        $section = $this->section;
-
         /*
          * If an SKU exists, it is the product identity.
          */
@@ -47,85 +45,34 @@ class InventoryImport implements ToModel, WithHeadingRow
 
             $product = Product::where('sku', $sku)->first();
 
-            /*
-             * Same SKU exists but belongs to another company.
-             * This is an import conflict and must not create
-             * another product with the same SKU.
-             */
-            if ($product && $product->company_id !== $companyId) {
-                throw new \InvalidArgumentException(
-                    "SKU '{$sku}' already belongs to another company."
-                );
+            if ($product) {
+                if($product->name_ar !== null && $name !== null && $product->name_ar !== $name){
+                    throw new \InvalidArgumentException("SKU '{$sku}' already exists but the product name does not match.");
+                }    
+
+                if($product->unit !== null && $unit !== null && $product->unit !== $unit){
+                    throw new \InvalidArgumentException("SKU '{$sku}' already exists but the product unit does not match.");
+                }
+                
+            } else {
+                $product = null;
             }
 
-            /*
-             * Same SKU and same company.
-             */
             if (!$product) {
                 $product = Product::create([
-                    'company_id' => $companyId,
-                    'sku' => $sku,
+                    'sku' => $sku ?? 'WMS'.strtoupper(Str::random(10)),
                     'name_ar' => $name,
                     'unit' => $unit,
                 ]);
             }
 
-        } else {
-
-            /*
-             * No SKU was provided.
-             *
-             * Fall back to company + name + unit.
-             */
-            $query = Product::where('company_id', $companyId)
-                ->where('name_ar', $name);
-
-            if ($unit !== null) {
-                $query->where('unit', $unit);
-            }
-
-            $product = $query->first();
-
-            /*
-             * Product doesn't exist, so create one and
-             * generate an internal SKU.
-             */
-            if (!$product) {
-                $product = Product::create([
-                    'company_id' => $companyId,
-                    'sku' => 'pr-' . Str::uuid(),
-                    'name_ar' => $name,
-                    'unit' => $unit,
-                ]);
-
-                $product->update([
-                    'sku' => 'WMS' . str_pad(
-                        $product->id,
-                        6,
-                        '0',
-                        STR_PAD_LEFT
-                    ),
-                ]);
-            }
         }
 
-        /*
-         * Final business-rule safety check.
-         */
-        if ($section->company_id !== $product->company_id) {
-            throw new \InvalidArgumentException(
-                "Product '{$product->name_ar}' does not belong to the section's company."
-            );
-        }
-
-        /*
-         * Excel represents a stock snapshot.
-         *
-         * Existing inventory → replace quantity/price.
-         * Missing inventory → create inventory.
-         */
+        //Existing inventory → update quantity/price.
+        //Missing inventory → create inventory.
+        
         $this->inventoryService->setImportedStock(
-            section: $section,
+            $this->section,
             product: $product,
             quantity: $quantity,
             unitPrice: $unitPrice

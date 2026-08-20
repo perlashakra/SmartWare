@@ -16,8 +16,6 @@ class Product extends Model
         'unit',
         'description_en',
         'description_ar',
-        'company_name_en',
-        'company_name_ar',
         'product_image',
     ];
 
