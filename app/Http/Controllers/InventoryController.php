@@ -70,7 +70,7 @@ class InventoryController extends Controller
 
     public function storedProducts()
     {
-        $products = Product::query()->whereHas('inventories')->with(['inventories', 'inventories.discounts' => function ($query) {
+        $products = Product::query()->whereHas('inventories')->with(['categories', 'inventories', 'inventories.discounts' => function ($query) {
             $query->where('is_active', true)->where('starts_at', '<=', now())->where('ends_at', '>=', now());            
         }])->get();
 
