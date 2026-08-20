@@ -229,6 +229,7 @@ class FacilityController extends Controller
                     'name_en' => $product->name_en,
                     'name_ar' => $product->name_ar,
                     'quantity' => $warehouseQuantity,
+                    'image' => $product->product_image,
                 ];
             }
         }
@@ -284,6 +285,7 @@ class FacilityController extends Controller
                     'type' => 'incoming',
                     'product_id' => $item->product_id,
                     'product_name' => $item->product_name,
+                    'product_image' => $item->product->product_image,
                     'quantity' => (int) $item->quantity,
                     'destination' => null,
                 ];
@@ -331,6 +333,7 @@ class FacilityController extends Controller
                     'type' => 'outgoing',
                     'product_id' => $item->product_id,
                     'product_name' => $item->product_name,
+                    'product_image' => $item->product->product_image,
                     'quantity' => (int) $item->quantity,
                     'destination' => $item->destination_name,
                     'destination_id' => $item->destination_id,
@@ -368,6 +371,7 @@ class FacilityController extends Controller
                     'quantity' => (int) $item->quantity,
                     'unit_price' => $item->unit_price,
                     'section_id' => $item->section_id,
+                    'product_image' => $item->product->product_image
                 ];
             });
 
@@ -410,6 +414,7 @@ class FacilityController extends Controller
                             'product_name' => $item->product->name_en,
                             'quantity' => $item->quantity,
                             'status' => $item->status,
+                            'image' => $item->product->product_image
                         ];
                     }),
                 ];
@@ -460,6 +465,7 @@ class FacilityController extends Controller
                             'product_name' => $item->product->name_en,
                             'quantity' => $item->quantity,
                             'status' => $item->status,
+                            'image' => $item->product->product_image
                         ];
                     }),
                 ];
