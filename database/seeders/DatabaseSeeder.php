@@ -15,18 +15,17 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-         $this->call([ManagerSeeder::class]);
-         $this->call([SuperAdminSeeder::class]);
-         $this->call([ClientSeeder::class]);
-         $this->call([AddressSeeder::class]);
-         $this->call([CategorySeeder::class]);
-         $this->call([CompanySeeder::class]);
-         //$this->call([ProductSeeder::class]);
-         $this->call([BusinessSeeder::class]);
-         $this->call([WarehouseSeeder::class]);
-         $this->call([SectionSeeder::class]);
-         $this->call([InventorySeeder::class]);
-         $this->call([EmployeeAnnouncementSeeder::class]);
+        $this->call([ManagerSeeder::class]);
+        $this->call([SuperAdminSeeder::class]);
+        $this->call([ClientSeeder::class]);
+        $this->call([AddressSeeder::class]);
+        $this->call([CategorySeeder::class]);
+        $this->call([ProductSeeder::class]);
+        $this->call([BusinessSeeder::class]);
+        $this->call([WarehouseSeeder::class]);
+        $this->call([SectionSeeder::class]);
+        $this->call([InventorySeeder::class]);
+        $this->call([EmployeeAnnouncementSeeder::class]);
         $this->call([PendingRegistrationSeeder::class,]);
         //$this->call([WarehouseAnalyticsSeeder::class]);//this seeder is used alone
     }
