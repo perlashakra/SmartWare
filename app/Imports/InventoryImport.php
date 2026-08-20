@@ -39,38 +39,83 @@ class InventoryImport implements ToModel, WithHeadingRow
         }
 
         /*
-         * If an SKU exists, it is the product identity.
+         * SKU exists:
+         * SKU is the product identity.
          */
         if ($sku !== null) {
 
             $product = Product::where('sku', $sku)->first();
 
             if ($product) {
-                if($product->name_ar !== null && $name !== null && $product->name_ar !== $name){
-                    throw new \InvalidArgumentException("SKU '{$sku}' already exists but the product name does not match.");
-                }    
 
-                if($product->unit !== null && $unit !== null && $product->unit !== $unit){
-                    throw new \InvalidArgumentException("SKU '{$sku}' already exists but the product unit does not match.");
+                // Existing SKU but different product name.
+                if (
+                    $product->name_ar !== null &&
+                    $name !== null &&
+                    $product->name_ar !== $name
+                ) {
+                    throw new \InvalidArgumentException(
+                        "SKU '{$sku}' already exists but the product name does not match."
+                    );
                 }
-                
-            } else {
-                $product = null;
-            }
 
-            if (!$product) {
+                // Existing SKU but different unit.
+                if (
+                    $product->unit !== null &&
+                    $unit !== null &&
+                    $product->unit !== $unit
+                ) {
+                    throw new \InvalidArgumentException(
+                        "SKU '{$sku}' already exists but the product unit does not match."
+                    );
+                }
+
+            } else {
+
+                // SKU does not exist → create product.
                 $product = Product::create([
-                    'sku' => $sku ?? 'WMS'.strtoupper(Str::random(10)),
+                    'sku' => $sku,
                     'name_ar' => $name,
                     'unit' => $unit,
                 ]);
             }
 
+        } else {
+
+            /*
+             * No SKU in Excel.
+             *
+             * Try to identify an existing product using
+             * the available product information.
+             */
+            $query = Product::where('name_ar', $name);
+
+            if ($unit !== null) {
+                $query->where('unit', $unit);
+            }
+
+            $product = $query->first();
+
+            /*
+             * No matching product → create one and generate
+             * a WMS SKU for it.
+             */
+            if (!$product) {
+                $product = Product::create([
+                    'sku' => 'WMS' . strtoupper(Str::random(10)),
+                    'name_ar' => $name,
+                    'unit' => $unit,
+                ]);
+            }
         }
 
-        //Existing inventory → update quantity/price.
-        //Missing inventory → create inventory.
-        
+        /*
+         * Existing inventory → update quantity/price.
+         * Missing inventory → create inventory.
+         *
+         * Excel represents the current stock snapshot,
+         * so quantity is SET, not added.
+         */
         $this->inventoryService->setImportedStock(
             $this->section,
             product: $product,
