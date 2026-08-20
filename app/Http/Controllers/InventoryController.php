@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\AdjustInventoryRequest;
 use App\Models\Inventory;
+use App\Models\Product;
 use App\Models\Section;
 use App\Services\Inventory\InventoryService as InventoryInventoryService;
 use Illuminate\Http\Request;
@@ -65,6 +66,29 @@ class InventoryController extends Controller
         } catch (InvalidArgumentException $e) {
             return response()->json(['message' => $e->getMessage()], 422);
         }
+    }
+
+    public function storedProducts()
+    {
+        $products = Product::query()->whereHas('inventories')->get();
+
+        return response()->json([
+            'data' => $products,
+        ], 200);
+    }
+
+    public function productWarehouses(Product $product)
+    {
+        $warehouses = $product->inventories()
+            ->with('section.warehouse')
+            ->get()
+            ->pluck('section.warehouse')
+            ->unique('id')
+            ->values();
+
+        return response()->json([
+            'data' => $warehouses,
+        ], 200);
     }
 
     //view inventory in one section

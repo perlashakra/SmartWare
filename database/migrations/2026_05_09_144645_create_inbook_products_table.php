@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('inbook_id')->constrained('inbooks')->cascadeOnDelete();
             $table->foreignId('product_id')->constrained('products')->restrictOnDelete();
+            $table->foreignId('section_id')->constrained('sections')->restrictOnDelete();
             $table->unsignedInteger('quantity');
             //sectio_id
             $table->timestamps();

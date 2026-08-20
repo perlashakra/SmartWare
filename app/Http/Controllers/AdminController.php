@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Document;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -19,10 +20,12 @@ class AdminController extends Controller
      */
     public function createAdmin(Request $request): JsonResponse
     {
+        $verifiedAt = Carbon::now();
         $validated = $request->validate([
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'email_verified_at'=> $verifiedAt,
             'phone_number' => ['required', 'digits:10', 'unique:users'],
             'password' => ['required', Password::defaults()],
             'language_preference' => ['required', 'string', 'in:ar,en'],
