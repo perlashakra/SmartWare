@@ -70,22 +70,24 @@ class InventoryController extends Controller
 
     public function storedProducts()
     {
-        $products = Product::query()->whereHas('inventories')->get();
+        $products = Product::query()->whereHas('inventories')->with(['inventories', 'inventories.discount'])->get();
 
         return response()->json(['data' => $products], 200);
     }
 
     public function productWarehouses(Product $product)
     {
-        $warehouses = $product->inventories()
-            ->with('section.warehouse')
-            ->get()
+        $inventories = $product->inventories()->with(['section.warehouse', 'discounts'])->get();
+        $warehouses = $inventories
             ->pluck('section.warehouse')
             ->unique('id')
             ->values();
+        $discounts = $inventories->pluck('discounts')->flatten()->values(); 
 
         return response()->json([
-            'data' => $warehouses,
+            'product' => $product,
+            'warehouses' => $warehouses,
+            'discounts' => $discounts,
         ], 200);
     }
 
