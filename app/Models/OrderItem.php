@@ -19,7 +19,7 @@ class OrderItem extends Model
         'rejection_reason',
     ];
 
-    public function itemsOfTheRecipt(){
+    public function receiptItems(){
         return $this->hasMany(ReceiptItem::class);
     }
 

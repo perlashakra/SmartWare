@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Database\Seeders\WarehouseAnalyticsSeeder;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -25,6 +24,7 @@ class DatabaseSeeder extends Seeder
         $this->call([WarehouseSeeder::class]);
         $this->call([SectionSeeder::class]);
         $this->call([InventorySeeder::class]);
+        $this->call([DiscountSeeder::class]);
         $this->call([EmployeeAnnouncementSeeder::class]);
         $this->call([PendingRegistrationSeeder::class,]);
         //$this->call([WarehouseAnalyticsSeeder::class]);//this seeder is used alone
