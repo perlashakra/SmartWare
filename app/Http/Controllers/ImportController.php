@@ -31,7 +31,7 @@ class ImportController extends Controller
                     'name' => 'Main Storage',
                 ],
                 [
-                    'capacity' => null,
+                    'capacity' => 0,
                 ]
             );
 
