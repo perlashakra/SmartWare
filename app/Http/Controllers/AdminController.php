@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\FacilityResource;
 use App\Models\EmployeeAnnouncement;
 use App\Models\User;
 use App\Models\Document;
+use App\Models\Facility;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
@@ -198,5 +200,146 @@ class AdminController extends Controller
             'message' => $validated['action'] === 'approve' ? 'User registration approved successfully.' : 'User registration rejected.',
             'account_status' => $user->fresh()->account_status,
         ]);
+    }
+
+    //pending facilities
+    public function pendingFacilities(){
+        $facilities = Facility::where('facility_status', 'pending')
+            ->with([
+                'owner:id, first_name, last_name, email, phone_number',
+                'address',
+                'categories',
+                'document',
+            ])
+            ->latest()
+            ->paginate(15);
+        return FacilityResource::collection($facilities);
+    }
+
+    //show facility for review
+    public function showFacilityRequest(int $id): JsonResponse
+    {
+        $facility = Facility::where('facility_status', 'pending')
+            ->with([
+                'owner:id,first_name,last_name,email,phone_number',
+                'address',
+                'categories',
+                'document',
+            ])
+            ->findOrFail($id);
+
+        if ($facility->document) {
+            $facility->document->file_url = route('admin.documents.download', ['documentId' => $facility->document->id]);
+        }
+
+        return response()->json([
+            'facility' => $facility,
+        ]);
+    }
+
+    //approve/reject facility
+    public function reviewFacility(Request $request, int $id){
+        $validated = $request->validate([
+            'action' => ['required', 'in:approve,reject'],
+            'rejection_reason' => ['required_if:action,reject', 'nullable', 'string', 'max:1000'],
+            'document' => ['required_if:action,approve', 'array'],
+            'document.start_date' => ['nullable', 'date'],
+            'document.expiration_date' => ['nullable', 'date', 'after_or_equal:document.start_date'],
+            'document.document_type' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $facility = Facility::with('document')->findOrFail($id);
+
+        if ($facility->facility_status !== 'pending') {
+            return response()->json([
+                'message' => 'This facility has already been reviewed.',
+                'facility_status' => $facility->facility_status,
+            ], 422);
+        }
+
+        DB::transaction(function () use ($validated, $facility) {
+
+            if ($validated['action'] === 'approve') {
+
+                /*
+                 * The user-uploaded facility document.
+                 */
+                $submittedDocument = $facility->document;
+
+                if (!$submittedDocument) {
+                    throw new \RuntimeException(
+                        'Cannot approve facility because no facility document was submitted.'
+                    );
+                }
+
+                /*
+                 * Create the admin-reviewed document record.
+                 *
+                 * We reuse the same physical file instead of
+                 * uploading/copying the file again.
+                 */
+                Document::create([
+                    'user_id' => $facility->user_id,
+                    'facility_id' => $facility->id,
+                    'document_file' => $submittedDocument->document_file,
+                    'document_type' => $validated['document']['document_type'] ?? null,
+                    'start_date' => $validated['document']['start_date'] ?? null,
+                    'expiration_date' => $validated['document']['expiration_date'] ?? null,
+                    'status' => 'approved',
+                ]);
+
+                /*
+                 * Mark the originally submitted document as reviewed.
+                 */
+                $submittedDocument->update([
+                    'status' => 'approved',
+                ]);
+
+                /*
+                 * Finally approve the facility.
+                 */
+                $facility->update([
+                    'facility_status' => 'approved',
+                ]);
+
+            } else {
+
+                /*
+                 * Reject the submitted document.
+                 */
+                if ($facility->document) {
+                    $facility->document->update([
+                        'status' => 'rejected',
+                    ]);
+                }
+
+                /*
+                 * Reject the facility.
+                 */
+                $facility->update([
+                    'facility_status' => 'rejected',
+                ]);
+
+                /*
+                 * IMPORTANT:
+                 * rejection_reason currently has nowhere to be stored
+                 * in your facilities table.
+                 */
+            }
+        });
+
+        return response()->json([
+            'message' => $validated['action'] === 'approve'
+                ? 'Facility approved successfully.'
+                : 'Facility rejected successfully.',
+
+            'facility' => $facility->fresh()->load([
+                'owner',
+                'address',
+                'categories',
+                'document',
+            ]),
+        ]);
+
     }
 }

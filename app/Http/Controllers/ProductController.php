@@ -67,7 +67,7 @@ class ProductController extends Controller
     }
         
     public function show(Product $product){
-        return new ProductResource($product->load(['categories', 'company']));
+        return new ProductResource($product->load(['categories']));
     }
 
     //warehouse_admin, super_admin only
@@ -91,7 +91,7 @@ class ProductController extends Controller
 
         TranslateProductJob::dispatch($product->id);
 
-        return response()->json(['message' => __('product.created'), 'data' => new ProductResource($product->load(['categories', 'company']))], 201);
+        return response()->json(['message' => __('product.created'), 'data' => new ProductResource($product->load(['categories']))], 201);
     }
         
     //warehouse_admin, super_admin only
@@ -111,7 +111,7 @@ class ProductController extends Controller
         }
 
         $product->update($productValidated);
-        return response()->json(['message' => __('product.updated'), 'data' => new ProductResource($product->load(['categories', 'company']))], 200);
+        return response()->json(['message' => __('product.updated'), 'data' => new ProductResource($product->load(['categories']))], 200);
     }
 
     public function destroy(Product $product){
