@@ -99,15 +99,6 @@ Route::middleware(['auth:sanctum', 'locale'])->group(function () {
         Route::post('/confirm-batches', [ShipmentPlanController::class, 'confirmBatches']);
     });
 
-//Company CRUD Routes
-    Route::middleware(['auth:sanctum'])->controller(CompanyController::class)->prefix('/companies')->group(function () {
-        Route::get('', 'index');
-        Route::get('/{company}', 'show');
-        Route::post('', 'store')->middleware(['role:super_admin']);
-        Route::put('/{company}', 'update')->middleware(['role:super_admin']);
-        Route::delete('/{company}', 'destroy')->middleware(['role:super_admin']);
-    });
-
 //Category CRUD Routes
     Route::middleware(['auth:sanctum'])->prefix('/categories')->group(function () {
         Route::get('', [CategoryController::class, 'index']);
@@ -194,7 +185,3 @@ Route::controller(ClientController::class)->prefix('/client')->middleware(['auth
     Route::get('/orders/{order_id}', 'clientOrder');
     Route::post('/orders/{order_id}/confirm-delivery', 'confirmDelivery');
 });
-//profile
-Route::get('getProfile',[ProfileController::class, 'getProfile'])->middleware(['auth:sanctum','role:client,warehouse_admin']);
-
-
