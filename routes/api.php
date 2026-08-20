@@ -32,8 +32,11 @@ Route::middleware(['auth:sanctum', 'role:super_admin', 'locale'])->prefix('admin
     Route::get('/requests/approved', [AdminController::class, 'approvedAccounts']);
     Route::get('/requests/{id}', [AdminController::class, 'showRequest']);
     Route::post('/requests/{id}/review', [AdminController::class, 'reviewRequest']);
-    Route::get('/documents/{documentId}/download', [AdminController::class, 'downloadDocument'])
-        ->name('admin.documents.download');
+    Route::get('/documents/{documentId}/download', [AdminController::class, 'downloadDocument'])->name('admin.documents.download');
+
+    Route::get('/facilities/pending', [AdminController::class, 'pendingFacilities']);
+    Route::get('/facilities/{id}', [AdminController::class, 'showFacilityRequest']);
+    Route::post('/facilities/{id}/review', [AdminController::class, 'reviewFacility']);
 });
 
 //Registration routes:

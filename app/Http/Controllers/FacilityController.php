@@ -7,14 +7,13 @@ use App\Http\Requests\StoreFacilityRequest;
 use App\Http\Requests\UpdateFacilityRequest;
 use App\Http\Resources\FacilityResource;
 use App\Models\Facility;
-use App\Models\Inbook;
+use App\Models\InBook;
 use App\Models\InBookProduct;
 use App\Models\Inventory;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
-use App\Models\Section;
-use Exception;
+use App\Models\Section;;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -78,7 +77,7 @@ class FacilityController extends Controller
 
     public function getFacilityInfo($id){
         $Facility = Auth::user()
-        ->owns()
+        ->owner()
         ->where('id', $id)
         ->firstOrFail();
 
@@ -88,7 +87,7 @@ class FacilityController extends Controller
 
     public function getSectionInfo($facility_id,$section_id){
         $Facility =  Auth::user()
-                    ->owns()
+                    ->owner()
                     ->where('id',$facility_id)
                     ->firstOrFail();
         $section = $Facility->sections()
@@ -101,7 +100,7 @@ class FacilityController extends Controller
     public function topMovingProduct($facility_id)
     {
         $facility = Auth::user()
-            ->owns()
+            ->owner()
             ->where('id', $facility_id)
             ->firstOrFail();
 
@@ -136,7 +135,7 @@ class FacilityController extends Controller
     public function slowMovingProduct($facility_id)
     {
         $facility = Auth::user()
-            ->owns()
+            ->owner()
             ->where('id', $facility_id)
             ->firstOrFail();
 
@@ -165,7 +164,7 @@ class FacilityController extends Controller
     public function stockOutRisk($facility_id)
     {
         $facility = Auth::user()
-            ->owns()
+            ->owner()
             ->where('id', $facility_id)
             ->firstOrFail();
 
@@ -188,7 +187,7 @@ class FacilityController extends Controller
     public function showInventoryByCategory($facility_id)
     {
         $facility = Auth::user()
-            ->owns()
+            ->owner()
             ->where('id', $facility_id)
             ->firstOrFail();
 
@@ -240,7 +239,7 @@ class FacilityController extends Controller
     {
         // Make sure the authenticated user owns this warehouse
         $facility = Auth::user()
-            ->owns()
+            ->owner()
             ->where('id', $facility_id)
             ->firstOrFail();
 
@@ -529,7 +528,7 @@ class FacilityController extends Controller
                 'departed_at' => now(),
                 'status' => 'shipping',
             ]);
-        });
+        };
 
         return response()->json([
             'message' => 'Shipment departure recorded successfully.',

@@ -91,24 +91,24 @@ class WarehouseAnalyticsSeeder extends Seeder
             */
 
             $address1 = \App\Models\Address::create([
-                'name'          =>'first_address',
+                'address'          =>'first_address',
                 'latitude'      =>'first_address',
                 'longitude'     =>'first_address', 
             ]);
             $address2 = \App\Models\Address::create([
-                'name'          =>'second_address',
+                'address'          =>'second_address',
                 'latitude'      =>'second_address',
                 'longitude'     =>'second_address', 
             ]);
 
             $address3 = \App\Models\Address::create([
-                'name'          =>'address_3',
+                'address'          =>'address_3',
                 'latitude'      =>'address_3',
                 'longitude'     =>'address_3', 
             ]);
 
             $address4 = \App\Models\Address::create([
-                'name'          =>'address_4',
+                'address'          =>'address_4',
                 'latitude'      =>'address_4',
                 'longitude'     =>'address_4', 
             ]);
