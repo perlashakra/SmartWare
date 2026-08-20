@@ -206,10 +206,8 @@ class OrderController extends Controller
     public function processDecision(Request $request, Order $order): JsonResponse
     {
         $validated = $request->validate([
-            'decisions'           => 'required|array|min:1',
-            'decisions.*.item_id' => 'required|exists:order_items,id',
-            'decisions.*.status'  => 'required|in:approved,rejected',
-            'decisions.*.reason'  => 'nullable|required_if:decisions.*.status,rejected|string|max:255',
+            'status' => 'required|in:approved,rejected',
+            'reason' => 'nullable|required_if:status,rejected|string|max:255',
         ]);
 
         $user = $request->user();
@@ -222,16 +220,23 @@ class OrderController extends Controller
             ], 403);
         }
 
+        if ($order->status !== 'pending') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Order decision has already been processed.'
+            ], 422);
+        }
+
         try {
-            $updatedOrder = $this->orderService->processWarehouseDecision(
-                order: $order,
-                decisions: $validated['decisions']
-            );
+            $order->update([
+                'status' => $validated['status'],
+                'rejection_reason' => $validated['status'] === 'rejected' ? $validated['reason'] : null,
+            ]);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Order item statuses updated successfully.',
-                'data'    => $updatedOrder
+                'message' => "Order successfully {$validated['status']}.",
+                'data'    => $order->fresh()
             ]);
 
         } catch (Exception $e) {
