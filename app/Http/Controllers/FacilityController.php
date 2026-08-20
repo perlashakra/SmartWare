@@ -78,7 +78,7 @@ class FacilityController extends Controller
 
     public function getFacilityInfo($id){
         $Facility = Auth::user()
-        ->owner()
+        ->owns()
         ->where('id', $id)
         ->firstOrFail();
 
@@ -88,7 +88,7 @@ class FacilityController extends Controller
 
     public function getSectionInfo($facility_id,$section_id){
         $Facility =  Auth::user()
-                    ->owner()
+                    ->owns()
                     ->where('id',$facility_id)
                     ->firstOrFail();
         $section = $Facility->sections()
@@ -101,7 +101,7 @@ class FacilityController extends Controller
     public function topMovingProduct($facility_id)
     {
         $facility = Auth::user()
-            ->owner()
+            ->owns()
             ->where('id', $facility_id)
             ->firstOrFail();
 
@@ -136,7 +136,7 @@ class FacilityController extends Controller
     public function slowMovingProduct($facility_id)
     {
         $facility = Auth::user()
-            ->owner()
+            ->owns()
             ->where('id', $facility_id)
             ->firstOrFail();
 
@@ -165,7 +165,7 @@ class FacilityController extends Controller
     public function stockOutRisk($facility_id)
     {
         $facility = Auth::user()
-            ->owner()
+            ->owns()
             ->where('id', $facility_id)
             ->firstOrFail();
 
@@ -188,7 +188,7 @@ class FacilityController extends Controller
     public function showInventoryByCategory($facility_id)
     {
         $facility = Auth::user()
-            ->owner()
+            ->owns()
             ->where('id', $facility_id)
             ->firstOrFail();
 
@@ -240,7 +240,7 @@ class FacilityController extends Controller
     {
         // Make sure the authenticated user owns this warehouse
         $facility = Auth::user()
-            ->owner()
+            ->owns()
             ->where('id', $facility_id)
             ->firstOrFail();
 
@@ -515,41 +515,16 @@ class FacilityController extends Controller
         }
 
         if ($order->departed_at) {
-            return response()->json(['message' => 'Departure has already been recorded.'], 422);
+            return response()->json([
+                'message' => 'Departure has already been recorded.',
+                'departed_at' => $order->departed_at,
+            ], 422);
         }
 
-        if (!$order->has_shipment) {
-            return response()->json(['message' => 'The order does not have any shipment assigned to depart.'], 422);
-        }
+        if($order->has_shipment){
+            //we must decrease the quantity
+            $section = $facility->sections;
 
-        DB::transaction(function () use ($order, $facility) {
-            // 1. Record Outbook & decrement origin inventory
-            $outbook = Outbook::create([
-                'user_id' => Auth::id(),
-                'dispatch_date' => now()->toDateString(),
-                'warehouse_id' => $facility->id,
-            ]);
-
-            foreach ($order->products as $orderProduct) {
-                $product = $orderProduct->product;
-
-                $section = Section::where('warehouse_id', $facility->id)
-                    ->where('company_id', $product->company_id)
-                    ->firstOrFail();
-
-                OutbookProduct::create([
-                    'outbook_id' => $outbook->id,
-                    'product_id' => $product->id,
-                    'section_id' => $section->id,
-                    'quantity' => $orderProduct->quantity,
-                ]);
-
-                Inventory::where('section_id', $section->id)
-                    ->where('product_id', $product->id)
-                    ->decrement('quantity', $orderProduct->quantity);
-            }
-
-            // 2. Update order status
             $order->update([
                 'departed_at' => now(),
                 'status' => 'shipping',
@@ -616,9 +591,15 @@ class FacilityController extends Controller
                 $product = $orderProduct->product;
 
                 $section = Section::where('warehouse_id', $order->dest_facility_id)
-                    ->where('company_id', $product->company_id)
                     ->first();
 
+                if (!$section) {
+                    return response()->json([
+                    'message' => 'No section available',
+                    ], 422);
+                }
+
+                // Record the incoming product
                 InbookProduct::create([
                     'inbook_id' => $inbook->id,
                     'product_id' => $product->id,
