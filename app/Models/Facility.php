@@ -26,6 +26,11 @@ class Facility extends Model
         ];
     }
 
+    public function owner()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
     public function client()
     {
         return $this->belongsTo(User::class, 'user_id')->where('role', 'client');

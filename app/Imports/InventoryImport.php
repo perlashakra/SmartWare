@@ -38,33 +38,42 @@ class InventoryImport implements ToModel, WithHeadingRow
             return null;
         }
 
-        $section = $this->section;
-        $companyId = $section->company_id;
-
         /*
-         * If an SKU exists, it is the product identity.
+         * SKU exists:
+         * SKU is the product identity.
          */
         if ($sku !== null) {
 
             $product = Product::where('sku', $sku)->first();
 
-            /*
-             * Same SKU exists but belongs to another company.
-             * This is an import conflict and must not create
-             * another product with the same SKU.
-             */
-            if ($product && $product->company_id !== $companyId) {
-                throw new \InvalidArgumentException(
-                    "SKU '{$sku}' already belongs to another company."
-                );
-            }
+            if ($product) {
 
-            /*
-             * Same SKU and same company.
-             */
-            if (!$product) {
+                // Existing SKU but different product name.
+                if (
+                    $product->name_ar !== null &&
+                    $name !== null &&
+                    $product->name_ar !== $name
+                ) {
+                    throw new \InvalidArgumentException(
+                        "SKU '{$sku}' already exists but the product name does not match."
+                    );
+                }
+
+                // Existing SKU but different unit.
+                if (
+                    $product->unit !== null &&
+                    $unit !== null &&
+                    $product->unit !== $unit
+                ) {
+                    throw new \InvalidArgumentException(
+                        "SKU '{$sku}' already exists but the product unit does not match."
+                    );
+                }
+
+            } else {
+
+                // SKU does not exist → create product.
                 $product = Product::create([
-                    'company_id' => $companyId,
                     'sku' => $sku,
                     'name_ar' => $name,
                     'unit' => $unit,
@@ -74,12 +83,12 @@ class InventoryImport implements ToModel, WithHeadingRow
         } else {
 
             /*
-             * No SKU was provided.
+             * No SKU in Excel.
              *
-             * Fall back to company + name + unit.
+             * Try to identify an existing product using
+             * the available product information.
              */
-            $query = Product::where('company_id', $companyId)
-                ->where('name_ar', $name);
+            $query = Product::where('name_ar', $name);
 
             if ($unit !== null) {
                 $query->where('unit', $unit);
@@ -88,45 +97,27 @@ class InventoryImport implements ToModel, WithHeadingRow
             $product = $query->first();
 
             /*
-             * Product doesn't exist, so create one and
-             * generate an internal SKU.
+             * No matching product → create one and generate
+             * a WMS SKU for it.
              */
             if (!$product) {
                 $product = Product::create([
-                    'company_id' => $companyId,
-                    'sku' => 'pr-' . Str::uuid(),
+                    'sku' => 'WMS' . strtoupper(Str::random(10)),
                     'name_ar' => $name,
                     'unit' => $unit,
-                ]);
-
-                $product->update([
-                    'sku' => 'WMS' . str_pad(
-                        $product->id,
-                        6,
-                        '0',
-                        STR_PAD_LEFT
-                    ),
                 ]);
             }
         }
 
         /*
-         * Final business-rule safety check.
-         */
-        if ($section->company_id !== $product->company_id) {
-            throw new \InvalidArgumentException(
-                "Product '{$product->name_ar}' does not belong to the section's company."
-            );
-        }
-
-        /*
-         * Excel represents a stock snapshot.
-         *
-         * Existing inventory → replace quantity/price.
+         * Existing inventory → update quantity/price.
          * Missing inventory → create inventory.
+         *
+         * Excel represents the current stock snapshot,
+         * so quantity is SET, not added.
          */
         $this->inventoryService->setImportedStock(
-            section: $section,
+            $this->section,
             product: $product,
             quantity: $quantity,
             unitPrice: $unitPrice

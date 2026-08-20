@@ -60,11 +60,11 @@ class FacilityController extends Controller
     }
 
     public function getWarehouses(){
-        return FacilityResource::collection(Facility::warehouses()->with(['owner', 'address'])->paginate(12));
+        return FacilityResource::collection(Facility::warehouses()->with(['manager', 'address'])->paginate(12));
     }
 
     public function getBusinesses(){
-        return FacilityResource::collection(Facility::businesses()->with(['owner', 'address'])->paginate(12));
+        return FacilityResource::collection(Facility::businesses()->with(['client', 'address'])->paginate(12));
     }
 
     public function getOwnedFacilities(){
@@ -77,7 +77,7 @@ class FacilityController extends Controller
 
     public function getFacilityInfo($id){
         $Facility = Auth::user()
-        ->owns()
+        ->owner()
         ->where('id', $id)
         ->firstOrFail();
 
@@ -87,7 +87,7 @@ class FacilityController extends Controller
 
     public function getSectionInfo($facility_id,$section_id){
         $Facility =  Auth::user()
-                    ->owns()
+                    ->owner()
                     ->where('id',$facility_id)
                     ->firstOrFail();
         $section = $Facility->sections()
@@ -100,7 +100,7 @@ class FacilityController extends Controller
     public function topMovingProduct($facility_id)
     { 
         $facility = Auth::user()
-            ->owns()
+            ->owner()
             ->where('id', $facility_id)
             ->firstOrFail();
 
@@ -135,7 +135,7 @@ class FacilityController extends Controller
     public function slowMovingProduct($facility_id)
     {
         $facility = Auth::user()
-            ->owns()
+            ->owner()
             ->where('id', $facility_id)
             ->firstOrFail();
 
@@ -164,7 +164,7 @@ class FacilityController extends Controller
     public function stockOutRisk($facility_id)
     {
         $facility = Auth::user()
-            ->owns()
+            ->owner()
             ->where('id', $facility_id)
             ->firstOrFail();
     
@@ -187,7 +187,7 @@ class FacilityController extends Controller
     public function showInventoryByCategory($facility_id)
     {
         $facility = Auth::user()
-            ->owns()
+            ->owner()
             ->where('id', $facility_id)
             ->firstOrFail();
 
@@ -239,7 +239,7 @@ class FacilityController extends Controller
     {
         // Make sure the authenticated user owns this warehouse
         $facility = Auth::user()
-            ->owns()
+            ->owner()
             ->where('id', $facility_id)
             ->firstOrFail();
     

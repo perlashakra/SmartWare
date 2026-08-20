@@ -20,9 +20,8 @@ class ProductController extends Controller
     }
 
     //this is not working for now
-    public function index(ProductFilterRequest $request)
-{
-    $query = Product::query()->with(['company', 'categories']);
+    public function index(ProductFilterRequest $request){
+        $query = Product::query()->with(['categories']);
 
     $filter = $request->validated();
 

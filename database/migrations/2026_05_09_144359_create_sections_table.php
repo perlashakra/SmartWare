@@ -11,10 +11,8 @@ return new class extends Migration
         Schema::create('sections', function (Blueprint $table) {
             $table->id();
             $table->foreignId('warehouse_id')->constrained('facilities')->restrictOnDelete();
-            $table->foreignId('company_id')->constrained('companies')->restrictOnDelete();
-            $table->foreignId('parent_id')->nullable()->constrained('sections')->nullOnDelete();
             $table->string('name');
-            $table->string('capacity');
+            $table->string('capacity')->default(0);
             $table->timestamps();
         });
     }

@@ -52,7 +52,7 @@ class InventoryController extends Controller
     {
         $this->authorize('view', $inventory);
 
-        $inventory->load(['product', 'section.company', 'section.warehouse']);
+        $inventory->load(['product', 'section.warehouse']);
 
         return response()->json(['data' => $inventory], 200);
     }
@@ -72,9 +72,7 @@ class InventoryController extends Controller
     {
         $products = Product::query()->whereHas('inventories')->get();
 
-        return response()->json([
-            'data' => $products,
-        ], 200);
+        return response()->json(['data' => $products], 200);
     }
 
     public function productWarehouses(Product $product)
@@ -99,7 +97,7 @@ class InventoryController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        $inventory = Inventory::with('product')->where('section_id', $section->id)->paginate(20);
+        $inventory = Inventory::query()->with(['product', 'section.warehouse'])->where('section_id', $section)->paginate(20);
 
         return response()->json(['data' => $inventory], 200);
     }
