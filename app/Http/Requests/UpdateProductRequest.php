@@ -22,8 +22,6 @@ class UpdateProductRequest extends FormRequest
             'unit' => ['sometimes', Rule::enum(UnitEnum::class)],
             'categories' => 'sometimes|array',
             'categories.*' => ['required', 'string', 'exists:categories,id'],
-            'company_name_en' => ['nullable', 'string'],
-            'company_name_ar' => ['nullable', 'string'],
             'description_en' => 'nullable|string',
             'description_ar' => 'nullable|string',
             'product_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:4096',

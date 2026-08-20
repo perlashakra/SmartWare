@@ -20,7 +20,6 @@ return new class extends Migration
             $table->string('product_image')->nullable();
             $table->text('description_en')->nullable();
             $table->text('description_ar')->nullable();
-            $table->unique(['sku', 'company_id']);
             $table->timestamps();
         });
     }

@@ -15,7 +15,7 @@ class ValidateFileRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'section_id' =>['required', 'exists:sections,id'],
+            'facility_id' =>['required', 'exists:facilities,id'],
             'file' => 'required|file|mimes:xlsx,xls,csv',
         ];
     }
