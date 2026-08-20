@@ -8,15 +8,9 @@ class Section extends Model
 {
     protected $fillable = [
         'warehouse_id',
-        'company_id',
-        'parent_id',
         'name',
         'capacity',
     ];
-
-    public function company(){
-        return $this->belongsTo(Company::class);
-    }
 
     public function warehouse(){
         return $this->belongsTo(Facility::class, 'warehouse_id');

@@ -28,6 +28,14 @@ class TranslateProductJob implements ShouldQueue
             $product->name_ar = $translator->translate($product->name_en, 'en', 'ar');
         }
 
+        if($product->company_name_ar && !$product->company_name_en){
+            $product->company_name_en = $translator->translate($product->company_name_ar, 'ar', 'en');
+        }
+
+        if($product->company_name_en && !$product->company_name_ar){
+            $product->company_name_ar = $translator->translate($product->company_name_en, 'en', 'ar');
+        }
+
         if($product->description_ar && !$product->description_en){
             $product->description_en = $translator->translate($product->description_ar, 'ar', 'en');
         }

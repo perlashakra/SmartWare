@@ -39,7 +39,6 @@ class InventoryImport implements ToModel, WithHeadingRow
         }
 
         $section = $this->section;
-        $companyId = $section->company_id;
 
         /*
          * If an SKU exists, it is the product identity.
