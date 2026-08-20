@@ -19,7 +19,7 @@ class SavePreferencesRequest extends FormRequest
         return [
             'facility_id' => ['nullable', 'integer', 'exists:facilities,id'],
             'facility_name' => ['nullable', 'string', 'max:255'],
-            'role' => ['required', 'string', Rule::in(['client', 'warehouse_manager', 'warehouse_admin'])],
+            'role' => ['required', 'string', Rule::in(['client', 'warehouse_admin'])],
             'business_type' => ['required_if:role,client', 'nullable', Rule::enum(BusinessTypeEnum::class)],
             'categories' => ['required', 'array', 'min:1'],
             'categories.*' => [Rule::enum(CategoryEnum::class)],

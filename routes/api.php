@@ -69,6 +69,7 @@ Route::middleware(['auth:sanctum', 'locale'])->group(function () {
     //Onboarding functions:
     Route::post('/onboarding/savePreferences', [OnboardingController::class, 'savePreferences']);
     Route::post('/onboarding/getPreferences', [OnboardingController::class, 'getFacilityPreferences']);
+    Route::post('/onboarding/submitLocation', [OnboardingController::class, 'submitLocation']);
     Route::post('/onboarding/uploadID', [OnboardingController::class, 'uploadIdentityDocument']);
     Route::post('/onboarding/uploadFacilityDocument', [OnboardingController::class, 'uploadFacilityDocument']);
     Route::post('/onboarding/uploadOnboardingDocuments', [OnboardingController::class, 'uploadOnboardingDocuments']);
@@ -94,6 +95,7 @@ Route::middleware(['auth:sanctum', 'locale'])->group(function () {
     //Worker announcement and termination
     Route::post('/warehouse_manager/announceWorker', [WarehouseManagerController::class, 'announceWorker'])->middleware(['role:warehouse_admin']);
     Route::post('/warehouse_manager/terminateJob', [WarehouseManagerController::class, 'terminateJob'])->middleware(['role:warehouse_admin']);
+    //Shipment plan generation
     Route::prefix('shipments')->group(function () {
         Route::post('/generate-plan', [ShipmentPlanController::class, 'generatePlan']);
         Route::post('/confirm-batches', [ShipmentPlanController::class, 'confirmBatches']);

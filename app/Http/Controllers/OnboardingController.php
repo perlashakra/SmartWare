@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\SavePreferencesRequest;
 use App\Enums\BusinessTypeEnum;
 use App\Enums\CategoryEnum;
+use App\Models\Address;
 use App\Models\Category;
 use App\Models\Facility;
 use App\Models\Document;
@@ -201,6 +202,30 @@ class OnboardingController extends Controller
         $preferences = $facility->categories;
 
         return response()->json(['preferences' => $preferences]);
+    }
+
+    public function submitLocation(Request $request)
+    {
+        $validated = $request->validate([
+            'facility_id'   => ['required', 'integer', 'exists:facilities,id'],
+            'longitude' => ['required', 'numeric', 'min:-90', 'max:90'],
+            'latitude'     => ['required', 'numeric', 'min:-90', 'max:90'],
+            'address'      => ['required', 'string'],
+        ]);
+
+        $user = $request->user();
+        $facility = Facility::where('id', $validated['facility_id'])
+            ->where('user_id', $user->id)
+            ->firstOrFail();
+
+        $address = Address::create([
+            'longitude' => $validated['longitude'],
+            'latitude' => $validated['latitude'],
+            'address' => $validated['address'],
+        ]);
+        $facility->address_id=$address->id;
+        $facility->save();
+        return response()->json(['location' => $address]);
     }
 
     /**
