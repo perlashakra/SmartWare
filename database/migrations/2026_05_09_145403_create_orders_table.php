@@ -18,13 +18,14 @@ return new class extends Migration {
             // Order level tracking
             $table->enum('status', [
                 'pending',
-                'partially_approved',
                 'approved',
+                'rejected',
                 'cancelled',
                 'preparing',
                 'shipping',
                 'delivered'
             ])->default('pending');
+            $table->string('rejection_reason')->nullable();
 
             $table->boolean('has_shipment')->default(false); // Quick guard for client cancellations
             $table->date('order_date');

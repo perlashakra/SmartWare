@@ -70,7 +70,9 @@ class InventoryController extends Controller
 
     public function storedProducts()
     {
-        $products = Product::query()->whereHas('inventories')->with(['inventories', 'inventories.discount'])->get();
+        $products = Product::query()->whereHas('inventories')->with(['categories', 'inventories', 'inventories.discounts' => function ($query) {
+            $query->where('is_active', true)->where('starts_at', '<=', now())->where('ends_at', '>=', now());            
+        }])->get();
 
         return response()->json(['data' => $products], 200);
     }
@@ -99,7 +101,7 @@ class InventoryController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        $inventory = Inventory::query()->with(['product', 'section.warehouse'])->where('section_id', $section)->paginate(20);
+        $inventory = Inventory::query()->with(['product', 'section.warehouse'])->where('section_id', $section->id)->paginate(20);
 
         return response()->json(['data' => $inventory], 200);
     }
@@ -112,7 +114,7 @@ class InventoryController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        $inventory = Inventory::with('product', 'section.company')->whereHas('section', function($query) use ($warehouse_id){
+        $inventory = Inventory::with('product')->whereHas('section', function($query) use ($warehouse_id){
             $query->where('warehouse_id', $warehouse_id);
         })->paginate(20);
 
