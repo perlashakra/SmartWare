@@ -14,25 +14,25 @@ class AddressSeeder extends Seeder
     public function run(): void
     {
         Address::create([
-            'name' => 'Fayez Mansour, Mezzeh, Damascus, Syria',
+            'address' => 'Fayez Mansour, Mezzeh, Damascus, Syria',
             'latitude' => '36.267696',
             'longitude' => '33.508627',
         ]);
 
         Address::create([
-            'name' => 'Mashroo3 Dummar, Damascus, Syria',
+            'address' => 'Mashroo3 Dummar, Damascus, Syria',
             'latitude' => '36.267696',
             'longitude' => '33.508627',
         ]);
 
         Address::create([
-            'name' => 'Sahnaya, Damascus, Syria',
+            'address' => 'Sahnaya, Damascus, Syria',
             'latitude' => '36.267696',
             'longitude' => '33.508627',
         ]);
 
         Address::create([
-            'name' => 'Adra, Damascus, Syria',
+            'address' => 'Adra, Damascus, Syria',
             'latitude' => '36.267696',
             'longitude' => '33.508627',
         ]);
