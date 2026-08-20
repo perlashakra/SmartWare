@@ -53,6 +53,7 @@ class ClientController extends Controller
                             'product_name' => $item->product->name_en,
                             'quantity' => $item->quantity,
                             'status' => $item->status,
+                            'product_image' => $item->product->product_image,
                         ];
                     }),
                 ];

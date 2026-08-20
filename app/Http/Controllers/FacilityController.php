@@ -229,6 +229,7 @@ class FacilityController extends Controller
                     'name_en' => $product->name_en,
                     'name_ar' => $product->name_ar,
                     'quantity' => $warehouseQuantity,
+                    'image' => $product->product_image,
                 ];
             }
         }
@@ -284,6 +285,7 @@ class FacilityController extends Controller
                     'type' => 'incoming',
                     'product_id' => $item->product_id,
                     'product_name' => $item->product_name,
+                    'product_image' => $item->product->product_image,
                     'quantity' => (int) $item->quantity,
                     'destination' => null,
                 ];
@@ -331,6 +333,7 @@ class FacilityController extends Controller
                     'type' => 'outgoing',
                     'product_id' => $item->product_id,
                     'product_name' => $item->product_name,
+                    'product_image' => $item->product->product_image,
                     'quantity' => (int) $item->quantity,
                     'destination' => $item->destination_name,
                     'destination_id' => $item->destination_id,
@@ -368,6 +371,7 @@ class FacilityController extends Controller
                     'quantity' => (int) $item->quantity,
                     'unit_price' => $item->unit_price,
                     'section_id' => $item->section_id,
+                    'product_image' => $item->product->product_image
                 ];
             });
 
@@ -410,6 +414,7 @@ class FacilityController extends Controller
                             'product_name' => $item->product->name_en,
                             'quantity' => $item->quantity,
                             'status' => $item->status,
+                            'image' => $item->product->product_image
                         ];
                     }),
                 ];
@@ -460,6 +465,7 @@ class FacilityController extends Controller
                             'product_name' => $item->product->name_en,
                             'quantity' => $item->quantity,
                             'status' => $item->status,
+                            'image' => $item->product->product_image
                         ];
                     }),
                 ];
@@ -523,22 +529,46 @@ class FacilityController extends Controller
         if($order->has_shipment){
             //we must decrease the quantity
             $section = $facility->sections;
+            $inventories = $section->inventories;
+            $orderItems = $order->items;
+            foreach($inventories as $inv){
+                foreach($orderItems as $OI){
+                    if($inv->product_id == $OI->product_id){
+                        $remainQuantity = $inv->quantity - $OI->quantity;
+                        if($remainQuantity < 0 ){
+                            $product = Product::findOrFail($inv->product_id);
+                            return response()->json(['Error'=>'The departure can not be done',
+                            'message'=>'no enough stock',
+                            'product'=>$product]);
+                        }
+                        $inv->quantity = $remainQuantity;
+                    }
+
+                }
+            }
 
             $order->update([
                 'departed_at' => now(),
                 'status' => 'shipping',
             ]);
-        };
+            
+            return response()->json([
+                'message' => 'Shipment departure recorded successfully.',
+                'data' => [
+                    'order_id' => $order->id,
+                    'shipment_id' => $order->shipment_id,
+                    'status' => 'shipping',
+                    'departed_at' => now(),
+                    ],
+                ], 200);
+        }
+        else{
+           return response()->json([
+                'message' => 'this order is not set to be shipped',
+            ], 422); 
+        }
 
-        return response()->json([
-            'message' => 'Shipment departure recorded successfully.',
-            'data' => [
-                'order_id' => $order->id,
-                'shipment_id' => $order->shipment_id,
-                'status' => 'shipping',
-                'departed_at' => now(),
-            ],
-        ], 200);
+        
     }
 
     /**
@@ -566,20 +596,6 @@ class FacilityController extends Controller
         if ($order->arrived_at) {
             return response()->json(['message' => 'Arrival has already been recorded.'], 422);
         }
-
-        // Pre-flight section check OUTSIDE transaction to prevent silent rollback failures
-        foreach ($order->products as $orderProduct) {
-            $sectionExists = Section::where('warehouse_id', $order->dest_facility_id)
-                ->where('company_id', $orderProduct->product->company_id)
-                ->exists();
-
-            if (!$sectionExists) {
-                return response()->json([
-                    'message' => "No section available for company ID {$orderProduct->product->company_id} in target warehouse."
-                ], 422);
-            }
-        }
-
         DB::transaction(function () use ($order) {
             $inbook = Inbook::create([
                 'user_id' => Auth::id(),
@@ -596,6 +612,10 @@ class FacilityController extends Controller
                     return response()->json([
                     'message' => 'No section available',
                     ], 422);
+                }
+                $capacity = (int) $section->capacity;
+                if(($capacity - $orderProduct->quantity) < 0){
+                    return response()->json('no enough capacity, therefore the arrival of the order can not be recorded');
                 }
 
                 // Record the incoming product
