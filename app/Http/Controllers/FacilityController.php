@@ -181,7 +181,7 @@ class FacilityController extends Controller
                 }
             ], 'quantity')
             ->orderBy('total_sold')
-            ->paginate(12);
+            ->paginate(10000);
 
         return response()->json($products, 200);
     }
