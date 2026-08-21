@@ -208,7 +208,7 @@ class OnboardingController extends Controller
     {
         $validated = $request->validate([
             'facility_id' => ['required', 'integer', 'exists:facilities,id'],
-            'longitude' => ['required', 'numeric', 'min:-90', 'max:90'],
+            'longitude' => ['required', 'numeric', 'min:-180', 'max:180'],
             'latitude' => ['required', 'numeric', 'min:-90', 'max:90'],
             'address' => ['required', 'string'],
         ]);
