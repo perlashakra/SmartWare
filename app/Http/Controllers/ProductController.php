@@ -128,7 +128,11 @@ class ProductController extends Controller
         $this->authorize('update', $product);
 
         $validated = $request->validated();
-
+\Log::info('UPDATE PRODUCT REQUEST', [
+    'product_id' => $product->id,
+    'request' => $request->all(),
+    'validated' => $validated,
+]);
         DB::beginTransaction();
 
         try{
@@ -166,14 +170,13 @@ class ProductController extends Controller
             }
 
             if($quantity !== null || $unit_price !== null){
-                $inventory->quantity = $quantity ?? $inventory->quantity;
-                
-                $inventory->unit_price = $unit_price ?? $inventory->unit_price;
-                $this->inventoryService->updateInventoryDetails($inventory, $inventory->quantity, $inventory->unit_price);
+                $newQuantity = $quantity ?? $inventory->quantity;
+                $newUnitPrice = $unit_price ?? $inventory->unit_price;
+                $this->inventoryService->updateInventoryDetails($inventory, $newQuantity, $newUnitPrice);
             }
 
             DB::commit();
-            return response()->json(['message' => __('product.updated'), 'data' => new ProductResource($product->load(['categories']))], 200);
+            return response()->json(['message' => __('product.updated'), 'product' => new ProductResource($product->load(['categories', 'inventories']))], 200);
         } catch(\Throwable $e){
             DB::rollBack();
             throw $e;
