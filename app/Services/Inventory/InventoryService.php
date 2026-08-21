@@ -116,26 +116,26 @@ class InventoryService
     }
 
     public function updateInventoryDetails(
-    Inventory $inventory,
-    int|float $quantity,
-    int|float $unitPrice
-): Inventory {
-    if ($quantity < 0) {
-        throw new InvalidArgumentException('Inventory quantity cannot be negative.');
+        Inventory $inventory,
+        int|float $quantity,
+        int|float $unitPrice
+    ): Inventory {
+        if ($quantity < 0) {
+            throw new InvalidArgumentException('Inventory quantity cannot be negative.');
+        }
+
+        if ($unitPrice < 0) {
+            throw new InvalidArgumentException('Inventory unit price cannot be negative.');
+        }
+
+        return DB::transaction(function () use ($inventory, $quantity, $unitPrice) {
+            $inventory->quantity = $quantity;
+            $inventory->unit_price = $unitPrice;
+            $inventory->save();
+
+            return $inventory->fresh();
+        });
     }
-
-    if ($unitPrice < 0) {
-        throw new InvalidArgumentException('Inventory unit price cannot be negative.');
-    }
-
-    return DB::transaction(function () use ($inventory, $quantity, $unitPrice) {
-        $inventory->quantity = $quantity;
-        $inventory->unit_price = $unitPrice;
-        $inventory->save();
-
-        return $inventory->fresh();
-    });
-}
 
     /**
      * Ensure that a section only contains products belonging

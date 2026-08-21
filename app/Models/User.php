@@ -129,6 +129,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(InBook::class);
     }
 
+    //notification relationships
     public function receivesBroadcastNotificationsOn(){
         return 'users.'.$this->id;
     }

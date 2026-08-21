@@ -180,7 +180,7 @@ Route::controller(NotificationController::class)->prefix('/notifications')->midd
     Route::delete('/{id}', [NotificationController::class, 'destroy']);
 });
 
-Route::prefix('notification-tokens')->group(function () {
+Route::controller(NotificationTokenController::class)->prefix('notification-tokens')->middleware(['auth:sanctum', 'locale'])->group(function () {
     Route::post('/', [NotificationTokenController::class, 'store']);
     Route::delete('/{token}', [NotificationTokenController::class, 'destroy']);
 });

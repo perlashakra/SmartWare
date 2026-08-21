@@ -9,7 +9,7 @@ class NotificationTokenController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'token' => ['required', 'string'],
+            'token' => ['required', 'string', 'max:500'],
             'platform' => ['nullable', 'string', 'in:android,ios,web'],
         ]);
 
