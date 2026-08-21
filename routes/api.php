@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\ClientOrderController;
 use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\EmailVerificationController;
 use App\Http\Controllers\FacilityController;
@@ -18,6 +19,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\ShipmentPlanController;
 use App\Http\Controllers\WarehouseManagerController;
+use App\Http\Controllers\WarehouseOperationsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -87,12 +89,20 @@ Route::middleware(['auth:sanctum', 'locale'])->group(function () {
 
     //Order routes
     Route::prefix('orders')->group(function () {
-        Route::get('/', [OrderController::class, 'index']);             // GET /api/orders
+        Route::get('/', [OrderController::class, 'index']);
+        Route::get('/pending', [OrderController::class, 'listPendingOrders']);
+        Route::get('/approved', [OrderController::class, 'listApprovedOrders']);
         Route::post('/', [OrderController::class, 'store'])->middleware('role:client');            // POST /api/orders
         Route::post('/transfer', [OrderController::class, 'storeTransfer'])->middleware('role:warehouse_admin');
         Route::get('/{order}', [OrderController::class, 'show']);       // GET /api/orders/{id}
         Route::post('/{order}/cancel', [OrderController::class, 'cancel']); // POST /api/orders/{id}/cancel
         Route::post('/{order}/decisions', [OrderController::class, 'processDecision'])->middleware('role:warehouse_admin'); // POST /api/orders/{id}/decisions
+
+        // Worker Endpoint
+        Route::post('/warehouses/{facility_id}/shipments/{shipment_id}/process-stop', [WarehouseOperationsController::class, 'processStop']);
+
+        // Client Endpoint
+        Route::post('/orders/{order_id}/confirm-delivery', [ClientOrderController::class, 'confirmDelivery']);
     });
 
     //Warehouse manager functions:

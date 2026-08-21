@@ -553,7 +553,7 @@ class FacilityController extends Controller
                 'departed_at' => now(),
                 'status' => 'shipping',
             ]);
-            
+
             return response()->json([
                 'message' => 'Shipment departure recorded successfully.',
                 'data' => [
@@ -567,10 +567,10 @@ class FacilityController extends Controller
         else{
            return response()->json([
                 'message' => 'this order is not set to be shipped',
-            ], 422); 
+            ], 422);
         }
 
-        
+
     }
 
     /**
@@ -656,5 +656,4 @@ class FacilityController extends Controller
             ],
         ], 200);
     }
-
 }

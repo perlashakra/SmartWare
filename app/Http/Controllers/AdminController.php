@@ -39,7 +39,7 @@ class AdminController extends Controller
             'email' => $validated['email'],
             'phone_number' => $validated['phone_number'],
             'password' => Hash::make($validated['password']),
-            'role' => 'warehouse_admin', // Mapped to migration enum
+            'role' => 'super_admin',
             'account_status' => 'approved',
             'language_preference' => $validated['language_preference'],
         ]);
