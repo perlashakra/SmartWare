@@ -94,61 +94,7 @@ class InventoryService
         });
     }
 
-    //move stock from section to another
-    public function moveStock(Section $sourceSection, Section $destinationSection, Product $product, int|float $quantity): array {
-        $this->validateProductBelongsToSectionCompany($sourceSection, $product);
-
-        $this->validateProductBelongsToSectionCompany($destinationSection, $product);
-
-        if ($quantity <= 0) {
-            throw new InvalidArgumentException(
-                'The quantity to transfer must be greater than zero.'
-            );
-        }
-
-        return DB::transaction(function () use ($sourceSection, $destinationSection, $product, $quantity) {
-            $sourceInventory = Inventory::where('section_id', $sourceSection->id)
-                ->where('product_id', $product->id)
-                ->lockForUpdate()
-                ->first();
-
-            if (!$sourceInventory) {
-                throw new InvalidArgumentException('The product does not exist in the source section.');
-            }
-
-            if ($sourceInventory->quantity < $quantity) {
-                throw new InvalidArgumentException('Insufficient inventory in the source section.');
-            }
-
-            $destinationInventory = Inventory::firstOrCreate(
-                [
-                    'section_id' => $destinationSection->id,
-                    'product_id' => $product->id,
-                ],
-                [
-                    'quantity' => 0,
-                    'unit_price' => $sourceInventory->unit_price,
-                ]
-            );
-
-            $sourceInventory->quantity -= $quantity;
-            $sourceInventory->save();
-
-            $destinationInventory->quantity += $quantity;
-
-            if ($destinationInventory->unit_price == 0) {
-                $destinationInventory->unit_price = $sourceInventory->unit_price;
-            }
-
-            $destinationInventory->save();
-
-            return [
-                'source' => $sourceInventory->fresh(),
-                'destination' => $destinationInventory->fresh(),
-            ];
-        });
-    }
-
+    
     /**
      * Explicitly correct inventory.
      *
@@ -167,6 +113,28 @@ class InventoryService
             return $inventory->fresh();
         });
     }
+
+    public function updateInventoryDetails(
+    Inventory $inventory,
+    int|float $quantity,
+    int|float $unitPrice
+): Inventory {
+    if ($quantity < 0) {
+        throw new InvalidArgumentException('Inventory quantity cannot be negative.');
+    }
+
+    if ($unitPrice < 0) {
+        throw new InvalidArgumentException('Inventory unit price cannot be negative.');
+    }
+
+    return DB::transaction(function () use ($inventory, $quantity, $unitPrice) {
+        $inventory->quantity = $quantity;
+        $inventory->unit_price = $unitPrice;
+        $inventory->save();
+
+        return $inventory->fresh();
+    });
+}
 
     /**
      * Ensure that a section only contains products belonging
