@@ -7,11 +7,16 @@ use Illuminate\Http\Request;
 class NotificationController extends Controller
 {
     public function index(Request $request){
-        return response()->json(['data' => $request->user()->notifications], 200);
+        $notifications = $request->user()->notifications()->latest()->get();
+        return response()->json(['data' => $notifications], 200);
     }
 
-    public function markAsRead(string $id, /**NotificationService $service**/){
-        //$service->markAsRead(Auth::user(), $id);
+    public function markAsRead(Request $request, string $id){
+        $notification = $request->user()->notifications()->find($id);
+        if(!$notification){
+            return response()->json(['message' => 'Notification not found'], 404);
+        }
+        $notification->markAsRead();
         return response()->json(['message' => 'Notification marked as read'], 200);
     }
 

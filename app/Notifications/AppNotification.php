@@ -3,23 +3,19 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Notification;
 
-class AppNotification extends Notification
+class AppNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
     /**
      * Create a new notification instance.
      */
-    public string $title, $message, $type;
-    public array $data;
-    public function __construct(string $title, string $message, string $type, array $data = [])
+    public function __construct(public string $title, public string $message, public string $type, public array $data = [])
     {
-        $this->title = $title;
-        $this->message = $message;
-        $this->type = $type;
-        $this->data = $data;
     }
 
     /**
@@ -29,10 +25,10 @@ class AppNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['database', 'broadcast'];
     }
 
-    public function toDatabase($notifiable){
+    public function toDatabase($notifiable): array{
         return [
             'title' => $this->title,
             'message' => $this->message,
@@ -42,26 +38,13 @@ class AppNotification extends Notification
         ];
     }
 
-    // /**
-    //  * Get the mail representation of the notification.
-    //  */
-    // public function toMail(object $notifiable): MailMessage
-    // {
-    //     return (new MailMessage)
-    //         ->line('The introduction to the notification.')
-    //         ->action('Notification Action', url('/'))
-    //         ->line('Thank you for using our application!');
-    // }
-
-    // /**
-    //  * Get the array representation of the notification.
-    //  *
-    //  * @return array<string, mixed>
-    //  */
-    // public function toArray(object $notifiable): array
-    // {
-    //     return [
-    //         //
-    //     ];
-    // }
+    public function toBroadcast($notifiable): BroadcastMessage{
+        return new BroadcastMessage([
+            'title' => $this->title,
+            'message' => $this->message,
+            'type' => $this->type,
+            'data' => $this->data,
+            'created_at' => now()->toIso8601String(),
+        ]);
+    }
 }

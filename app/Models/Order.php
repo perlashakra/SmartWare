@@ -37,7 +37,7 @@ class Order extends Model
         return $this->hasMany(Receipt::class);
     }
 
-    public function items(){
+    public function products(){
         return $this->hasMany(OrderItem::class);
     }
 
