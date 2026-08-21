@@ -25,7 +25,6 @@ class InventoryController extends Controller
         $query = Inventory::query()
             ->with([
                 'product',
-                'section.company',
                 'section.warehouse',
             ]);
 
@@ -116,19 +115,8 @@ class InventoryController extends Controller
 
         $inventory = Inventory::with('product')->whereHas('section', function($query) use ($warehouse_id){
             $query->where('warehouse_id', $warehouse_id);
-        })->paginate(20);
-
-        $inventory->
+        })->latest('id')->paginate(20);
 
         return response()->json(['data' => $inventory], 200);
     }
 }
-
-/**
-add product to a section
-update quantity
-update unit price
-remove product from section
-move product between sections
-eventually inventory changes caused by orders/transfers/inbound/outbound transactions
-*/

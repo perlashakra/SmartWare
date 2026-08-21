@@ -12,11 +12,15 @@ use App\Models\Category;
 use App\Models\Inventory;
 use App\Models\Product;
 use App\Models\Section;
+use App\Services\Inventory\InventoryService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 class ProductController extends Controller
 {
+    public function __construct(public InventoryService $inventoryService) {}
+    
     private function uploadProductImage(UploadedFile $image){
         return $image->store('products', 'public');
     }
@@ -78,33 +82,45 @@ class ProductController extends Controller
         $productValidated = $request->validated();
         $productValidated['sku'] = strtoupper($productValidated['sku']);
 
-        $section_id = $productValidated['section_id'];
+        $warehouse_id = $productValidated['warehouse_id'];
+        $quantity = $productValidated['quantity'];
+        $unit_price = $productValidated['unit_price'];
         $categories = $productValidated['categories'];
 
-        unset($productValidated['categories']);
+        unset($productValidated['categories'], $productValidated['warehouse_id'], $productValidated['quantity'], $productValidated['unit_price']);
 
+        
         if($request->hasFile('product_image')){
             $productValidated['product_image'] = $this->uploadProductImage($request->file('product_image'));
         }
-
-        $section = Section::with('warehouse')->findOrFail($section_id);
-        if(Auth::user()->role !== 'warehouse_admin' && !Auth::user()->canManageSection($section)){
-            return response()->json('You are not authorized to add product to inventory.', 403);
+            
+        $section = Section::where('warehouse_id', $warehouse_id)->where('name', 'Main Storage')->first();
+        if(!$section){
+            return response()->json(['message' => 'Main storage does not exist. Please import the inventory Excel file first.'], 404);
         }
 
-        $product = Product::create($productValidated);
-        $product->categories()->sync($categories);
+        if(Auth::user()->role !== 'warehouse_admin' && !Auth::user()->canManageSection($section)){
+            return response()->json(['message' => 'You are not authorized to add products to this warehouse.'], 403);
+        }
 
-        Inventory::create([
-            'product_id' =>$product->id,
-            'section_id' => $productValidated['section_id'],
-            'unit_price' => $productValidated['unit_price'],
-            'quantity' => $productValidated['quantity'],
-        ]);
-
-        TranslateProductJob::dispatch($product->id);
-
-        return response()->json(['message' => __('product.created'), 'data' => new ProductResource($product->load(['categories']))], 201);
+        DB::beginTransaction();
+        
+        try{
+            $product = Product::create($productValidated);
+            
+            $product->categories()->sync($categories);
+            
+            $this->inventoryService->setImportedStock($section, $product, $quantity, $unit_price);
+            
+            TranslateProductJob::dispatch($product->id);
+            
+            DB::commit();
+            
+            return response()->json(['message' => __('product.created'), 'data' => new ProductResource($product->load(['categories']))], 201);
+        } catch(\Throwable $e){
+            DB::rollBack();
+            throw $e;
+        }
     }
 
     //warehouse_admin, super_admin only
