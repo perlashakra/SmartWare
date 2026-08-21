@@ -53,7 +53,7 @@ class FacilityController extends Controller
         return response()->json(['message' => 'Facility Updated Successfully!', 'data' => new FacilityResource($facility)], 2014);
     }
 
-    public function destroy(Facility $facility){
+    public function delete(Facility $facility){
         $this->authorize('delete', $facility);
         $facility->delete();
         return response()->json(['message' => 'Facility Deleted Successfully!'], 200);

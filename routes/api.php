@@ -137,7 +137,7 @@ Route::middleware(['auth:sanctum', 'locale'])->group(function () {
         Route::get('/{facility}', 'show');
         Route::post('', 'store')->middleware(['role:client,warehouse_admin']);
         Route::put('/{facility}', 'update')->middleware(['role:client,warehouse_admin']);
-        Route::delete('/{facility}', 'destroy')->middleware(['role:client,warehouse_admin,super_admin']);
+        Route::delete('/{facility}', 'delete')->middleware(['role:client,warehouse_admin,super_admin']);
 
     });
 
