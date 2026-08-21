@@ -91,7 +91,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return $section->warehouse !== null &&  $section->warehouse->user_id === $this->id;
     }
 
-    public function owns(){
+    public function owner(){
         return $this->hasMany(Facility::class,'user_id');
     }
 

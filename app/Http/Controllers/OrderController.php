@@ -39,7 +39,55 @@ class OrderController extends Controller
                 }
             })
             ->latest()
-            ->get(); // Fetch simple array instead of paginating
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data'    => $orders
+        ]);
+    }
+
+    public function listApprovedOrders(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $ownedFacilityIds = $user->owns()->pluck('id')->toArray();
+
+        $orders = Order::with(['products.product', 'warehouseOfTheOrder'])
+            ->where('status', 'approved')
+            ->where(function ($query) use ($user, $ownedFacilityIds) {
+                $query->where('user_id', $user->id);
+
+                if (!empty($ownedFacilityIds)) {
+                    $query->orWhereIn('src_facility_id', $ownedFacilityIds)
+                        ->orWhereIn('dest_facility_id', $ownedFacilityIds);
+                }
+            })
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data'    => $orders
+        ]);
+    }
+
+    public function listPendingOrders(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $ownedFacilityIds = $user->owns()->pluck('id')->toArray();
+
+        $orders = Order::with(['products.product', 'warehouseOfTheOrder'])
+            ->where('status', 'pending')
+            ->where(function ($query) use ($user, $ownedFacilityIds) {
+                $query->where('user_id', $user->id);
+
+                if (!empty($ownedFacilityIds)) {
+                    $query->orWhereIn('src_facility_id', $ownedFacilityIds)
+                        ->orWhereIn('dest_facility_id', $ownedFacilityIds);
+                }
+            })
+            ->latest()
+            ->get();
 
         return response()->json([
             'success' => true,
@@ -210,7 +258,7 @@ class OrderController extends Controller
      */
     public function processDecision(Request $request, Order $order): JsonResponse
     {
-        $validated = $request->validate([
+            $validated = $request->validate([
             'status' => 'required|in:approved,rejected',
             'reason' => 'nullable|required_if:status,rejected|string|max:255',
         ]);

@@ -50,7 +50,7 @@ class ProductPolicy
      */
     public function delete(User $user, Product $product): bool
     {
-        return $user->role === 'super_admin';
+        return in_array($user->role, ['warehouse_admin', 'super_admin']);
     }
 
     /**
