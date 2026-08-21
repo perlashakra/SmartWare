@@ -2,6 +2,7 @@
 
 namespace App\Services\Inventory;
 
+use App\Models\Facility;
 use App\Models\Inventory;
 use App\Models\Product;
 use App\Models\Section;
@@ -176,5 +177,17 @@ class InventoryService
         if ($section->company_id !== $product->company_id) {
             throw new InvalidArgumentException('You can only store products belonging to the same company as the section.');
         }
+    }
+
+    //when use you must do this : $facility->stock_out_risk_count = $this->stock_out_risk($facility);
+    public function stock_out_risk(Facility $facility)
+    {
+        $products = $facility->sections
+            ->flatMap(fn ($section) => $section->inventories)
+            ->groupBy('product_id');
+
+        return $products
+            ->filter(fn ($inventories) => $inventories->sum('quantity') <= 10)
+            ->count();
     }
 }
