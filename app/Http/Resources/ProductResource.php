@@ -14,11 +14,9 @@ class ProductResource extends JsonResource
             'id' => $this->id,
             'sku' => $this->sku,
             'name' => $request->user()->language_preference === 'ar' ? $this->name_ar : $this->name_en,
-            'price' => $this->price,
-            'unit' => __('unit.'.$this->unit),
+            'unit' => $this->unit,
             'categories' => CategoryResource::collection($this->whenLoaded('categories')),
             'description' => $request->user()->language_preference === 'ar' ? $this->description_ar : $this->description_en,
-            'company_name' => $request->user()->language_preference === 'ar' ? $this->company_name_ar : $this->company_name_en,
             'product_image' => $this->product_image ? Storage::url($this->product_image) : null,
         ];
     }

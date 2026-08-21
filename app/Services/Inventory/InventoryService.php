@@ -37,6 +37,8 @@ class InventoryService
 
     
     public function increaseStock(Section $section, Product $product, int|float $quantity, float|int|null $unitPrice = null): Inventory {
+        $this->validateProductBelongsToSectionCompany($section, $product);
+    
         if ($quantity <= 0) {
             throw new InvalidArgumentException('The quantity to add must be greater than zero.');
         }
