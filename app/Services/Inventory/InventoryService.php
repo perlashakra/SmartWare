@@ -178,14 +178,16 @@ class InventoryService
             throw new InvalidArgumentException('You can only store products belonging to the same company as the section.');
         }
     }
-    public function stock_out_risk(Facility $facility){
+
+    //when use you must do this : $facility->stock_out_risk_count = $this->stock_out_risk($facility);
+    public function stock_out_risk(Facility $facility)
+    {
         $products = $facility->sections
-                ->flatMap(fn ($section) => $section->inventories)
-                ->groupBy('product_id');
-        $facility->stock_out_risk_count = $products
-                ->filter(function ($inventories) {
-                    return $inventories->sum('quantity') <= 10;
-                })
-                ->count();
+            ->flatMap(fn ($section) => $section->inventories)
+            ->groupBy('product_id');
+
+        return $products
+            ->filter(fn ($inventories) => $inventories->sum('quantity') <= 10)
+            ->count();
     }
 }
