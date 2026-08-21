@@ -25,15 +25,35 @@ class ProductController extends Controller
     public function index(ProductFilterRequest $request){
         $query = Product::query()->with(['categories']);
 
-    $filter = $request->validated();
+        $user = Auth::user();
+        if($user->role === 'client'){
+            $preferred_categories =
+            Category::whereHas('facilities', function($query){
+                    $query->where('category_id', );
+                })->whereHas('products', function($query){
+                    $query->where('category_id', );
+                })->get();
+
+            $query->whereIn($query->categories(), $preferred_categories);
+        }
+
+        $filter = $request->validated();
 
     $query->when(!empty($filter['search']), function ($query) use ($filter) {
         $query->where(function ($q) use ($filter) {
             $q->where('name_en', 'like', "%{$filter['search']}%")
                 ->orWhere('name_ar', 'like', "%{$filter['search']}%")
                 ->orWhere('sku', 'like', "%{$filter['search']}%");
+            });
         });
-    });
+
+        $query->when(isset($filter['min_price']), function($query) use ($filter){
+            $query->where('price', '>=', $filter['min_price']);
+        });
+
+        $query->when(isset($filter['max_price']), function($query) use ($filter){
+            $query->where('price', '<=', $filter['max_price']);
+        });
 
     $query->when(!empty($filter['categories']), function ($query) use ($filter) {
         $query->whereHas('categories', function ($q) use ($filter) {
@@ -45,21 +65,22 @@ class ProductController extends Controller
         $query->where('container_type', $filter['container_type']);
     });
 
-    return ProductResource::collection($query->paginate(12));
-}        
+        return ProductResource::collection($query->paginate(12));
+    }
+
     public function show(Product $product){
         return new ProductResource($product->load(['categories']));
     }
 
     public function store(StoreProductRequest $request){
         $this->authorize('create', Product::class);
-        
+
         $productValidated = $request->validated();
         $productValidated['sku'] = strtoupper($productValidated['sku']);
-        
+
         $section_id = $productValidated['section_id'];
         $categories = $productValidated['categories'];
-        
+
         unset($productValidated['categories']);
 
         if($request->hasFile('product_image')){
@@ -70,13 +91,14 @@ class ProductController extends Controller
         if(Auth::user()->role !== 'warehouse_admin' && !Auth::user()->canManageSection($section)){
             return response()->json('You are not authorized to add product to inventory.', 403);
         }
-        
+
         $product = Product::create($productValidated);
         $product->categories()->sync($categories);
 
         Inventory::create([
             'product_id' =>$product->id,
             'section_id' => $productValidated['section_id'],
+            'unit_price' => $productValidated['unit_price'],
             'quantity' => $productValidated['quantity'],
         ]);
 
@@ -84,15 +106,15 @@ class ProductController extends Controller
 
         return response()->json(['message' => __('product.created'), 'data' => new ProductResource($product->load(['categories']))], 201);
     }
-        
+
     //warehouse_admin, super_admin only
     public function update(UpdateProductRequest $request, Product $product){
         $this->authorize('update', $product);
-                
+
         $productValidated = $request->validated();
-        
+
         $productValidated['sku'] = strtoupper($productValidated['sku']);
-        
+
 
         if($request->hasFile('product_image')){
             if($product->product_image){

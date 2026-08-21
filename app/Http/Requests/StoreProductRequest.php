@@ -20,6 +20,7 @@ class StoreProductRequest extends FormRequest
             'name_en' => 'required_without:name_ar|string|max:255',
             'name_ar' => 'required_without:name_en|string|max:255',
             'unit' => ['nullable', Rule::enum(UnitEnum::class)],
+            'unit_price' => 'required|numeric|min:0',
             'categories' => 'required|array',
             'categories.*' => ['required', 'integer', 'exists:categories,id'],
             'description_en' => 'nullable|string',
