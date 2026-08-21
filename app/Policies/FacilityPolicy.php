@@ -31,7 +31,7 @@ class FacilityPolicy
         return $user->is($facility->owner);
     }
 
-    public function destroy(User $user, Facility $facility): bool
+    public function delete(User $user, Facility $facility): bool
     {
         if($user->role === 'super_admin' || $user->is($facility->owner)){
             return true;
