@@ -27,7 +27,6 @@ class AdminController extends Controller
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'email_verified_at'=> $verifiedAt,
             'phone_number' => ['required', 'digits:10', 'unique:users'],
             'password' => ['required', Password::defaults()],
             'language_preference' => ['required', 'string', 'in:ar,en'],
@@ -37,9 +36,10 @@ class AdminController extends Controller
             'first_name' => $validated['first_name'],
             'last_name' => $validated['last_name'],
             'email' => $validated['email'],
+            'email_verified_at'=> $verifiedAt,
             'phone_number' => $validated['phone_number'],
             'password' => Hash::make($validated['password']),
-            'role' => 'warehouse_admin', // Mapped to migration enum
+            'role' => 'super_admin', // Mapped to migration enum
             'account_status' => 'approved',
             'language_preference' => $validated['language_preference'],
         ]);
