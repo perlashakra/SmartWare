@@ -180,6 +180,10 @@ Route::controller(FacilityController::class)->prefix('/home_page')->middleware([
     Route::get('/ownedFacilities', 'getOwnedFacilities');
     Route::get('/FacilityInfo{id}', 'getFacilityInfo');
     Route::get('/showInventoryByCategory{facility_id}', 'showInventoryByCategory');
+    Route::get('/topMovingProduct{facility_id}', 'topMovingProduct');
+    Route::get('/slowMovingProduct{facility_id}', 'slowMovingProduct');
+    Route::get('/stockOutRisk{facility_id}', 'stockOutRisk');
+    Route::get('/stockMovement{facility_id}', 'stockMovement');
     Route::get('/sectionInfo{facility_id}{section_id}', 'getSectionInfo');
 });
 });
