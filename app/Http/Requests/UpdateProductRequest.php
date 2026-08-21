@@ -20,11 +20,12 @@ class UpdateProductRequest extends FormRequest
             'name_en' => 'sometimes|string|max:255',
             'name_ar' => 'sometimes|string|max:255',
             'unit' => ['sometimes', Rule::enum(UnitEnum::class)],
-            'categories' => 'sometimes|array',
-            'categories.*' => ['required', 'string', 'exists:categories,id'],
-            'description_en' => 'nullable|string',
-            'description_ar' => 'nullable|string',
-            'product_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:4096',
+            'unit_price' => 'sometimes|numeric|min:0',
+            'description_en' => 'sometimes|string',
+            'description_ar' => 'sometimes|string',
+            'product_image' => 'sometimes|image|mimes:jpeg,png,jpg,gif,webp|max:4096',
+            //'warehouse_id' => ['required','exists:facilities,id'],
+            'quantity' => 'sometimes|numeric|min:0',
         ];
     }
 }
