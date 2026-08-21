@@ -128,8 +128,8 @@ Route::middleware(['auth:sanctum', 'locale'])->group(function () {
         Route::get('', 'index');
         Route::get('/{product}', 'show');
         Route::post('', 'store')->middleware(['role:super_admin,warehouse_admin']);
-        Route::put('/{product}', 'update')->middleware(['role:super_admin,warehouse_admin']);
-        Route::delete('/{product}', 'destroy')->middleware(['role:super_admin']);
+        Route::post('/{product}', 'update')->middleware(['role:super_admin,warehouse_admin']);
+        Route::delete('/{product}', 'destroy')->middleware(['role:super_admin,warehouse_admin']);
     });
 
 //Product-Category Relation Routes
@@ -190,6 +190,10 @@ Route::controller(FacilityController::class)->prefix('/home_page')->middleware([
     Route::get('/ownedFacilities', 'getOwnedFacilities');
     Route::get('/FacilityInfo{id}', 'getFacilityInfo');
     Route::get('/showInventoryByCategory{facility_id}', 'showInventoryByCategory');
+    Route::get('/topMovingProduct{facility_id}', 'topMovingProduct');
+    Route::get('/slowMovingProduct{facility_id}', 'slowMovingProduct');
+    Route::get('/stockOutRisk{facility_id}', 'stockOutRisk');
+    Route::get('/stockMovement{facility_id}', 'stockMovement');
     Route::get('/sectionInfo{facility_id}{section_id}', 'getSectionInfo');
 });
 });
