@@ -69,12 +69,35 @@ class FacilityController extends Controller
         return FacilityResource::collection(Facility::businesses()->with(['client', 'address'])->paginate(12));
     }
 
-    public function getOwnedFacilities(){
-
+    public function getOwnedFacilities()
+    {
         $user = Auth::user();
-
-        return response()->json($user->owns, 200);
-
+    
+        $facilities = $user->owner()
+            ->with([
+                'address',
+                'sections.inventories'
+            ])
+            ->get();
+    
+        $facilities->each(function ($facility) {
+    
+            $products = $facility->sections
+                ->flatMap(fn ($section) => $section->inventories)
+                ->groupBy('product_id');
+    
+            // Number of distinct products in the warehouse
+            $facility->product_count = $products->count();
+    
+            // Number of products with quantity <= 10
+            $facility->stock_out_risk_count = $products
+                ->filter(function ($inventories) {
+                    return $inventories->sum('quantity') <= 10;
+                })
+                ->count();
+        });
+    
+        return response()->json($facilities, 200);
     }
 
     public function getFacilityInfo($id){
