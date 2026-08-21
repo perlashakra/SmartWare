@@ -76,7 +76,8 @@ class ProductController extends Controller
         return new ProductResource($product->load(['categories']));
     }
 
-    public function store(StoreProductRequest $request){
+    public function store(StoreProductRequest $request)
+    {
         $this->authorize('create', Product::class);
 
         $productValidated = $request->validated();
@@ -89,35 +90,34 @@ class ProductController extends Controller
 
         unset($productValidated['categories'], $productValidated['warehouse_id'], $productValidated['quantity'], $productValidated['unit_price']);
 
-        
-        if($request->hasFile('product_image')){
+        if ($request->hasFile('product_image')) {
             $productValidated['product_image'] = $this->uploadProductImage($request->file('product_image'));
         }
-            
+
         $section = Section::where('warehouse_id', $warehouse_id)->where('name', 'Main Storage')->first();
-        if(!$section){
+        if (!$section) {
             return response()->json(['message' => 'Main storage does not exist. Please import the inventory Excel file first.'], 404);
         }
 
-        if(Auth::user()->role !== 'warehouse_admin' && !Auth::user()->canManageSection($section)){
+        if (Auth::user()->role !== 'warehouse_admin' && !Auth::user()->canManageSection($section)) {
             return response()->json(['message' => 'You are not authorized to add products to this warehouse.'], 403);
         }
 
         DB::beginTransaction();
-        
-        try{
+
+        try {
             $product = Product::create($productValidated);
-            
+
             $product->categories()->sync($categories);
-            
+
             $this->inventoryService->setImportedStock($section, $product, $quantity, $unit_price);
-            
+
             TranslateProductJob::dispatch($product->id);
-            
+
             DB::commit();
-            
+
             return response()->json(['message' => __('product.created'), 'data' => new ProductResource($product->load(['categories']))], 201);
-        } catch(\Throwable $e){
+        } catch (\Throwable $e) {
             DB::rollBack();
             throw $e;
         }
@@ -127,20 +127,60 @@ class ProductController extends Controller
     public function update(UpdateProductRequest $request, Product $product){
         $this->authorize('update', $product);
 
-        $productValidated = $request->validated();
+        $validated = $request->validated();
+\Log::info('UPDATE PRODUCT REQUEST', [
+    'product_id' => $product->id,
+    'request' => $request->all(),
+    'validated' => $validated,
+]);
+        DB::beginTransaction();
 
-        $productValidated['sku'] = strtoupper($productValidated['sku']);
+        try{
+            $inventory = Inventory::with('section')
+            ->where('product_id', $product->id)
+            ->whereHas('section', function($query){
+                $query->where('name', 'Main Storage');
+            })->first();
 
-
-        if($request->hasFile('product_image')){
-            if($product->product_image){
-                Storage::disk('public')->delete($product->product_image);
+            if(!$inventory){
+                DB::rollBack();
+                return response()->json(['message' => 'You are not authorized to update this product.'], 403);
             }
-            $productValidated['product_image'] = $this->uploadProductImage($request->file('product_image'));
-        }
 
-        $product->update($productValidated);
-        return response()->json(['message' => __('product.updated'), 'data' => new ProductResource($product->load(['categories']))], 200);
+            $productData = $validated;
+
+            if(isset($productData['sku'])){
+                $productData['sku'] = strtoupper($productData['sku']);
+            }
+
+            $quantity = $productData['quantity'] ?? null;
+            $unit_price = $productData['unit_price'] ?? null;
+
+            unset($productData['quantity'], $productData['unit_price'], $productData['categories']);
+
+            if ($request->hasFile('product_image')) {
+                if ($product->product_image) {
+                    Storage::disk('public')->delete($product->product_image);
+                }
+                $productData['product_image'] = $this->uploadProductImage($request->file('product_image'));
+            }
+
+            if(!empty($productData)){
+                $product->update($productData);
+            }
+
+            if($quantity !== null || $unit_price !== null){
+                $newQuantity = $quantity ?? $inventory->quantity;
+                $newUnitPrice = $unit_price ?? $inventory->unit_price;
+                $this->inventoryService->updateInventoryDetails($inventory, $newQuantity, $newUnitPrice);
+            }
+
+            DB::commit();
+            return response()->json(['message' => __('product.updated'), 'product' => new ProductResource($product->load(['categories', 'inventories']))], 200);
+        } catch(\Throwable $e){
+            DB::rollBack();
+            throw $e;
+        }
     }
 
     public function destroy(Product $product){

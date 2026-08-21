@@ -6,8 +6,6 @@ use App\Enums\FacilityType;
 use App\Http\Requests\StoreFacilityRequest;
 use App\Http\Requests\UpdateFacilityRequest;
 use App\Http\Resources\FacilityResource;
-use App\Models\Address;
-use App\Models\Document;
 use App\Models\Facility;
 use App\Models\InBook;
 use App\Models\InBookProduct;

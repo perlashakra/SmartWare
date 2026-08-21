@@ -115,7 +115,7 @@ class InventoryController extends Controller
 
         $inventory = Inventory::with('product')->whereHas('section', function($query) use ($warehouse_id){
             $query->where('warehouse_id', $warehouse_id);
-        })->latest('id')->paginate(20);
+        })->latest('id');
 
         return response()->json(['data' => $inventory], 200);
     }
