@@ -89,7 +89,7 @@ class InventoryController extends Controller
         return response()->json([
             'product' => $product,
             'warehouses' => $warehouses,
-            'discounts' => $discounts,
+            'inventories' => $inventories,
         ], 200);
     }
 

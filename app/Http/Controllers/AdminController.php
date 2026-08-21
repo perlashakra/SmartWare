@@ -206,7 +206,7 @@ class AdminController extends Controller
     public function pendingFacilities(){
         $facilities = Facility::where('facility_status', 'pending')
             ->with([
-                'owner:id, first_name, last_name, email, phone_number',
+                'owner:id,first_name,last_name,email,phone_number',
                 'address',
                 'categories',
                 'document',
@@ -233,6 +233,7 @@ class AdminController extends Controller
         }
 
         return response()->json([
+            'facility_id' => $facility->id,
             'facility' => $facility,
         ]);
     }

@@ -10,6 +10,8 @@ use App\Http\Controllers\EmailVerificationController;
 use App\Http\Controllers\FacilityController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\NotificationTokenController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
@@ -159,6 +161,18 @@ Route::controller(InventoryController::class)->middleware(['auth:sanctum', 'loca
     Route::put('/inventories/{inventory}/adjust', 'adjust')->middleware(['role:warehouse_admin']);
     Route::get('/section/{section}/inventory', 'sectionInventory');
     Route::get('/warehouse/{warehouse}/inventory', 'warehouseInventory');
+});
+
+//Notification routes
+Route::controller(NotificationController::class)->prefix('/notifications')->middleware(['auth:sanctum', 'locale'])->group(function(){
+    Route::get('/', [NotificationController::class, 'index']);
+    Route::patch('/{id}/read', [NotificationController::class, 'markAsRead']);
+    Route::delete('/{id}', [NotificationController::class, 'destroy']);
+});
+
+Route::prefix('notification-tokens')->group(function () {
+    Route::post('/', [NotificationTokenController::class, 'store']);
+    Route::delete('/{token}', [NotificationTokenController::class, 'destroy']);
 });
 
 //Home Page

@@ -9,7 +9,9 @@ use App\Http\Requests\VerifyCategoryRequest;
 use App\Http\Resources\ProductResource;
 use App\Jobs\TranslateProductJob;
 use App\Models\Category;
+use App\Models\Inventory;
 use App\Models\Product;
+use App\Models\Section;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -49,14 +51,13 @@ class ProductController extends Controller
         return new ProductResource($product->load(['categories']));
     }
 
-    //warehouse_admin, super_admin only
-    //review creation of a product when a manager does it 
     public function store(StoreProductRequest $request){
         $this->authorize('create', Product::class);
         
         $productValidated = $request->validated();
         $productValidated['sku'] = strtoupper($productValidated['sku']);
         
+        $section_id = $productValidated['section_id'];
         $categories = $productValidated['categories'];
         
         unset($productValidated['categories']);
@@ -64,9 +65,20 @@ class ProductController extends Controller
         if($request->hasFile('product_image')){
             $productValidated['product_image'] = $this->uploadProductImage($request->file('product_image'));
         }
+
+        $section = Section::with('warehouse')->findOrFail($section_id);
+        if(Auth::user()->role !== 'warehouse_admin' && !Auth::user()->canManageSection($section)){
+            return response()->json('You are not authorized to add product to inventory.', 403);
+        }
         
         $product = Product::create($productValidated);
         $product->categories()->sync($categories);
+
+        Inventory::create([
+            'product_id' =>$product->id,
+            'section_id' => $productValidated['section_id'],
+            'quantity' => $productValidated['quantity'],
+        ]);
 
         TranslateProductJob::dispatch($product->id);
 
@@ -78,9 +90,9 @@ class ProductController extends Controller
         $this->authorize('update', $product);
                 
         $productValidated = $request->validated();
-        if (isset($productValidated['sku'])) {
-            $productValidated['sku'] = strtoupper($productValidated['sku']);
-        }
+        
+        $productValidated['sku'] = strtoupper($productValidated['sku']);
+        
 
         if($request->hasFile('product_image')){
             if($product->product_image){
@@ -126,9 +138,4 @@ class ProductController extends Controller
         $product->categories()->detach($request->validated()['categories']);
         return new ProductResource($product->load('categories'));
     }
-
-    // public function importProducts(Request $request, $file){
-    //     $request->file($file)->store();
-    //     Excel::import(new ProductsImport(), $file);
-    // }
 }

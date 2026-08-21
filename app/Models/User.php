@@ -128,4 +128,16 @@ class User extends Authenticatable implements MustVerifyEmail
     public function inBooksHandled(){
         return $this->hasMany(InBook::class);
     }
+
+    public function receivesBroadcastNotificationsOn(){
+        return 'users.'.$this->id;
+    }
+
+    public function notificationTokens(){
+        return $this->hasMany(NotificationToken::class);
+    }
+
+    public function routeNotificationForFcm(){
+        return $this->notificationTokens()->pluck('token')->toArray();
+    }
 }

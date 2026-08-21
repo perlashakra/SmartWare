@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\OrderCreated;
 use App\Models\Order;
 use App\Services\Orders\OrderService;
 use Illuminate\Http\JsonResponse;
@@ -104,6 +105,10 @@ class OrderController extends Controller
                 notes: $validated['notes'] ?? null,
                 cartId: $validated['cart_id'] ?? null
             );
+
+            foreach($orders as $order){
+                OrderCreated::dispatch($order);
+            }
 
             return response()->json([
                 'success' => true,
