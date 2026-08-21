@@ -35,7 +35,7 @@ class InventoryController extends Controller
         }
 
         if ($request->filled('section_id')) {
-            $query->where( 'section_id', $request->section_id);
+            $query->where('section_id', $request->section_id);
         }
 
         if ($request->filled('product_id')) {
@@ -56,7 +56,8 @@ class InventoryController extends Controller
         return response()->json(['data' => $inventory], 200);
     }
 
-    public function adjust(AdjustInventoryRequest $request, Inventory $inventory) {
+    public function adjust(AdjustInventoryRequest $request, Inventory $inventory)
+    {
         $this->authorize('update', $inventory);
 
         try {
@@ -70,7 +71,7 @@ class InventoryController extends Controller
     public function storedProducts()
     {
         $products = Product::query()->whereHas('inventories')->with(['categories', 'inventories', 'inventories.discounts' => function ($query) {
-            $query->where('is_active', true)->where('starts_at', '<=', now())->where('ends_at', '>=', now());            
+            $query->where('is_active', true)->where('starts_at', '<=', now())->where('ends_at', '>=', now());
         }])->get();
 
         return response()->json(['data' => $products], 200);
@@ -83,7 +84,7 @@ class InventoryController extends Controller
             ->pluck('section.warehouse')
             ->unique('id')
             ->values();
-        $discounts = $inventories->pluck('discounts')->flatten()->values(); 
+        $discounts = $inventories->pluck('discounts')->flatten()->values();
 
         return response()->json([
             'product' => $product,
@@ -93,10 +94,11 @@ class InventoryController extends Controller
     }
 
     //view inventory in one section
-    public function sectionInventory(Section $section){
+    public function sectionInventory(Section $section)
+    {
         $user = Auth::user();
 
-        if(!$user->warehouses()->whereKey($section->warehouse_id)->exists()){
+        if (!$user->warehouses()->whereKey($section->warehouse_id)->exists()) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -106,16 +108,17 @@ class InventoryController extends Controller
     }
 
     //view inventory in one warehouse
-    public function warehouseInventory(Request $request, int $warehouse_id){
+    public function warehouseInventory(Request $request, int $warehouse_id)
+    {
         $user = Auth::user();
 
-        if(!$user->warehouses()->whereKey($warehouse_id)->exists()){
+        if (!$user->warehouses()->whereKey($warehouse_id)->exists()) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        $inventory = Inventory::with('product')->whereHas('section', function($query) use ($warehouse_id){
+        $inventory = Inventory::with('product')->whereHas('section', function ($query) use ($warehouse_id) {
             $query->where('warehouse_id', $warehouse_id);
-        })->latest('id');
+        })->latest('id')->paginate(3000);
 
         return response()->json(['data' => $inventory], 200);
     }

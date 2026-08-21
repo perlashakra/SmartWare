@@ -49,8 +49,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(Document::class);
     }
 
-    public function importFiles()
-    {
+    public function importFiles(){
         return $this->hasMany(ImportFile::class);
     }
 
@@ -92,9 +91,8 @@ class User extends Authenticatable implements MustVerifyEmail
         return $section->warehouse !== null &&  $section->warehouse->user_id === $this->id;
     }
 
-    public function owner()
-    {
-        return $this->hasMany(Facility::class, 'user_id');
+    public function owner(){
+        return $this->hasMany(Facility::class,'user_id');
     }
 
     //Client relationship with store
@@ -122,29 +120,24 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     //order_relations
-    public function ordersMade()
-    {
+    public function ordersMade(){
         return $this->hasMany(Order::class);
     }
 
     //in book handle
-    public function inBooksHandled()
-    {
+    public function inBooksHandled(){
         return $this->hasMany(InBook::class);
     }
 
-    public function receivesBroadcastNotificationsOn()
-    {
-        return 'users.' . $this->id;
+    public function receivesBroadcastNotificationsOn(){
+        return 'users.'.$this->id;
     }
 
-    public function notificationTokens()
-    {
+    public function notificationTokens(){
         return $this->hasMany(NotificationToken::class);
     }
 
-    public function routeNotificationForFcm()
-    {
+    public function routeNotificationForFcm(){
         return $this->notificationTokens()->pluck('token')->toArray();
     }
 }

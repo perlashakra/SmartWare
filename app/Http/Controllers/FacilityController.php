@@ -150,7 +150,7 @@ class FacilityController extends Controller
                 }
             ], 'quantity')
             ->orderByDesc('total_sold')
-            ->paginate(12);
+            ->paginate(1000);
 
         return response()->json($products, 200);
     }
@@ -203,7 +203,7 @@ class FacilityController extends Controller
             ], 'quantity')
             ->having('warehouse_quantity', '<=', 10)
             ->orderBy('warehouse_quantity')
-            ->paginate(12);
+            ->paginate(1000);
 
         return response()->json($products, 200);
     }
