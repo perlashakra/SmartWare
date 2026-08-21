@@ -118,6 +118,8 @@ class InventoryController extends Controller
             $query->where('warehouse_id', $warehouse_id);
         })->paginate(20);
 
+        $inventory->
+
         return response()->json(['data' => $inventory], 200);
     }
 }
