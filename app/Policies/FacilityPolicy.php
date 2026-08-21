@@ -33,10 +33,10 @@ class FacilityPolicy
 
     public function destroy(User $user, Facility $facility): bool
     {
-        //if($user->role === 'super_admin'){
-        //     return true;
-        // }
-        return $user->is($facility->owner);
+        if($user->role === 'super_admin' || $user->is($facility->owner)){
+            return true;
+        } else 
+            return false;
     }
 
     public function restore(User $user, Facility $facility): bool
