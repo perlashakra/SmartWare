@@ -53,7 +53,7 @@ class FacilityController extends Controller
         return response()->json(['message' => 'Facility Updated Successfully!', 'data' => new FacilityResource($facility)], 2014);
     }
 
-    public function destroy(Facility $facility){
+    public function delete(Facility $facility){
         $this->authorize('delete', $facility);
         $facility->delete();
         return response()->json(['message' => 'Facility Deleted Successfully!'], 200);
@@ -84,10 +84,8 @@ class FacilityController extends Controller
                 ->flatMap(fn ($section) => $section->inventories)
                 ->groupBy('product_id');
     
-            // Number of distinct products in the warehouse
             $facility->product_count = $products->count();
     
-            // Number of products with quantity <= 10
             $facility->stock_out_risk_count = $products
                 ->filter(function ($inventories) {
                     return $inventories->sum('quantity') <= 10;
@@ -261,7 +259,6 @@ class FacilityController extends Controller
     }
     public function stockMovement($facility_id)
     {
-        // Make sure the authenticated user owns this warehouse
         $facility = Auth::user()
             ->owner()
             ->where('id', $facility_id)
@@ -375,13 +372,6 @@ class FacilityController extends Controller
     {
         $facility = $this->getWorkerFacility($facility_id);
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Current stock
-        |--------------------------------------------------------------------------
-        */
-
         $inventory = Inventory::with('product')
             ->whereHas('section', function ($query) use ($facility) {
                 $query->where('warehouse_id', $facility->id);
@@ -397,16 +387,6 @@ class FacilityController extends Controller
                     'product_image' => $item->product->product_image
                 ];
             });
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Incoming
-        |--------------------------------------------------------------------------
-        |
-        | Orders where this warehouse is the destination.
-        |
-        */
 
         $incoming = Order::with([
                 'products.product',
@@ -442,13 +422,6 @@ class FacilityController extends Controller
                     }),
                 ];
             });
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Outgoing
-        |--------------------------------------------------------------------------
-        */
 
         $outgoing = Order::with([
                 'products.product',
@@ -520,9 +493,6 @@ class FacilityController extends Controller
             ->firstOrFail();
     }
 
-    /**
-     * Record Departure from Origin / Intermediate Warehouse
-     */
     public function recordDeparture(Request $request, $facility_id, $order_id)
     {
         $facility = $this->getWorkerFacility($facility_id);
@@ -574,7 +544,7 @@ class FacilityController extends Controller
                 'departed_at' => now(),
                 'status' => 'shipping',
             ]);
-            
+
             return response()->json([
                 'message' => 'Shipment departure recorded successfully.',
                 'data' => [
@@ -588,15 +558,12 @@ class FacilityController extends Controller
         else{
            return response()->json([
                 'message' => 'this order is not set to be shipped',
-            ], 422); 
+            ], 422);
         }
 
-        
+
     }
 
-    /**
-     * Record Arrival at Destination Warehouse
-     */
     public function recordArrival(Request $request, $facility_id, $order_id)
     {
         $facility = $this->getWorkerFacility($facility_id);
@@ -641,7 +608,6 @@ class FacilityController extends Controller
                     return response()->json('no enough capacity, therefore the arrival of the order can not be recorded');
                 }
 
-                // Record the incoming product
                 InbookProduct::create([
                     'inbook_id' => $inbook->id,
                     'product_id' => $product->id,
@@ -677,5 +643,4 @@ class FacilityController extends Controller
             ],
         ], 200);
     }
-
 }

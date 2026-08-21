@@ -116,6 +116,24 @@ enum BusinessTypeEnum: string {
                 CategoryEnum::PERSONAL_HYGIENE,
                 CategoryEnum::BODY_CARE,
             ],
+            self::CLOTHING_STORE => [
+                // CLOTHING
+                CategoryEnum::MENS_CLOTHING,
+                CategoryEnum::WOMENS_CLOTHING,
+                CategoryEnum::KIDS_CLOTHING,
+                CategoryEnum::SPORTSWEAR,
+                CategoryEnum::UNDERWEAR,
+                CategoryEnum::SEASONAL_FASHION,
+                CategoryEnum::FABRIC_MATERIALS,
+
+                // SHOES
+                CategoryEnum::SHOES,
+
+                // ACCESSORIES
+                CategoryEnum::BAGS,
+                CategoryEnum::ACCESSORIES,
+                CategoryEnum::JEWELRY,
+            ],
 
             self::FURNITURE_STORE => [
                 //FURNITURE

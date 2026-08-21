@@ -43,9 +43,9 @@ class ProductController extends Controller
 
         $filter = $request->validated();
 
-        $query->when(!empty($filter['search']), function($query) use ($filter){
-            $query->where(function($q) use ($filter){
-                $q->where('name_en', 'like', "%{$filter['search']}%")
+    $query->when(!empty($filter['search']), function ($query) use ($filter) {
+        $query->where(function ($q) use ($filter) {
+            $q->where('name_en', 'like', "%{$filter['search']}%")
                 ->orWhere('name_ar', 'like', "%{$filter['search']}%")
                 ->orWhere('sku', 'like', "%{$filter['search']}%");
             });
@@ -59,15 +59,15 @@ class ProductController extends Controller
             $query->where('price', '<=', $filter['max_price']);
         });
 
-        $query->when(!empty($filter['categories']), function ($query) use ($filter) {
-            $query->whereHas('categories', function ($q) use ($filter) {
-                $q->whereIn('categories.id', $filter['categories']);
-            });
+    $query->when(!empty($filter['categories']), function ($query) use ($filter) {
+        $query->whereHas('categories', function ($q) use ($filter) {
+            $q->whereIn('categories.id', $filter['categories']);
         });
+    });
 
-        $query->when(!empty($filter['container_type']), function($query) use ($filter){
-            $query->where('container_type', $filter['container_type']);
-        });
+    $query->when(!empty($filter['container_type']), function ($query) use ($filter) {
+        $query->where('container_type', $filter['container_type']);
+    });
 
         return ProductResource::collection($query->paginate(12));
     }
@@ -122,17 +122,12 @@ class ProductController extends Controller
             throw $e;
         }
     }
-
+    
     //warehouse_admin, super_admin only
     public function update(UpdateProductRequest $request, Product $product){
         $this->authorize('update', $product);
 
         $validated = $request->validated();
-\Log::info('UPDATE PRODUCT REQUEST', [
-    'product_id' => $product->id,
-    'request' => $request->all(),
-    'validated' => $validated,
-]);
         DB::beginTransaction();
 
         try{
@@ -183,16 +178,36 @@ class ProductController extends Controller
         }
     }
 
-    public function destroy(Product $product){
-        $this->authorize('delete', $product);
+    public function destroy(Product $product)
+{
+    $this->authorize('delete', $product);
 
-        if($product->product_image){
+    DB::beginTransaction();
+
+    try {
+        Inventory::where('product_id', $product->id)
+        ->whereHas('section', function ($query) {
+            $query->where('name', 'Main Storage');
+        })->delete();
+
+        if ($product->product_image) {
             Storage::disk('public')->delete($product->product_image);
         }
 
         $product->delete();
-        return response()->json(['message' => __('product.deleted')], 200);
+
+        DB::commit();
+
+        return response()->json([
+            'message' => __('product.deleted')
+        ], 200);
+
+    } catch (\Throwable $e) {
+        DB::rollBack();
+
+        throw $e;
     }
+}
 
     //(product - category) relationship
 

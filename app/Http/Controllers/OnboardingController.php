@@ -98,6 +98,7 @@ class OnboardingController extends Controller
             $proposedBusinessType = $request->validated('business_type');
         }
 
+      
         // 3. GET PROPOSED CATEGORIES
         $proposedCategories = $request->validated('categories', []);
 
@@ -128,7 +129,14 @@ class OnboardingController extends Controller
 
         // B. Client Business Category Rules
         if ($role === 'client') {
-            $businessTypeEnum = BusinessTypeEnum::from($proposedBusinessType);
+            $businessTypeEnum = BusinessTypeEnum::tryFrom($proposedBusinessType);
+
+            if (!$businessTypeEnum) {
+                return response()->json([
+                    'error' => 'Invalid business type.'
+                ], 422);
+            }
+
             $allowedCategories = $this->getAllowedCategoriesByBusiness($businessTypeEnum);
 
             $illegalChoices = array_diff($proposedCategories, $allowedCategories);
