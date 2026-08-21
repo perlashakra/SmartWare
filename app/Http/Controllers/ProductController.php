@@ -122,7 +122,7 @@ class ProductController extends Controller
             throw $e;
         }
     }
-
+    
     //warehouse_admin, super_admin only
     public function update(UpdateProductRequest $request, Product $product){
         $this->authorize('update', $product);

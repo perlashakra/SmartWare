@@ -13,8 +13,8 @@ class FacilityResource extends JsonResource
             'facility_name' =>  $request->user()->language_preference === 'ar' ? $this->facility_name_ar : $this->facility_name_en,
             'facility_type' => __('facility_type.'.$this->facility_type->value),
             'facility_status' => $this->facility_status,
-            'owner_id' => $this->user_id,
-            'address_id' => $this->address_id,
+            'owner' => ['id' => $this->user_id, 'name' => $this->owner?->first_name.' '.$this->owner?->last_name],
+            'address' => ['id' => $this->address_id, 'name' => $this->address?->address],
         ];
     }
 }
