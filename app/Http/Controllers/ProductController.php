@@ -43,9 +43,9 @@ class ProductController extends Controller
 
         $filter = $request->validated();
 
-        $query->when(!empty($filter['search']), function($query) use ($filter){
-            $query->where(function($q) use ($filter){
-                $q->where('name_en', 'like', "%{$filter['search']}%")
+    $query->when(!empty($filter['search']), function ($query) use ($filter) {
+        $query->where(function ($q) use ($filter) {
+            $q->where('name_en', 'like', "%{$filter['search']}%")
                 ->orWhere('name_ar', 'like', "%{$filter['search']}%")
                 ->orWhere('sku', 'like', "%{$filter['search']}%");
             });
@@ -59,15 +59,15 @@ class ProductController extends Controller
             $query->where('price', '<=', $filter['max_price']);
         });
 
-        $query->when(!empty($filter['categories']), function ($query) use ($filter) {
-            $query->whereHas('categories', function ($q) use ($filter) {
-                $q->whereIn('categories.id', $filter['categories']);
-            });
+    $query->when(!empty($filter['categories']), function ($query) use ($filter) {
+        $query->whereHas('categories', function ($q) use ($filter) {
+            $q->whereIn('categories.id', $filter['categories']);
         });
+    });
 
-        $query->when(!empty($filter['container_type']), function($query) use ($filter){
-            $query->where('container_type', $filter['container_type']);
-        });
+    $query->when(!empty($filter['container_type']), function ($query) use ($filter) {
+        $query->where('container_type', $filter['container_type']);
+    });
 
         return ProductResource::collection($query->paginate(12));
     }
