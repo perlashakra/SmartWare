@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\Shipment;
+use App\Models\Inventory;
 use App\Services\Optimization\MultiSkuRouteAggregator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -25,11 +26,10 @@ class ShipmentPlanController extends Controller
      */
     public function generatePlan(Request $request): JsonResponse
     {
+        // 1. Validate inputs (order_ids replacing selected_items)
         $validator = Validator::make($request->all(), [
-            'selected_items' => 'required|array|min:1',
-            'selected_items.*.sku_id' => 'required|string',
-            'selected_items.*.inventory' => 'required|array',
-            'selected_items.*.demands' => 'required|array',
+            'order_ids' => 'required|array|min:1',
+            'order_ids.*' => 'integer|exists:orders,id',
             'distance_matrix' => 'required|array',
         ]);
 
@@ -40,10 +40,58 @@ class ShipmentPlanController extends Controller
             ], 422);
         }
 
-        $selectedItems = $request->input('selected_items');
+        $orderIds = $request->input('order_ids');
         $distanceMatrix = $request->input('distance_matrix');
 
-        // Execute optimization engine
+        // 2. Load orders with their item relationships
+        $orders = Order::with('products')->whereIn('id', $orderIds)->get();
+
+        // 3. Transform database entities into the structure MultiSkuRouteAggregator expects
+        $skuMap = [];
+
+        foreach ($orders as $order) {
+            // Map target destination based on order type
+            $destinationId = ($order->order_type === 'warehouse_restock')
+                ? "WH-{$order->dest_facility_id}"
+                : "CLIENT-{$order->user_id}";
+
+            foreach ($order->products as $item) {
+                $skuId = (string) $item->product_id;
+
+                if (!isset($skuMap[$skuId])) {
+                    $skuMap[$skuId] = [
+                        'sku_id' => $skuId,
+                        'demands' => [],
+                        'inventory' => []
+                    ];
+                }
+
+                // Aggregate demand per destination
+                $skuMap[$skuId]['demands'][] = [
+                    'facility_id' => $destinationId,
+                    'required_qty' => (int) $item->quantity
+                ];
+            }
+        }
+
+        // 4. Retrieve stock across all relevant warehouses for the requested SKUs
+        $skuIds = array_keys($skuMap);
+
+        // Adjust this query based on your actual Inventory table schema
+        $inventoryRecords = Inventory::whereIn('product_id', $skuIds)->get();
+
+        foreach ($inventoryRecords as $record) {
+            $skuId = (string) $record->product_id;
+            $whId = "WH-{$record->warehouse_id}";
+
+            if (isset($skuMap[$skuId])) {
+                $skuMap[$skuId]['inventory'][$whId] = (int) $record->quantity;
+            }
+        }
+
+        $selectedItems = array_values($skuMap);
+
+        // 5. Execute optimization engine
         $plan = $this->aggregator->aggregate($selectedItems, $distanceMatrix);
 
         return response()->json($plan, 200);

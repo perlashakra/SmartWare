@@ -53,7 +53,7 @@ class OrderService
                     'user_id'          => $userId,
                     'dest_facility_id' => $destFacilityId,
                     'src_facility_id'  => $warehouseId,
-                    'order_type'       => $destFacilityId ? 'warehouse_restock' : 'business_purchase',
+                    'order_type'       => 'business_purchase',
                     'expected_price'   => $totalPrice,
                     'status'           => 'pending',
                     'has_shipment'     => false,
@@ -84,7 +84,6 @@ class OrderService
                     $cart->delete();
                 }
             }
-
             return $createdOrders;
         });
     }

@@ -41,10 +41,10 @@ class Order extends Model
         return $this->hasMany(OrderItem::class);
     }
 
-    public function sourceFacility() {
+    public function warehouseOfTheOrder() {
         return $this->belongsTo(Facility::class, 'src_facility_id');
     }
-    
+
     public function destinationFacility()
     {
         return $this->belongsTo(Facility::class,'dest_facility_id');
