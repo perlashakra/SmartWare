@@ -1,0 +1,125 @@
+/* 1. الحاوية الرئيسية للفورم */
+.login-form {
+    background-image: linear-gradient(110deg, white 0%, white 50%, transparent 50%), url("../../form.svg");
+    background-position: center, 90% 50%; 
+    background-size: cover, contain; 
+    background-repeat: no-repeat;
+    width: 100%;
+    height: 30rem;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+}
+
+/* 2. الحاوية الداخلية للمدخلات */
+.custom-form {
+    width: 45%; 
+    margin-left: 10%; 
+}
+
+/* 3. حاوية حقل الإدخال */
+.form-custom {
+    position: relative;
+    margin-top: 25px;
+    margin-bottom: 25px;
+}
+
+.form-custom label,
+.form-custom input {
+    display: block;
+}
+
+/* 4. تصميم حقول الإدخال */
+.form-custom input {
+    padding: 20px;
+    outline: none;
+    border-radius: 8px;
+    border: 0;
+    background-color: white;
+    width: 80%;
+    border-bottom: 3px solid transparent;
+    font-family: "Lato", sans-serif;
+    box-shadow: 0 0 10px rgb(220, 220, 220) inset;
+}
+
+.form-custom input:focus {
+    box-shadow: 0 0 10px rgb(153, 152, 152) inset;
+}
+
+.form-custom input:focus:valid {
+    border-bottom: 3px solid green;
+}
+
+.form-custom input:focus:not(:valid) {
+    border-bottom: 3px solid red;
+}
+
+/* 5. انيميشن الـ Label */
+.form-custom label {
+    position: absolute;
+    top: -20px;
+    left: 20px;
+    font-size: 15px;
+    color: #64748B;
+    font-weight: bold;
+    transition: all 0.25s ease-in-out;
+    pointer-events: none;
+    opacity: 1;
+    visibility: visible;
+}
+
+.form-custom input:placeholder-shown + label {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+}
+
+/* 6. زر التسجيل */
+.login-btn {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    color: white;
+    border: none;
+    padding: 14px 0;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 8px;
+    width: 80%;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.25);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 15px;
+    font-family: "Lato", sans-serif;
+}
+
+.login-btn:hover {
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+}
+
+.login-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
+}
+
+/* 7. التجاوب مع الشاشات الصغيرة */
+@media (max-width: 992px) {
+    .login-form {
+        background-image: linear-gradient(
+            rgba(255, 255, 255, 0.8) 0%,
+            rgba(255, 255, 255, 0.8) 100%
+        ), url("../../form.svg");
+    }
+
+    .custom-form {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .form-custom input,
+    .login-btn {
+        width: 100%;
+    }
+}

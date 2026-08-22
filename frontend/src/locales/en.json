@@ -1,0 +1,72 @@
+{
+  "dir": "ltr",
+  "nav": {
+    "features": "Features",
+    "articles": "Articles",
+    "team": "Team",
+    "testimonials": "Testimonials",
+    "faq": "FAQ",
+    "contact": "Contact Us",
+    "dashboard": "Dashboard"
+  },
+  "features": {
+    "item1": { "title": "Quality", "desc": "Accurate monitoring of item movements and maintaining inventory balance." },
+    "item2": { "title": "Time", "desc": "To ensure fast shipment dispatch and avoid any logistical delays." },
+    "item3": { "title": "Anywhere", "desc": "Complete direct warehouse management anytime, anywhere across multiple devices." }
+  },
+  "articles": {
+    "readMore": "Read More",
+    "item1": { "title": "Real-time Inventory Management", "desc": "Strategies to reduce waste and accelerate order processing within the warehouse." },
+    "item2": { "title": "Role & Permissions Guide", "desc": "Understanding permissions between admins and workers in receiving/dispatched items." },
+    "item3": { "title": "REST API Integration", "desc": "How React connects with Laravel backend for real-time secure data sync." },
+    "item4": { "title": "Shipment & Order Reports", "desc": "Generating shipping labels and statistical warehouse reporting." },
+    "item5": { "title": "Sales Analytics Reports", "desc": "Tracking fast-moving products through precise visual dashboards." },
+    "item6": { "title": "Automated Stock Audit", "desc": "Reducing human errors and matching physical stock with recorded data." }
+  },
+
+  "testimonials": {
+    "item1": { "title": "Warehouse Operations Lead", "text": "Excellent system that helped us track inventory movements accurately." },
+    "item2": { "title": "Logistics Manager", "text": "Real-time sync between React & Laravel made shipment processing much faster." },
+    "item3": { "title": "Supply Chain Specialist", "text": "Smooth UI for warehouse workers and functions great on mobile." },
+    "item4": { "title": "Super Admin", "text": "Easy role assignment and authorization between admins and workers." },
+    "item5": { "title": "Inventory Supervisor", "text": "Integrated system allowing us to print shipping bills and track statuses." },
+    "item6": { "title": "Technical Consultant", "text": "Accurate statistical reports helping in decision making." }
+  },
+  "faq": {
+    "item1": { "q": "Does the system support mobile devices and tablets?", "a": "Yes, SmartWare interface is fully responsive using Bootstrap and React." },
+    "item2": { "q": "How is warehouse and shipment data secured?", "a": "Connected to Laravel backend via REST APIs secured with JWT/Sanctum authentication." },
+    "item3": { "q": "Can multiple warehouses be added under one account?", "a": "Yes, Super Admin can create multiple warehouses and assign a Warehouse Admin for each." }
+  },
+  "contact": {
+    "formTitle": "Request Consultation or Support",
+    "namePlaceholder": "Full Name",
+    "emailPlaceholder": "Email Address",
+    "phonePlaceholder": "Phone Number",
+    "messagePlaceholder": "Details of request or inquiry",
+    "submitBtn": "Send Request",
+    "sending": "Sending request...",
+    "successMessage": "Request sent successfully! We will get back to you soon.",
+    "errorMessage": "An error occurred while sending. Please try again later.",
+    "infoTitle": "Get in touch with SmartWare team",
+    "infoDesc": "Have questions about connecting the system with your warehouses or setting up user roles? Contact us and we will reply promptly."
+  },
+  "footer": {
+    "desc": "Providing the best software solutions and smart systems to meet all your business requirements efficiently.",
+    "address": "Address: Syria, Damascus",
+    "workingHours": "Business Hours: From 9:00 AM to 6:00 PM",
+    "copyright": "Made With ❤️ By SmartWare"
+  },
+  "landing": {
+    "welcome": "Welcome to",
+    "brandName": "SmartWare",
+    "description": "An integrated warehouse and shipment management system that ensures real-time inventory tracking and simplifies task and role organization efficiently."
+  },
+  "team": {
+    "item1": { "name": "Shahed Ashour", "role": "Frontend Developer" },
+    "item2": { "name": "Nicole Ekke", "role": "UI/UX Designer" },
+    "item3": { "name": "Yousef kolijan", "role": "Full Stack Developer" },
+    "item4": { "name": "Joelle Benyamin", "role": "Laravel Backend Developer" },
+    "item5": { "name": "Perla Shakra", "role": "Database Engineer" },
+    "item6": { "name": "Antoan Torbey", "role": "QA Engineer" }
+  }
+}

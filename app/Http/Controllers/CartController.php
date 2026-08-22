@@ -45,14 +45,14 @@ class CartController extends Controller
 
         if (!$inventory) {
             return response()->json([
-                'message' => 'Product is not available in this warehouse.'
+                'message' => __('cart.product_not_available')
             ], 422);
         }
 
 
         if ($inventory->quantity < $validated['quantity']) {
             return response()->json([
-                'message' => 'Not enough stock available.',
+                'message' =>  __('cart.not_enough_stock'),
                 'available_quantity' => $inventory->quantity,
             ], 422);
         }
@@ -68,7 +68,7 @@ class CartController extends Controller
 
             if ($newQuantity > $inventory->quantity) {
                 return response()->json([
-                    'message' => 'Requested quantity exceeds available stock.',
+                    'message' =>  __('cart.requested_quantity_exceeds_stock'),
                     'available_quantity' => $inventory->quantity,
                 ], 422);
             }
@@ -89,7 +89,7 @@ class CartController extends Controller
 
 
         return response()->json([
-            'message' => 'Product added to cart.',
+            'message' => __('cart.product_added'),
             'data' => $cartItem->load([
                 'product',
                 'warehouse',
@@ -110,7 +110,7 @@ class CartController extends Controller
 
         if (!$cart) {
             return response()->json([
-                'message' => 'Cart is empty.',
+                'message' => __('cart.cart_empty'),
                 'data' => [],
             ], 200);
         }
@@ -143,13 +143,13 @@ class CartController extends Controller
 
         if (!$inventory) {
             return response()->json([
-                'message' => 'Product is no longer available in this warehouse.'
+                'message' => __('cart.product_no_longer_available')
             ], 422);
         }
 
         if ($validated['quantity'] > $inventory->quantity) {
             return response()->json([
-                'message' => 'Requested quantity exceeds available stock.',
+                'message' => __('cart.not_enough_stock'),
                 'available_quantity' => $inventory->quantity,
             ], 422);
         }
@@ -159,7 +159,7 @@ class CartController extends Controller
         ]);
 
         return response()->json([
-            'message' => 'Cart updated successfully.',
+            'message' => __('cart.cart_updated'),
             'data' => $cartItem->load('product', 'warehouse'),
         ]);
     }
@@ -173,7 +173,7 @@ class CartController extends Controller
         $cartItem->delete();
 
         return response()->json([
-            'message' => 'Item removed from cart.',
+            'message' => __('cart.item_removed'),
         ]);
     }
     
@@ -190,7 +190,7 @@ class CartController extends Controller
 
             if (!$cart || $cart->items->isEmpty()) {
                 return response()->json([
-                    'message' => 'Your cart is empty.'
+                    'message' => __('cart.your_cart_empty')
                 ], 422);
             }
 
@@ -230,16 +230,14 @@ class CartController extends Controller
                         ->first();
 
                     if (!$inventory) {
-                        throw new \Exception(
-                            "Product {$cartItem->product_id} is no longer available in warehouse {$warehouseId}."
-                        );
+                        return response()->json(__('cart.product_no_longer_available_in_warehouse',
+                        [$cartItem->product_id]),404);
                     }
 
 
                     if ($inventory->quantity < $cartItem->quantity) {
-                        throw new \Exception(
-                            "Not enough stock for product {$cartItem->product_id}."
-                        );
+                        return response()->json(__('cart.not_enough_stock_for_product',
+                        [$cartItem->product_id]),404);
                     }
 
 
@@ -261,7 +259,7 @@ class CartController extends Controller
 
                     'order_date' => now()->toDateString(),
 
-                    'notes' => 'Order created from cart.',
+                    'notes' => __('cart.order_created_from_cart'),
                 ]);
 
                 foreach ($items as $cartItem) {
@@ -283,7 +281,7 @@ class CartController extends Controller
             ]);
 
             return response()->json([
-                'message' => 'Order submitted successfully.',
+                'message' => __('cart.order_submitted'),
                 'orders' => collect($orders)->map(function ($order) {
                     return [
                         'order_id' => $order->id,

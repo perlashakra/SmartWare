@@ -98,7 +98,7 @@ class OnboardingController extends Controller
             $proposedBusinessType = $request->validated('business_type');
         }
 
-      
+
         // 3. GET PROPOSED CATEGORIES
         $proposedCategories = $request->validated('categories', []);
 
@@ -169,17 +169,20 @@ class OnboardingController extends Controller
         // --- 6. SAVE OR UPDATE DATABASE RECORD ---
         $facility = DB::transaction(function () use ($user, $role, $existingFacility, $facilityName, $targetBusinessType, $targetCategories) {
 
-            // Target either existing facility ID or create a new row
-            $facility = Facility::updateOrCreate(
-                ['id' => $existingFacility?->id],
-                [
-                    'user_id' => $user->id,
-                    'facility_type' => in_array($role, ['warehouse_manager', 'warehouse_admin']) ? 'warehouse' : 'business',
-                    'facility_name_en' => $facilityName,
-                    'business_type' => $targetBusinessType,
-                    'facility_status' => 'pending',
-                ]
-            );
+            $attributes = [
+                'user_id' => $user->id,
+                'facility_type' => in_array($role, ['warehouse_manager', 'warehouse_admin']) ? 'warehouse' : 'business',
+                'facility_name_en' => $facilityName,
+                'business_type' => $targetBusinessType,
+                'facility_status' => 'pending',
+            ];
+
+            if ($existingFacility) {
+                $existingFacility->update($attributes);
+                $facility = $existingFacility;
+            } else {
+                $facility = Facility::create($attributes);
+            }
 
             $categoryIds = Category::whereIn('name', $targetCategories)->pluck('id');
             $facility->categories()->sync($categoryIds);

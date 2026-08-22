@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class InBookProduct extends Model
+class InbookProduct extends Model
 {
     protected $table = 'inbook_products';
     protected $fillable = [
@@ -16,7 +16,7 @@ class InBookProduct extends Model
 
     public function inbook()
     {
-        return $this->belongsTo(InBook::class, 'inbook_id');
+        return $this->belongsTo(Inbook::class, 'inbook_id');
     }
 
     public function product()

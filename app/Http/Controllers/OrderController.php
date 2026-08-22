@@ -27,7 +27,7 @@ class OrderController extends Controller
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
-        $ownedFacilityIds = $user->warehouses()->pluck('id')->toArray();
+        $ownedFacilityIds = $user->facilities()->pluck('id')->toArray();
 
         $orders = Order::with(['products.product', 'warehouseOfTheOrder'])
             ->where(function ($query) use ($user, $ownedFacilityIds) {
@@ -50,7 +50,7 @@ class OrderController extends Controller
     public function listApprovedOrders(Request $request): JsonResponse
     {
         $user = $request->user();
-        $ownedFacilityIds = $user->warehouses()->pluck('id')->toArray();
+        $ownedFacilityIds = $user->facilities()->pluck('id')->toArray();
 
         $orders = Order::with(['products.product', 'warehouseOfTheOrder'])
             ->where('status', 'approved')
@@ -74,7 +74,7 @@ class OrderController extends Controller
     public function listPendingOrders(Request $request): JsonResponse
     {
         $user = $request->user();
-        $ownedFacilityIds = $user->warehouses()->pluck('id')->toArray();
+        $ownedFacilityIds = $user->facilities()->pluck('id')->toArray();
 
         $orders = Order::with(['products.product', 'warehouseOfTheOrder'])
             ->where('status', 'pending')
@@ -98,7 +98,7 @@ class OrderController extends Controller
     public function listCancelledOrders(Request $request): JsonResponse
     {
         $user = $request->user();
-        $ownedFacilityIds = $user->warehouses()->pluck('id')->toArray();
+        $ownedFacilityIds = $user->facilities()->pluck('id')->toArray();
 
         $orders = Order::with(['products.product', 'warehouseOfTheOrder'])
             ->where('status', 'cancelled')
@@ -122,7 +122,7 @@ class OrderController extends Controller
     public function listRejectedOrders(Request $request): JsonResponse
     {
         $user = $request->user();
-        $ownedFacilityIds = $user->warehouses()->pluck('id')->toArray();
+        $ownedFacilityIds = $user->facilities()->pluck('id')->toArray();
 
         $orders = Order::with(['products.product', 'warehouseOfTheOrder'])
             ->where('status', 'rejected')
@@ -146,7 +146,7 @@ class OrderController extends Controller
     public function listDeliveredOrders(Request $request): JsonResponse
     {
         $user = $request->user();
-        $ownedFacilityIds = $user->warehouses()->pluck('id')->toArray();
+        $ownedFacilityIds = $user->facilities()->pluck('id')->toArray();
 
         $orders = Order::with(['products.product', 'warehouseOfTheOrder'])
             ->where('status', 'delivered')
@@ -207,7 +207,7 @@ class OrderController extends Controller
 
         // Ensure user owns the destination facility if provided
         if (!empty($validated['dest_facility_id'])) {
-            $ownedFacilityIds = $user->owns()->pluck('id')->toArray();
+            $ownedFacilityIds = $user->facilities()->pluck('id')->toArray();
 
             if (!in_array($validated['dest_facility_id'], $ownedFacilityIds)) {
                 return response()->json([
@@ -260,7 +260,7 @@ class OrderController extends Controller
         ]);
 
         $user = $request->user();
-        $ownedFacilityIds = $user->owns()->pluck('id')->toArray();
+        $ownedFacilityIds = $user->warehouses()->pluck('id')->toArray();
 
         // Ensure the manager owns both the source and destination facilities
         if (!in_array($validated['src_facility_id'], $ownedFacilityIds)) {
@@ -336,7 +336,7 @@ class OrderController extends Controller
         ]);
 
         $user = $request->user();
-        $ownedFacilityIds = $user->owns()->pluck('id')->toArray();
+        $ownedFacilityIds = $user->facilities()->pluck('id')->toArray();
 
         if (!in_array($order->src_facility_id, $ownedFacilityIds)) {
             return response()->json([

@@ -126,7 +126,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     //in book handle
     public function inBooksHandled(){
-        return $this->hasMany(InBook::class);
+        return $this->hasMany(Inbook::class);
     }
 
     //notification relationships

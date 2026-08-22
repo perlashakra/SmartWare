@@ -7,8 +7,8 @@ use App\Http\Requests\StoreFacilityRequest;
 use App\Http\Requests\UpdateFacilityRequest;
 use App\Http\Resources\FacilityResource;
 use App\Models\Facility;
-use App\Models\InBook;
-use App\Models\InBookProduct;
+use App\Models\Inbook;
+use App\Models\InbookProduct;
 use App\Models\Inventory;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -70,29 +70,29 @@ class FacilityController extends Controller
     public function getOwnedFacilities()
     {
         $user = Auth::user();
-    
+
         $facilities = $user->owner()
             ->with([
                 'address',
                 'sections.inventories'
             ])
             ->get();
-    
+
         $facilities->each(function ($facility) {
-    
+
             $products = $facility->sections
                 ->flatMap(fn ($section) => $section->inventories)
                 ->groupBy('product_id');
-    
+
             $facility->product_count = $products->count();
-    
+
             $facility->stock_out_risk_count = $products
                 ->filter(function ($inventories) {
                     return $inventories->sum('quantity') <= 10;
                 })
                 ->count();
         });
-    
+
         return response()->json($facilities, 200);
     }
 

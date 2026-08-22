@@ -4,8 +4,8 @@ namespace Database\Seeders;
 
 use App\Models\Category;
 use App\Models\Facility;
-use App\Models\InBook;
-use App\Models\InBookProduct;
+use App\Models\Inbook;
+use App\Models\InbookProduct;
 use App\Models\Inventory;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -93,24 +93,24 @@ class WarehouseAnalyticsSeeder extends Seeder
             $address1 = \App\Models\Address::create([
                 'address'          =>'first_address',
                 'latitude'      =>'first_address',
-                'longitude'     =>'first_address', 
+                'longitude'     =>'first_address',
             ]);
             $address2 = \App\Models\Address::create([
                 'address'          =>'second_address',
                 'latitude'      =>'second_address',
-                'longitude'     =>'second_address', 
+                'longitude'     =>'second_address',
             ]);
 
             $address3 = \App\Models\Address::create([
                 'address'          =>'address_3',
                 'latitude'      =>'address_3',
-                'longitude'     =>'address_3', 
+                'longitude'     =>'address_3',
             ]);
 
             $address4 = \App\Models\Address::create([
                 'address'          =>'address_4',
                 'latitude'      =>'address_4',
-                'longitude'     =>'address_4', 
+                'longitude'     =>'address_4',
             ]);
 
             /*
@@ -376,19 +376,19 @@ class WarehouseAnalyticsSeeder extends Seeder
             |--------------------------------------------------------------------------
             */
 
-            $inbook1 = InBook::create([
+            $inbook1 = Inbook::create([
                 'user_id' => $worker->id,
                 'storage_date' => '2026-08-01',
             ]);
 
-            InBookProduct::create([
+            InbookProduct::create([
                 'inbook_id' => $inbook1->id,
                 'product_id' => $water->id,
                 'quantity' => 100,
                 'section_id' => $warehouse1SectionA->id,
             ]);
 
-            InBookProduct::create([
+            InbookProduct::create([
                 'inbook_id' => $inbook1->id,
                 'product_id' => $cola->id,
                 'quantity' => 50,
@@ -396,19 +396,19 @@ class WarehouseAnalyticsSeeder extends Seeder
             ]);
 
 
-            $inbook2 = InBook::create([
+            $inbook2 = Inbook::create([
                 'user_id' => $worker->id,
                 'storage_date' => '2026-08-05',
             ]);
 
-            InBookProduct::create([
+            InbookProduct::create([
                 'inbook_id' => $inbook2->id,
                 'product_id' => $juice->id,
                 'quantity' => 150,
                 'section_id' => $warehouse1SectionB->id,
             ]);
 
-            InBookProduct::create([
+            InbookProduct::create([
                 'inbook_id' => $inbook2->id,
                 'product_id' => $soap->id,
                 'quantity' => 20,
@@ -416,12 +416,12 @@ class WarehouseAnalyticsSeeder extends Seeder
             ]);
 
 
-            $inbook3 = InBook::create([
+            $inbook3 = Inbook::create([
                 'user_id' => $worker->id,
                 'storage_date' => '2026-08-10',
             ]);
 
-            InBookProduct::create([
+            InbookProduct::create([
                 'inbook_id' => $inbook3->id,
                 'product_id' => $water->id,
                 'quantity' => 200,
@@ -435,12 +435,12 @@ class WarehouseAnalyticsSeeder extends Seeder
             |--------------------------------------------------------------------------
             */
 
-            $inbook4 = InBook::create([
+            $inbook4 = Inbook::create([
                 'user_id' => $warehouseAdmin2->id,
                 'storage_date' => '2026-08-05',
             ]);
 
-            InBookProduct::create([
+            InbookProduct::create([
                 'inbook_id' => $inbook4->id,
                 'product_id' => $water->id,
                 'quantity' => 1000,

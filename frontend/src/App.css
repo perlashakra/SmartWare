@@ -1,0 +1,1189 @@
+
+/* Start Global Rules */
+* {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+:root {
+   --main-color: #2563eb ; /*  #2196f3 */
+  --main-color-alt: #1787e0;
+  --main-transition: 0.3s;
+  --main-padding-top: 100px;
+  --main-padding-bottom: 100px;
+  --section-background: #ececec;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "Cairo", sans-serif;
+}
+
+a {
+  text-decoration: none;
+}
+
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+
+/* Container Base Styles */
+.container {
+  width: 100%;                    
+  padding-left: 15px;
+  padding-right: 15px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Responsive Breakpoints */
+@media (min-width: 576px) {
+  .container {
+    max-width: 540px;
+  }
+}
+@media (min-width: 768px) {
+  .container {
+    max-width: 720px;
+  }
+}
+@media (min-width: 992px) {
+  .container {
+    max-width: 960px;
+  }
+}
+@media (min-width: 1200px) {
+  .container {
+    max-width: 1140px;
+  }
+}
+
+/* Main Title Styling */
+.main-title {
+  text-transform: uppercase;
+  margin: 0 auto 80px;
+  border: 2px solid black;
+  padding: 10px 20px;
+  font-size: 30px;
+  width: fit-content;
+  position: relative;
+  z-index: 1;
+  transition: var(--main-transition);
+}
+
+.main-title::before,
+.main-title::after {
+  content: "";
+  width: 12px;
+  height: 12px;
+  background-color: var(--main-color, #2563eb );
+  position: absolute;
+  border-radius: 50%;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.main-title::before {
+  left: -30px;
+}
+
+.main-title::after {
+  right: -30px;
+}
+
+.main-title:hover::before {
+  z-index: -1;
+  animation: left-move 0.5s linear forwards;
+}
+
+.main-title:hover::after {
+  z-index: -1;
+  animation: right-move 0.5s linear forwards;
+}
+
+/* التعديل الجوهري لضبط الإطار والـ Hover */
+.main-title:hover {
+  color: white;
+  border: 2px solid var(--main-color, #2563eb ); 
+  /* توحيد لون الإطار مع لون الخلفية المتحركة */
+  transition-delay: 0.5s;
+}
+
+/* Animations */
+@keyframes left-move {
+  50% {
+    left: 0;
+    width: 12px;
+    height: 12px;
+  }
+  100% {
+    left: 0;
+    border-radius: 0;
+    width: 51%; /* تغطية الفجوة المنتصفة */
+    height: 100%;
+  }
+}
+
+@keyframes right-move {
+  50% {
+    right: 0;
+    width: 12px;
+    height: 12px;
+  }
+  100% {
+    right: 0;
+    border-radius: 0;
+    width: 51%;
+    height: 100%;
+  }
+}
+
+/* Spikes & Dots */
+.spikes {
+  position: relative;
+}
+
+.spikes::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  width: 100%;
+  height: 30px;
+  z-index: 1;
+  background-image: linear-gradient(135deg, white 25%, transparent 25%),
+    linear-gradient(225deg, white 25%, transparent 25%);
+  background-size: 30px 30px;
+}
+
+.dots {
+  height: 186px;
+  width: 204px;
+  background-repeat: no-repeat;
+  position: absolute;
+}
+
+.dots-up {
+  top: 200px;
+  right: 0;
+}
+
+.dots-down {
+  bottom: 200px;
+  left: 0;
+}
+/* End Global Rules */
+
+.header {
+  position: relative;
+  background-color: white;
+  z-index: 1000;
+}
+
+/* ضبط ارتفاع الشعار */
+.header .logo {
+  height: 72px;
+  display: flex;
+  align-items: center;
+}
+
+/* تكييف الـ nav ليشغل الارتفاع الكامل */
+.header .navbar-nav {
+  height: 72px;
+}
+
+/* ضبط كلاس الرابط وتفعيل تأثير الانزلاق */
+.header a.nav-link-custom {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  color: #333;
+  font-size: 18px;
+  font-weight: 500;
+  overflow: hidden;
+  transition: var(--main-transition, 0.3s);
+}
+
+/* الشريط الأزرق العلوي */
+.header a.nav-link-custom::before {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 4px;
+  background-color: var(--main-color, #2196f3);
+  top: 0;
+  left: -100%;
+  transition: var(--main-transition, 0.3s);
+}
+
+/* حركة الشريط ولون الخلفية عند التمرير */
+.header a.nav-link-custom:hover {
+  color: var(--main-color, #2196f3) !important;
+  background-color: #fafafa;
+}
+
+.header a.nav-link-custom:hover::before {
+  left: 0;
+}
+
+/* التجاوب مع الموبايل */
+@media (max-width: 991px) {
+  .header .navbar-nav {
+    height: auto;
+  }
+  .header a.nav-link-custom {
+    height: 45px;
+    font-size: 15px;
+  }
+}
+@keyframes left-move {
+  50% {
+    left: 0;
+    width: 12px;
+    height: 12px;
+  }
+  100% {
+    left: 0;
+    border-radius: 0;
+    width: 50%;
+    height: 100%;
+  }
+}
+
+@keyframes right-move {
+  50% {
+    right: 0;
+    width: 12px;
+    height: 12px;
+  }
+  100% {
+    right: 0;
+    border-radius: 0;
+    width: 51%; /* زيادة 1% لتغطية الفجوة في المنتصف تماماً */
+    height: 100%;
+  }
+}
+
+/* ضبط مكان الحاوية الرئيسية للتأكد من قيّم z-index */
+.landing {
+  position: relative;
+  background-color: transparent;
+}
+
+.landing::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -40px;
+  width: 100%;
+  height: 100%;
+  background-color: #ececec;
+  z-index: 0; /* تغيير z-index ليكون خلف العناصر تماماً */
+  transform: skewY(-6deg);
+  transform-origin: top left;
+}
+
+/* صعود ونزول صورة الهبوط وترسيم قياساتها */
+.landing-img {
+  width: 450px;
+  max-width: 100%;
+  height: auto;
+  display: block;
+  animation: up-and-down 5s linear infinite;
+}
+
+@keyframes up-and-down {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-30px); /* تقليل النزول قليلاً لعدم التغطية على السهم */
+  }
+}
+
+
+
+/* القفز والتمرير لأسفل عبر السهم */
+.landing .go-down {
+  bottom: 30px;
+  transition: 0.3s;
+}
+
+.landing .go-down:hover {
+  color: #17a2b8 !important;
+}
+
+.landing .go-down i {
+  animation: bouncing 1.5s infinite;
+}
+
+@keyframes bouncing {
+  0%, 10%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40%, 60% {
+    transform: translateY(-15px);
+  }
+}
+
+/* (Articles Hover Arrow)  */
+.articles .box {
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.articles .box:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15) !important;
+}
+
+.articles .box:hover .info i {
+  animation: moving-arrow 0.6s linear infinite;
+}
+
+@keyframes moving-arrow {
+  100% {
+    transform: translateX(10px);
+  }
+}
+
+/*4. تأثير كروت المميزات */
+.features {
+  padding-top: 50px;
+  padding-bottom: 50px;
+  position: relative;
+  background-color: white;
+}
+
+/* شبكة الكروت (3 أعمدة متناسقة) */
+.features .features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 40px;
+}
+
+.features .box {
+  text-align: center;
+  border: 1px solid #ccc;
+  background-color: white;
+}
+
+.features .box .img-holder {
+  position: relative;
+  overflow: hidden;
+}
+
+/* الطبقة الشفافة الملونة فوق الصورة */
+.features .box .img-holder::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -1px;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+/* القص المائل الأبيض */
+.features .box .img-holder::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  border-style: solid;
+  border-width: 0px 0px 170px 500px;
+  border-color: transparent transparent white transparent;
+  transition: 0.3s;
+  z-index: 2;
+}
+
+.features .box:hover .img-holder::after {
+  border-width: 170px 500px 170px 0;
+}
+
+.features .box .img-holder img {
+  width: 100%;
+  max-width: 100%;
+  height: 300px;
+  object-fit: cover;
+  display: block;
+}
+
+.features .box h2 {
+  position: relative;
+  font-size: 35px;
+  margin: 20px auto;
+  width: fit-content;
+  font-weight: bold;
+}
+
+.features .box h2::after {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: 15px;
+  height: 5px;
+  width: calc(100% - 30px);
+}
+
+.features .box p {
+  line-height: 1.8;
+  font-size: 16px;
+  margin: 20px 0;
+  padding: 15px 25px;
+  color: #777;
+}
+
+.features .box .more-btn {
+  display: block;
+  border: 3px solid transparent;
+  width: fit-content;
+  margin: 0 auto 30px;
+  font-weight: bold;
+  font-size: 20px;
+  padding: 10px 30px;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: 0.3s;
+  background-size: 200% 100%;
+  background-position: right bottom;
+}
+
+ /* Quality Theme (الأزرق الكحلي والأزرق المشرق) */
+.features .quality .img-holder::before {
+  /* طبقة شفافة زرقاء كحلية متناسقة مع الخلفية */
+  background-color: rgb(13 71 161 / 60%);
+}
+
+.features .quality h2::after,
+.features .quality h3::after {
+  /* أزرق مشرق مستخرج من علامة الصح */
+  background-color: #0066ff;
+}
+
+.features .quality .more-btn {
+  color: #0066ff;
+  border-color: #0066ff;
+  background-image: linear-gradient(to right, #0066ff 50%, white 50%);
+}
+
+.features .quality:hover .more-btn {
+  background-position: left bottom !important;
+  color: white !important;
+}
+
+/* Time Theme (الأزرق السماوي والأزرق المتوسط) */
+.features .time .img-holder::before {
+  /* طبقة شفافة أزرق سماوي ناعمة تطابق خلفية الرسمة */
+  background-color: rgb(86 182 229 / 50%);
+}
+
+.features .time h2::after,
+.features .time h3::after {
+  /* أزرق متوسط مستخرج من إطار الساعة وجاكيت الشاب */
+  background-color: #3b82f6;
+}
+
+.features .time .more-btn {
+  color: #3b82f6;
+  border-color: #3b82f6;
+  background-image: linear-gradient(to right, #3b82f6 50%, white 50%);
+}
+
+.features .time:hover .more-btn {
+  background-position: left bottom !important;
+  color: white !important;
+}
+
+/* Passion Theme */
+.features .passion .img-holder::before {
+  background-color: rgb(3 169 244 / 60%);
+}
+.features .passion h2::after {
+  background-color: #03a9f4;
+}
+.features .passion .more-btn {
+  color: #03a9f4;
+  border-color: #03a9f4;
+  background-image: linear-gradient(to right, #03a9f4 50%, white 50%);
+}
+
+.features .box:hover .more-btn {
+  background-position: left bottom !important;
+  color: white !important;
+}
+
+/*  Start Articles (Grid & Animations) */
+.articles {
+  padding-top: 80px;
+  padding-bottom: 80px;
+  position: relative;
+  background-color: white;
+}
+
+.articles .container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 40px;
+}
+
+.articles .box {
+  box-shadow: 0 2px 15px rgb(0 0 0 / 10%);
+  background-color: white;
+  border-radius: 6px;
+  overflow: hidden;
+  transition: transform var(--main-transition, 0.3s), box-shadow var(--main-transition, 0.3s);
+}
+
+.articles .box:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 2px 15px rgb(0 0 0 / 20%);
+}
+
+.articles .box img {
+  width: 100%;
+  height: 200px; 
+  object-fit: cover; 
+}
+
+.articles .box .content {
+  padding: 20px;
+}
+
+.articles .box .content h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.articles .box .content p {
+  margin: 10px 0 0;
+  line-height: 1.5;
+  color: #777;
+  font-size: 15px;
+}
+
+.articles .box .info {
+  padding: 20px;
+  border-top: 1px solid #e6e6e7;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.articles .box .info a {
+  color: var(--main-color, #2196f3);
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.articles .box .info i {
+  color: var(--main-color, #2196f3);
+}
+
+.articles .box:hover .info i {
+  animation: moving-arrow 0.6s linear infinite;
+}
+
+/* حركة السهم عند التمرير */
+@keyframes moving-arrow {
+  100% {
+    transform: translateX(10px);
+  }
+}
+/* End Articles */
+
+/* Start Team Section*/
+.team {
+  padding-top: 80px;
+  padding-bottom: 80px;
+  position: relative;
+}
+
+.team .container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 30px;
+}
+
+.team .box {
+  position: relative;
+}
+
+.team .box::before,
+.team .box::after {
+  content: "";
+  background-color: #f3f3f3;
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  border-radius: 10px;
+  transition: 0.3s;
+}
+
+.team .box::before {
+  width: calc(100% - 60px);
+  z-index: -2;
+}
+
+.team .box::after {
+  z-index: -1;
+  background-color: #e4e4e4;
+  width: 0;
+}
+
+.team .box:hover::after {
+  width: calc(100% - 60px);
+}
+
+.team .box .data {
+  display: flex;
+  align-items: center;
+  padding-top: 60px;
+}
+
+.team .box .data img {
+  width: calc(100% - 60px);
+  height: 300px;
+  object-fit: cover;
+  transition: 0.3s;
+  border-radius: 10px;
+}
+
+.team .box:hover img {
+  filter: grayscale(100%);
+}
+
+.team .box .data .social {
+  width: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.team .box .data .social a {
+  width: 60px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.team .box .data .social a:hover i {
+  color: #2196f3;
+}
+
+.team .box .data .social i {
+  color: #777;
+  transition: 0.3s;
+}
+
+.team .box .info {
+  padding-left: 80px;
+}
+
+.team .box .info h3 {
+  margin-bottom: 0;
+  color: #2196f3;
+  font-size: 22px;
+  transition: 0.3s;
+}
+
+.team .box .info p {
+  margin-top: 10px;
+  margin-bottom: 25px;
+  color: #777;
+}
+
+.team .box:hover .info h3 {
+  color: #777;
+}
+/*End Team Section*/
+/* 1. ضبط اللون الافتراضي لجميع أيقونات التواصل */
+.team .box .data .social a svg {
+  color: #777 !important;
+  transition: color 0.3s ease;
+}
+
+/* 2. ألوان الهوفر المخصصة لكل شبكة */
+.team .box .data .social a:nth-child(1):hover svg { color: #1877f2 !important; } /* Facebook */
+.team .box .data .social a:nth-child(2):hover svg { color: #1da1f2 !important; } /* Twitter */
+.team .box .data .social a:nth-child(3):hover svg { color: #0a66c2 !important; } /* LinkedIn */
+.team .box .data .social a:nth-child(4):hover svg { color: #ff0000 !important; } /* YouTube */
+
+/* Variable Definitions */
+:root {
+  --main-padding-top: 100px;
+  --main-padding-bottom: 100px;
+  --section-background: #ececec;
+}
+
+/* Start Testimonials */
+.testimonials {
+  padding-top: var(--main-padding-top);
+  padding-bottom: var(--main-padding-bottom);
+  position: relative;
+  background-color: var(--section-background);
+}
+
+.testimonials .container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 40px;
+  margin-top: 50px;
+}
+
+.testimonials .box {
+  padding: 20px;
+  background-color: white;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 7%);
+  border-radius: 6px;
+  position: relative;
+}
+
+ .testimonials .box img {
+  position: absolute;
+  top: -50px;
+  inset-inline-end: -10px; /* تضبط الموضعة تلقائياً: يمين بالإنجليزي ويسار بالعربي */
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 10px solid var(--section-background, #ecefef) /* أو لون خلفية القسم */;
+}
+
+.testimonials .box h3 {
+  margin: 0 0 10px;
+  font-size: 19px;
+}
+
+.testimonials .box .title {
+  color: #777;
+  margin-bottom: 10px;
+  display: block;
+  font-size: 15px;
+}
+
+.testimonials .box .rate {
+  margin-bottom: 10px;
+}
+
+.testimonials .box .rate .filled {
+  color: #ffc107;
+}
+
+.testimonials .box .rate svg {
+  margin-right: 2px;
+}
+
+.testimonials .box p {
+  line-height: 1.5;
+  color: #777;
+  margin-top: 10px;
+  margin-bottom: 0;
+  font-size: 14px;
+}
+/* End Testimonials */
+
+ /* Start Discount */
+.discount {
+  min-height: 100vh;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.discount .image {
+  /* background-image: url("./Pages/Website/images/shahed.jpg"); */
+  background-size: cover;
+  color: white;
+  flex-basis: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+  animation: change-background 10s linear infinite;
+}
+
+.discount .image::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgb(23 135 224 / 97%);
+  z-index: -1;
+}
+
+@media (max-width: 991px) {
+  .discount .image {
+    flex-basis: 100%;
+  }
+}
+
+.discount .form {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-basis: 50%;
+  padding-bottom: 50px;
+}
+
+@media (max-width: 991px) {
+  .discount .form {
+    flex-basis: 100%;
+  }
+}
+
+.discount .form .input {
+  display: block;
+  width: 100%;
+  margin-bottom: 25px;
+  padding: 15px;
+  border: none;
+  border-bottom: 1px solid #ccc;
+  background-color: #f9f9f9;
+  caret-color: var(--main-color, #2196f3);
+}
+
+.discount .form textarea.input {
+  resize: none;
+  height: 200px;
+}
+
+.discount .form .input:focus {
+  outline: none;
+}
+
+.discount .form [type="submit"] {
+  display: block;
+  width: 100%;
+  padding: 15px;
+  background-color: var(--main-color, #2196f3);
+  color: white;
+  font-weight: bold;
+  font-size: 20px;
+  border: none;
+  cursor: pointer;
+  transition: var(--main-transition, 0.3s);
+}
+
+.discount .form [type="submit"]:hover {
+  background-color: var(--main-color-alt, #1287e3);
+}
+
+.discount .content {
+  text-align: center;
+  padding: 0 20px;
+}
+
+.discount .form .content {
+  width: 100%;
+  max-width: 500px;
+}
+
+.discount .content h2 {
+  font-size: 40px;
+  letter-spacing: -2px;
+  margin-bottom: 30px;
+}
+
+.discount .content p {
+  line-height: 1.6;
+  font-size: 18px;
+  max-width: 500px;
+  margin: 0 auto 30px;
+}
+
+.discount .content img {
+  width: 300px;
+  max-width: 100%;
+}
+/* End Discount */
+:root {
+  --main-color: #2196f3;
+  --main-color-alt: #1787e0;
+  --main-transition: 0.3s;
+}
+
+
+
+.contact-section {
+  padding: 60px 20px;
+  background-color: #f8f9fa;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.contact-container {
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  display: flex;
+    flex-direction: row-reverse; 
+
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto; /* هذا السطر يضمن توسط البطاقة تماماً */
+  padding: 40px;
+  gap: 40px;
+  align-items: center;
+}
+/* الطرف الأيسر (المعلومات والصورة) */
+.contact-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.contact-info h2 {
+  color: #1e293b;
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.contact-info p {
+  color: #64748b;
+  font-size: 15px;
+  line-height: 1.6;
+  max-width: 420px;
+  margin-bottom: 24px;
+}
+
+.contact-info .image-wrapper {
+  width: 100%;
+  max-width: 320px;
+}
+
+.contact-info img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+/* الطرف الأيمن (النموذج) */
+.contact-form {
+  flex: 1;
+}
+
+.contact-form h2 {
+  color: #1e293b;
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+.contact-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.contact-form input,
+.contact-form textarea {
+  width: 100%;
+  padding: 14px 18px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background-color: #f8fafc;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+  border-color: #2563eb;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.contact-form button {
+  padding: 14px;
+  border-radius: 10px;
+  border: none;
+  background-color: #2563eb;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.contact-form button:hover {
+  background-color: #1d4ed8;
+}
+
+/* تجاوب مع الشاشات الصغيرة */
+@media (max-width: 768px) {
+  .contact-container {
+    flex-direction: column;
+    padding: 24px;
+  }
+}
+/* Start Footer */
+.main-footer {
+  background-color: #191919;
+  padding-top: 60px;
+  color: #b9b9b9;
+  width: 100%;
+}
+
+.main-footer .footer-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* تجبير الشبكة على 4 أعمدة متساوية */
+  gap: 30px;
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+  align-items: start;
+}
+
+/* العمود الأول */
+.main-footer .footer-logo {
+  color: #ffffff;
+  font-size: 32px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.main-footer .social-icons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.main-footer .social-icons a {
+  background-color: #313131;
+  color: #ffffff; /* لون الأيقونة أبيض واضح */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 45px;
+  height: 45px;
+  font-size: 18px;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.main-footer .social-icons .facebook:hover { background-color: #1877f2; }
+.main-footer .social-icons .twitter:hover { background-color: #1da1f2; }
+.main-footer .social-icons .youtube:hover { background-color: #ff0000; }
+
+.main-footer .footer-desc {
+  line-height: 1.7;
+  font-size: 14px;
+  color: #b9b9b9;
+}
+
+/* العمود الثاني: الروابط */
+.main-footer .footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.main-footer .footer-links li {
+  padding: 12px 0;
+  border-bottom: 1px solid #333;
+}
+
+.main-footer .footer-links li a {
+  color: #b9b9b9;
+  text-decoration: none;
+  transition: 0.3s;
+  display: block;
+}
+
+.main-footer .footer-links li a::before {
+  content: "»";
+  color: #2196f3;
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.main-footer .footer-links li:hover a {
+  color: #ffffff;
+  padding-left: 8px;
+}
+
+/* العمود الثالث: معلومات التواصل */
+.main-footer .info-line {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 15px;
+}
+
+.main-footer .info-icon {
+  color: #2196f3;
+  font-size: 20px;
+  min-width: 25px;
+}
+
+.main-footer .info-line span {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.main-footer .info-line .phones span {
+  display: block;
+}
+
+/* العمود الرابع: صور التيم 3x2 */
+.main-footer .team-gallery {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.main-footer .team-gallery img {
+  width: 100%;
+  height: 65px;
+  object-fit: cover;
+  border: 2px solid #ffffff;
+  border-radius: 4px;
+}
+
+/* حقوق النشر */
+.main-footer .footer-copyright {
+  text-align: center;
+  padding: 20px 0;
+  margin-top: 40px;
+  border-top: 1px solid #333;
+  color: #ffffff;
+  font-size: 14px;
+}
+
+/* التجاوب للشاشات الصغيرة */
+@media (max-width: 992px) {
+  .main-footer .footer-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .main-footer .footer-container {
+    grid-template-columns: 1fr;
+  }
+}
+/* End Footer */
