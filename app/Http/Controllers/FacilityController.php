@@ -535,6 +535,11 @@ class FacilityController extends Controller
                             'product'=>$product]);
                         }
                         $inv->quantity = $remainQuantity;
+                        $inv->save();
+
+                        $newCapacity = (int)$section->capacity + $OI->quantity;
+                        $section->capacity = (string)$newCapacity;
+                        $section->save();
                     }
 
                 }
@@ -614,6 +619,10 @@ class FacilityController extends Controller
                     'section_id' => $section->id,
                     'quantity' => $orderProduct->quantity,
                 ]);
+
+                $newCapacity = (int)$section->capacity - $orderProduct->quantity;
+                $section->capacity = (string)$newCapacity;
+                $section->save();
 
                 Inventory::updateOrCreate(
                     [
