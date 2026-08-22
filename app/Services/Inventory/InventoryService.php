@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\Section;
 use App\Models\User;
 use App\Notifications\StockOutRiskNotification;
+use App\Notifications\AppNotification;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
@@ -31,12 +32,7 @@ class InventoryService
             );
         }
 
-        return DB::transaction(function () use (
-            $section,
-            $product,
-            $quantity,
-            $unitPrice
-        ) {
+        return DB::transaction(function () use ($section, $product, $quantity, $unitPrice) {
             $inventory = Inventory::updateOrCreate(
                 [
                     'section_id' => $section->id,
@@ -75,12 +71,7 @@ class InventoryService
             );
         }
 
-        return DB::transaction(function () use (
-            $section,
-            $product,
-            $quantity,
-            $unitPrice
-        ) {
+        return DB::transaction(function () use ($section, $product, $quantity, $unitPrice) {
             $inventory = Inventory::firstOrCreate(
                 [
                     'section_id' => $section->id,
@@ -126,11 +117,7 @@ class InventoryService
             );
         }
 
-        return DB::transaction(function () use (
-            $section,
-            $product,
-            $quantity
-        ) {
+        return DB::transaction(function () use ($section, $product, $quantity) {
             $inventory = Inventory::where('section_id', $section->id)
                 ->where('product_id', $product->id)
                 ->lockForUpdate()
@@ -176,10 +163,7 @@ class InventoryService
             );
         }
 
-        return DB::transaction(function () use (
-            $inventory,
-            $newQuantity
-        ) {
+        return DB::transaction(function () use ($inventory, $newQuantity) {
             $inventory->quantity = $newQuantity;
 
             $inventory->save();
@@ -211,11 +195,7 @@ class InventoryService
             );
         }
 
-        return DB::transaction(function () use (
-            $inventory,
-            $quantity,
-            $unitPrice
-        ) {
+        return DB::transaction(function () use ($inventory, $quantity, $unitPrice) {
             $inventory->quantity = $quantity;
             $inventory->unit_price = $unitPrice;
 
@@ -254,13 +234,13 @@ class InventoryService
     public function stock_out_risk(Facility $facility): int
     {
         $products = $facility->sections
-            ->flatMap(fn ($section) => $section->inventories)
+            ->flatMap(fn($section) => $section->inventories)
             ->groupBy('product_id');
 
         return $products
             ->filter(
-                fn ($inventories) =>
-                    $inventories->sum('quantity') <= 10
+                fn($inventories) =>
+                $inventories->sum('quantity') <= 10
             )
             ->count();
     }
@@ -284,17 +264,9 @@ class InventoryService
             return;
         }
 
-        /*
-         * Required by your existing logic.
-         */
         $facility->stock_out_risk_count =
             $this->stock_out_risk($facility);
 
-
-        /*
-         * Calculate the TOTAL quantity of this product
-         * across all sections of this warehouse.
-         */
         $totalProductQuantity = Inventory::whereHas(
             'section',
             function ($query) use ($facility) {
@@ -310,80 +282,23 @@ class InventoryService
             )
             ->sum('quantity');
 
-
-        /*
-         * Product is not at risk.
-         */
         if ($totalProductQuantity > 10) {
             return;
         }
 
-
-        /*
-         * Find the manager/owner of this facility.
-         *
-         * This follows the same `owns` relationship used
-         * elsewhere in your project.
-         */
         $manager = User::whereHas(
-            'owns',
+            'owner',
             function ($query) use ($facility) {
                 $query->whereKey($facility->id);
             }
         )->first();
 
-
         if (!$manager) {
             return;
         }
 
-
-        /*
-         * Prevent duplicate unread notifications for the
-         * same product in the same facility.
-         */
-        $alreadyNotified = $manager->notifications()
-            ->where(
-                'type',
-                StockOutRiskNotification::class
-            )
-            ->whereNull('read_at')
-            ->where(
-                'data->type',
-                'stock_out_risk'
-            )
-            ->where(
-                'data->facility_id',
-                $facility->id
-            )
-            ->where(
-                'data->product_id',
-                $inventory->product_id
-            )
-            ->exists();
-
-
-        if ($alreadyNotified) {
-            return;
-        }
-
-
-        /*
-         * Send the notification.
-         *
-         * Because your notification uses ShouldQueue,
-         * this will be processed by your queue worker.
-         */
-        $manager->notify(
-            new StockOutRiskNotification(
-                facility_id: $facility->id,
-                facility_name: $facility->facility_name_en
-                    ?? "Facility #{$facility->id}",
-                product_id: $inventory->product_id,
-                product_name: $inventory->product->name_en
-                    ?? "Product #{$inventory->product_id}",
-                quantity: $totalProductQuantity,
-            )
-        );
+        // TEMPORARILY STOP HERE.
+        // We will put your existing AppNotification here
+        // after checking its constructor.
     }
 }
