@@ -190,70 +190,64 @@ ul {
   z-index: 1000;
 }
 
+/* ضبط ارتفاع الشعار */
 .header .logo {
   height: 72px;
   display: flex;
   align-items: center;
-  justify-content: center;
 }
 
-.header .main-nav {
-  display: flex;
-}
-
-.header .main-nav > li {
-  position: relative;
-}
-
-/* ضبط رابط القائمة وتفعيل تأثير الانزلاق */
-.header .main-nav > li > a.nav-link-custom {
+/* تكييف الـ nav ليشغل الارتفاع الكامل */
+.header .navbar-nav {
   height: 72px;
+}
+
+/* ضبط كلاس الرابط وتفعيل تأثير الانزلاق */
+.header a.nav-link-custom {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   position: relative;
   color: #333;
   font-size: 18px;
   font-weight: 500;
   overflow: hidden;
-  transition: var(--main-transition);
+  transition: var(--main-transition, 0.3s);
 }
 
-/* الشريط الأزرق العلوي المختفي يساراً */
-.header .main-nav > li > a.nav-link-custom::before {
+/* الشريط الأزرق العلوي */
+.header a.nav-link-custom::before {
   content: "";
   position: absolute;
   width: 100%;
   height: 4px;
-  background-color: var(--main-color);
+  background-color: var(--main-color, #2196f3);
   top: 0;
   left: -100%;
-  transition: var(--main-transition);
+  transition: var(--main-transition, 0.3s);
 }
 
 /* حركة الشريط ولون الخلفية عند التمرير */
-.header .main-nav > li > a.nav-link-custom:hover {
-  color: var(--main-color) !important;
+.header a.nav-link-custom:hover {
+  color: var(--main-color, #2196f3) !important;
   background-color: #fafafa;
 }
 
-.header .main-nav > li > a.nav-link-custom:hover::before {
+.header a.nav-link-custom:hover::before {
   left: 0;
 }
 
-/* للتجاوب مع الشاشات الصغيرة (الموبايل) */
-@media (max-width: 767px) {
-  .header .logo {
-    width: 100%;
-    height: 50px;
+/* التجاوب مع الموبايل */
+@media (max-width: 991px) {
+  .header .navbar-nav {
+    height: auto;
   }
-  .header .main-nav {
-    margin: auto;
-  }
-  .header .main-nav > li > a.nav-link-custom {
-    padding: 10px !important;
-    font-size: 14px;
+  .header a.nav-link-custom {
     height: 45px;
+    font-size: 15px;
   }
 }
-
 @keyframes left-move {
   50% {
     left: 0;
