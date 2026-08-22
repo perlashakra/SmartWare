@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\OrderCancelled;
 use App\Events\OrderCreated;
+use App\Events\OrderDecision;
 use App\Models\Order;
 use App\Services\Orders\OrderService;
 use Illuminate\Http\JsonResponse;
@@ -312,6 +314,8 @@ class OrderController extends Controller
                 userId: $request->user()->id
             );
 
+            OrderCancelled::dispatch($order);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Order successfully cancelled.'
@@ -328,6 +332,7 @@ class OrderController extends Controller
     /**
      * Process Warehouse Decisions (Admin Action: Approve/Reject line items).
      */
+    //also add notification
     public function processDecision(Request $request, Order $order): JsonResponse
     {
             $validated = $request->validate([
@@ -357,6 +362,8 @@ class OrderController extends Controller
                 'status' => $validated['status'],
                 'rejection_reason' => $validated['status'] === 'rejected' ? $validated['reason'] : null,
             ]);
+            
+            OrderDecision::dispatch($order, $validated['status']);
 
             return response()->json([
                 'success' => true,

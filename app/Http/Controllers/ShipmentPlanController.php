@@ -228,7 +228,7 @@ class ShipmentPlanController extends Controller
                 'status'=> 'delivered',
             ]);
         });
-
+//notification
         return response()->json([
             'success' => true,
             'message' => 'Delivery confirmed and arrival logged successfully.',

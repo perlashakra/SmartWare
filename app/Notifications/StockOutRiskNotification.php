@@ -36,6 +36,7 @@ class StockOutRiskNotification extends Notification
             'threshold' => 10,
         ];
     }
+    
     public function toBroadcast(object $notifiable): BroadcastMessage
     {
         return new BroadcastMessage([

@@ -632,6 +632,7 @@ class FacilityController extends Controller
             ]);
         });
 
+        
         return response()->json([
             'message' => 'Shipment arrival recorded successfully.',
             'data' => [

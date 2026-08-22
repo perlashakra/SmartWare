@@ -21,7 +21,7 @@ class SendOrderCreatedNotification
     {
         $order = $event->order;
 
-        $user = $order->user;
+        $user = $order->src_facility_id?->user;
         
         if(!$user){
             return;
