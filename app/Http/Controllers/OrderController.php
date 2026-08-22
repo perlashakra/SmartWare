@@ -27,7 +27,7 @@ class OrderController extends Controller
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
-        $ownedFacilityIds = $user->owns()->pluck('id')->toArray();
+        $ownedFacilityIds = $user->warehouses()->pluck('id')->toArray();
 
         $orders = Order::with(['products.product', 'warehouseOfTheOrder'])
             ->where(function ($query) use ($user, $ownedFacilityIds) {
@@ -50,7 +50,7 @@ class OrderController extends Controller
     public function listApprovedOrders(Request $request): JsonResponse
     {
         $user = $request->user();
-        $ownedFacilityIds = $user->owns()->pluck('id')->toArray();
+        $ownedFacilityIds = $user->warehouses()->pluck('id')->toArray();
 
         $orders = Order::with(['products.product', 'warehouseOfTheOrder'])
             ->where('status', 'approved')
@@ -74,10 +74,82 @@ class OrderController extends Controller
     public function listPendingOrders(Request $request): JsonResponse
     {
         $user = $request->user();
-        $ownedFacilityIds = $user->owns()->pluck('id')->toArray();
+        $ownedFacilityIds = $user->warehouses()->pluck('id')->toArray();
 
         $orders = Order::with(['products.product', 'warehouseOfTheOrder'])
             ->where('status', 'pending')
+            ->where(function ($query) use ($user, $ownedFacilityIds) {
+                $query->where('user_id', $user->id);
+
+                if (!empty($ownedFacilityIds)) {
+                    $query->orWhereIn('src_facility_id', $ownedFacilityIds)
+                        ->orWhereIn('dest_facility_id', $ownedFacilityIds);
+                }
+            })
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data'    => $orders
+        ]);
+    }
+
+    public function listCancelledOrders(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $ownedFacilityIds = $user->warehouses()->pluck('id')->toArray();
+
+        $orders = Order::with(['products.product', 'warehouseOfTheOrder'])
+            ->where('status', 'cancelled')
+            ->where(function ($query) use ($user, $ownedFacilityIds) {
+                $query->where('user_id', $user->id);
+
+                if (!empty($ownedFacilityIds)) {
+                    $query->orWhereIn('src_facility_id', $ownedFacilityIds)
+                        ->orWhereIn('dest_facility_id', $ownedFacilityIds);
+                }
+            })
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data'    => $orders
+        ]);
+    }
+
+    public function listRejectedOrders(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $ownedFacilityIds = $user->warehouses()->pluck('id')->toArray();
+
+        $orders = Order::with(['products.product', 'warehouseOfTheOrder'])
+            ->where('status', 'rejected')
+            ->where(function ($query) use ($user, $ownedFacilityIds) {
+                $query->where('user_id', $user->id);
+
+                if (!empty($ownedFacilityIds)) {
+                    $query->orWhereIn('src_facility_id', $ownedFacilityIds)
+                        ->orWhereIn('dest_facility_id', $ownedFacilityIds);
+                }
+            })
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data'    => $orders
+        ]);
+    }
+
+    public function listDeliveredOrders(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $ownedFacilityIds = $user->warehouses()->pluck('id')->toArray();
+
+        $orders = Order::with(['products.product', 'warehouseOfTheOrder'])
+            ->where('status', 'delivered')
             ->where(function ($query) use ($user, $ownedFacilityIds) {
                 $query->where('user_id', $user->id);
 
