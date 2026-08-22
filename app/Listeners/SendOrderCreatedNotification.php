@@ -6,27 +6,20 @@ use App\Events\OrderCreated;
 use App\Notifications\AppNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Support\Facades\Log;
+use PushNotification;
+use Throwable;
 
 class SendOrderCreatedNotification
 {
-    /**
-     * Create the event listener.
-     */
     public function __construct()
     {
         //
     }
 
-    /**
-     * Handle the event.
-     */
     public function handle(OrderCreated $event): void
     {
         $order = $event->order;
-
-        // TODO:
-        // We will determine exactly which user(s)
-        // should receive the notification based on your WMS rules.
 
         $user = $order->user;
         
@@ -34,6 +27,24 @@ class SendOrderCreatedNotification
             return;
         }
 
-        $user->notify(new AppNotification('New Order', 'Order #'.$order->id.' has been created', 'order_created', ['order_id' => $order->id]));
+        $title = 'New Order';
+        $message ='Order #' . $order->id . ' has been created.';
+
+        $data = ['order_id' => $order->id];
+
+        //database + reverb
+        $user->notify(new AppNotification($title, $message, 'order_created', $data));
+
+        if($user->notificationTokens()->exists()){
+            try{
+                $user->notify(new PushNotification($title, $message, 'order_created', $data));
+            } catch (Throwable $e){
+                Log::error('FCM order-created notification failed', [
+                    'user_id' => $user->id,
+                    'order_id' => $order->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
     }
 }
