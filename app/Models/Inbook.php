@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-use App\Models\InBookProduct;
+use App\Models\InbookProduct;
 use App\Models\Section;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
-class InBook extends Model
+class Inbook extends Model
 {
     //
     protected $table = 'inbooks';
@@ -28,6 +28,6 @@ class InBook extends Model
 
     public function products()
     {
-        return $this->hasMany(InBookProduct::class, 'inbook_id');
+        return $this->hasMany(InbookProduct::class, 'inbook_id');
     }
 }

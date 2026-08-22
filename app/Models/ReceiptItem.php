@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Models\InBookProduct;
+use App\Models\InbookProduct;
 use App\Models\OrderItem;
 use App\Models\Receipt;
 use Illuminate\Database\Eloquent\Model;
@@ -19,6 +19,6 @@ class ReceiptItem extends Model
     }
 
     public function inBook(){
-        return $this->hasMany(InBookProduct::class);
+        return $this->hasMany(InbookProduct::class);
     }
 }

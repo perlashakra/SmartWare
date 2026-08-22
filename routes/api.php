@@ -96,17 +96,15 @@ Route::middleware(['auth:sanctum', 'locale'])->group(function () {
         Route::get('/rejected', [OrderController::class, 'listRejectedOrders']);
         Route::get('/delivered', [OrderController::class, 'listDeliveredOrders']);
         Route::get('/preparing', [OrderController::class, 'listPreparingOrders']);
-        Route::post('/', [OrderController::class, 'store'])->middleware('role:client');            // POST /api/orders
+        Route::post('/', [OrderController::class, 'store'])->middleware('role:client');
         Route::post('/transfer', [OrderController::class, 'storeTransfer'])->middleware('role:warehouse_admin');
-        Route::get('/{order}', [OrderController::class, 'show']);       // GET /api/orders/{id}
-        Route::post('/{order}/cancel', [OrderController::class, 'cancel']); // POST /api/orders/{id}/cancel
+        Route::get('/{order}', [OrderController::class, 'show']);
+        Route::post('/{order}/cancel', [OrderController::class, 'cancel']);
         Route::post('/{order}/decisions', [OrderController::class, 'processDecision'])->middleware('role:warehouse_admin'); // POST /api/orders/{id}/decisions
 
-        // Worker Endpoint
-        Route::post('/warehouses/{facility_id}/shipments/{shipment_id}/process-stop', [WarehouseOperationsController::class, 'processStop']);
-
-        // Client Endpoint
-        Route::post('/orders/{order_id}/confirm-delivery', [ClientOrderController::class, 'confirmDelivery']);
+        Route::post('/{order}/depart', [ShipmentPlanController::class, 'markDeparted']);
+        Route::post('{order}/arrive', [ShipmentPlanController::class, 'markArrived']);
+        Route::post('/{order}/confirm-delivery', [ShipmentPlanController::class, 'confirmClientDelivery'])->middleware('role:client');
     });
 
     //Warehouse manager functions:
