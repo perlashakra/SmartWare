@@ -92,6 +92,10 @@ Route::middleware(['auth:sanctum', 'locale'])->group(function () {
         Route::get('/', [OrderController::class, 'index']);
         Route::get('/pending', [OrderController::class, 'listPendingOrders']);
         Route::get('/approved', [OrderController::class, 'listApprovedOrders']);
+        Route::get('/cancelled', [OrderController::class, 'listCancelledOrders']);
+        Route::get('/rejected', [OrderController::class, 'listRejectedOrders']);
+        Route::get('/delivered', [OrderController::class, 'listDeliveredOrders']);
+        Route::get('/preparing', [OrderController::class, 'listPreparingOrders']);
         Route::post('/', [OrderController::class, 'store'])->middleware('role:client');            // POST /api/orders
         Route::post('/transfer', [OrderController::class, 'storeTransfer'])->middleware('role:warehouse_admin');
         Route::get('/{order}', [OrderController::class, 'show']);       // GET /api/orders/{id}
