@@ -45,7 +45,7 @@ class AdminController extends Controller
         ]);
 
         return response()->json([
-            'message' => 'Admin created successfully.',
+            'message' => __('admin.admin_created_successfully'),
             'admin' => $admin
         ], 201);
     }
@@ -97,7 +97,7 @@ class AdminController extends Controller
         $document = Document::findOrFail($documentId);
 
         if (!Storage::disk('local')->exists($document->document_file)) {
-            return response()->json(['message' => 'File not found.'], 404);
+            return response()->json(['message' => __('admin.file_not_found')], 404);
         }
 
         return Storage::disk('local')->response($document->document_file);
@@ -197,7 +197,7 @@ class AdminController extends Controller
         });
 
         return response()->json([
-            'message' => $validated['action'] === 'approve' ? 'User registration approved successfully.' : 'User registration rejected.',
+            'message' => $validated['action'] === 'approve' ? __('admin.user_registration_approved_successfully') : __('admin.user_registration_rejected'),
             'account_status' => $user->fresh()->account_status,
         ]);
     }
@@ -253,7 +253,7 @@ class AdminController extends Controller
 
         if ($facility->facility_status !== 'pending') {
             return response()->json([
-                'message' => 'This facility has already been reviewed.',
+                'message' => __('admin.facility_already_reviewed'),
                 'facility_status' => $facility->facility_status,
             ], 422);
         }
@@ -331,8 +331,8 @@ class AdminController extends Controller
 
         return response()->json([
             'message' => $validated['action'] === 'approve'
-                ? 'Facility approved successfully.'
-                : 'Facility rejected successfully.',
+                ? __('admin.facility_approved_successfully')
+                : __('admin.facility_rejected'),
 
             'facility' => $facility->fresh()->load([
                 'owner',

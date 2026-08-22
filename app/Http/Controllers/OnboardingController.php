@@ -56,7 +56,7 @@ class OnboardingController extends Controller
         ]);
 
         return response()->json([
-            'message'  => 'Business name updated successfully.',
+            'message'  => __('onboarding.business_name_updated_successfully'),
             'facility' => $facility,
         ], 200);
     }
@@ -123,7 +123,7 @@ class OnboardingController extends Controller
 
             if ($hasMedical && $hasNonMedical) {
                 $isValid = false;
-                $errorMessage = 'Legal compliance error: Under Syrian law, warehouses storing medical supplies/medicines are strictly prohibited from co-storing commercial or non-medical goods.';
+                $errorMessage = __('onboarding.legal_compliance_error_message');
             }
         }
 
@@ -143,7 +143,7 @@ class OnboardingController extends Controller
 
             if (count($illegalChoices) > 0) {
                 $isValid = false;
-                $errorMessage = 'Security Error: One or more selected categories are invalid for your chosen business category.';
+                $errorMessage = __('onboarding.security_error_message');
             }
         }
 
@@ -191,7 +191,7 @@ class OnboardingController extends Controller
         });
 
         return response()->json([
-            'message' => 'Preferences saved successfully.',
+            'message' => __('onboarding.preferences_saved_successfully'),
             'facility' => $facility->load('categories'),
             'facility_name' => $facilityName,
             'facility_id' => $facility->id,
@@ -292,7 +292,7 @@ class OnboardingController extends Controller
         });
 
         return response()->json([
-            'message' => 'Onboarding documents uploaded and submitted successfully.',
+            'message' => __('onboarding.onboarding_documents_uploaded'),
             'documents' => $createdDocuments,
         ], 201);
     }
@@ -318,7 +318,7 @@ class OnboardingController extends Controller
         ]);
 
         return response()->json([
-            'message' => 'Identity document uploaded successfully.',
+            'message' => __('onboarding.identity_document_uploaded'),
             'document' => $document,
         ], 201);
     }
@@ -350,7 +350,7 @@ class OnboardingController extends Controller
         ]);
 
         return response()->json([
-            'message' => 'Facility legal document uploaded successfully.',
+            'message' => __('onboarding.facility_document_uploaded'),
             'document' => $document,
         ], 201);
     }
