@@ -111,7 +111,7 @@ class ShipmentPlanController extends Controller
         $order = Order::with('products')->findOrFail($orderId);
 
         if ($order->departed_at) {
-            return response()->json(['message' => 'Order has already departed.'], 400);
+            return response()->json(['message' => __('shipments.order_already_departed')], 400);
         }
 
         DB::transaction(function () use ($order) {
@@ -136,7 +136,7 @@ class ShipmentPlanController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Order departed and source inventory updated.',
+            'message' => __('shipments.order_departed'),
         ]);
     }
 
@@ -149,7 +149,7 @@ class ShipmentPlanController extends Controller
         $order = Order::with('products')->findOrFail($orderId);
 
         if ($order->arrived_at) {
-            return response()->json(['message' => 'Order has already arrived.'], 400);
+            return response()->json(['message' => __('shipments.order_arrived')], 400);
         }
 
         DB::transaction(function () use ($order) {
@@ -194,7 +194,7 @@ class ShipmentPlanController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Restock received, section inventory updated, and Inbook logged.',
+            'message' => __('shipments.restock_received'),
         ]);
     }
     /**
@@ -212,7 +212,7 @@ class ShipmentPlanController extends Controller
         $order = Order::with('products')->findOrFail($orderId);
 
         if ($order->delivery_confirmed_at) {
-            return response()->json(['message' => 'Delivery already confirmed.'], 400);
+            return response()->json(['message' => __('shipments.delivery_already_confirmed')], 400);
         }
 
         DB::transaction(function () use ($order, $validated) {
