@@ -21,7 +21,7 @@ class Section extends Model
     }
 
     public function inBooks(){
-        return $this->hasMany(InBook::class);
+        return $this->hasMany(Inbook::class);
     }
 
     public function parent(){
