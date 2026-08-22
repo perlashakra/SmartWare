@@ -19,7 +19,7 @@ export default function Dashboard() {
     };
 
     return (
-        <div className="position-relative dashboard">
+        <div dir="ltr" className="position-relative dashboard">
             <TopBar />
             <div style={{ marginTop: "60px" }} className="d-flex">
                 <SideBar />

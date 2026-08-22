@@ -19,4 +19,15 @@ i18n
     },
   });
 
+// 🌟 التعديل هنا: التحكم بالاتجاه حسب رابط الصفحة عند تغيير اللغة
+i18n.on("languageChanged", (lng) => {
+  const isDashboard = window.location.pathname.includes("/dashboard");
+
+  if (isDashboard) {
+    document.documentElement.dir = "ltr";
+  } else {
+    document.documentElement.dir = lng === "ar" ? "rtl" : "ltr";
+  }
+});
+
 export default i18n;
