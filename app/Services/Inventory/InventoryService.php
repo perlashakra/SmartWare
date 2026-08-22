@@ -250,55 +250,132 @@ class InventoryService
      * Check whether the changed product is at stock-out risk
      * and notify the facility manager if necessary.
      */
-    private function checkAndNotifyStockRisk(
-        Inventory $inventory
-    ): void {
-        $inventory->loadMissing([
-            'product',
-            'section.warehouse',
-        ]);
+    private function checkAndNotifyStockRisk(Inventory $inventory): void
+{
+    $inventory->loadMissing([
+        'product',
+        'section.warehouse',
+    ]);
 
-        $facility = $inventory->section?->warehouse;
+    $facility = $inventory->section?->warehouse;
 
-        if (!$facility) {
-            return;
-        }
-
-        $facility->stock_out_risk_count =
-            $this->stock_out_risk($facility);
-
-        $totalProductQuantity = Inventory::whereHas(
-            'section',
-            function ($query) use ($facility) {
-                $query->where(
-                    'warehouse_id',
-                    $facility->id
-                );
-            }
-        )
-            ->where(
-                'product_id',
-                $inventory->product_id
-            )
-            ->sum('quantity');
-
-        if ($totalProductQuantity > 10) {
-            return;
-        }
-
-        $manager = User::whereHas(
-            'owner',
-            function ($query) use ($facility) {
-                $query->whereKey($facility->id);
-            }
-        )->first();
-
-        if (!$manager) {
-            return;
-        }
-
-        // TEMPORARILY STOP HERE.
-        // We will put your existing AppNotification here
-        // after checking its constructor.
+    if (!$facility) {
+        return;
     }
+
+    /*
+     * Calculate the number of products currently at
+     * stock-out risk in this facility.
+     */
+    $facility->stock_out_risk_count =
+        $this->stock_out_risk($facility);
+
+
+    /*
+     * Calculate the total quantity of THIS product
+     * across all sections of this facility.
+     */
+    $totalProductQuantity = Inventory::whereHas(
+        'section',
+        function ($query) use ($facility) {
+            $query->where(
+                'warehouse_id',
+                $facility->id
+            );
+        }
+    )
+        ->where(
+            'product_id',
+            $inventory->product_id
+        )
+        ->sum('quantity');
+
+
+    /*
+     * Product is not at stock-out risk.
+     */
+    if ($totalProductQuantity > 10) {
+        return;
+    }
+
+
+    /*
+     * The facility owner/manager is stored in
+     * facilities.user_id.
+     */
+    $manager = User::find($facility->user_id);
+
+    if (!$manager) {
+        return;
+    }
+
+
+    /*
+     * Prevent duplicate unread stock-risk notifications
+     * for the same product and facility.
+     */
+    $alreadyNotified = $manager->notifications()
+        ->where(
+            'type',
+            AppNotification::class
+        )
+        ->whereNull('read_at')
+        ->where(
+            'data->type',
+            'stock_out_risk'
+        )
+        ->where(
+            'data->data->facility_id',
+            $facility->id
+        )
+        ->where(
+            'data->data->product_id',
+            $inventory->product_id
+        )
+        ->exists();
+
+
+    if ($alreadyNotified) {
+        return;
+    }
+
+
+    /*
+     * Queue the notification.
+     *
+     * AppNotification implements ShouldQueue,
+     * so Laravel will process this through the queue.
+     */
+    $manager->notify(
+        new AppNotification(
+            title: 'Stock Out Risk',
+
+            message:
+                "{$inventory->product->name_en} is at risk of stock-out in "
+                . "{$facility->facility_name_en}. "
+                . "Current quantity: {$totalProductQuantity}.",
+
+            type: 'stock_out_risk',
+
+            data: [
+                'facility_id' => $facility->id,
+
+                'facility_name' =>
+                    $facility->facility_name_en,
+
+                'product_id' =>
+                    $inventory->product_id,
+
+                'product_name' =>
+                    $inventory->product->name_en,
+
+                'quantity' =>
+                    $totalProductQuantity,
+
+                'stock_out_risk_count' =>
+                    $facility->stock_out_risk_count,
+            ],
+        )
+    );
+}
 }
